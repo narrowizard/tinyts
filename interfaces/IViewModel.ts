@@ -1,0 +1,4 @@
+interface IViewModel
+{
+	RegisterEvents();
+}

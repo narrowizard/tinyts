@@ -1,0 +1,3 @@
+class ListControl extends BaseControl{
+	
+}
