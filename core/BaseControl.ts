@@ -16,8 +16,11 @@ class BaseControl implements IControl {
 	LoadView() {
 		this.target = $("#" + this.id);
 	}
-
-	RegisterEvent(eventName: string, handler: (...args: any[]) => any) {
+	
+	// On 注册控件事件
+	// @param eventName:事件名称
+	// @param handler: 事件处理函数
+	On(eventName: string, handler: (...args: any[]) => any) {
 		if (this.target != null) {
 			this.target.on(eventName, handler);
 		}
@@ -44,7 +47,7 @@ class BaseControl implements IControl {
 	}
 
 	RefreshView() {
-		this.target.html(this.ToHtml());
+		this.target.replaceWith(this.ToHtml());
 	}
 
 }

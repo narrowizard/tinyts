@@ -1,14 +1,12 @@
-class TextBox implements IView {
-	id: string;
-	target: JQuery;
+class TextBox extends BaseControl {
 	validationArea: JQuery;
 
 	constructor(id: string) {
-		this.id = id;
+		super(id);
 	}
 
 	LoadView() {
-		this.target = $("#" + this.id);
+		super.LoadView();
 		this.validationArea = this.target.parent().children(".validation");
 	}
 

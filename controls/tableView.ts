@@ -1,29 +1,33 @@
-﻿class Table extends ListControl {
+﻿class Table<T> extends ListControl<T> {
     columns: {};
     length: number;
+    // beforeAppend 在这里处理row的自定义
     beforeAppend: (index: number, data: IModel) => string;
-
+    
     constructor(id: string) {
         super(id);
     }
 
-    Append(obj: IModel) {
+    Clear() {
+        this.target.find("tbody").html("");
+    }
+
+    GetView(index: number): string {
+        if (index < 0 || index > this.mData.length) {
+            return "";
+        }
         var html: string = "";
         html += "<tr>";
         for (var i = 0; i < this.length; i++) {
-            var value = obj[this.columns[i]];
+            var value = this.mData[index][this.columns[i]];
             if (value) {
                 html += "<td>" + value + "</td>";
             } else {
-                html += "<td>" + this.beforeAppend(i, obj) + "</td>";
+                html += "<td>" + this.beforeAppend(i, this.mData[index]) + "</td>";
             }
         }
         html += "</tr>";
-        this.target.find("tbody").append(html);
-    }
-
-    Clear() {
-        this.target.find("tbody").html("");
+        return html;
     }
 
     LoadView() {
@@ -39,6 +43,16 @@
                 me.columns[index] = c
             }
         });
+    }
+
+    RefreshView() {
+        var tbody = this.target.find("tbody");
+        for (var i = 0; i < this.mData.length; i++) {
+            tbody.append(this.GetView(i));
+        }
+        if(this.registerEvents != null){
+            this.registerEvents();
+        }
     }
 
 }
