@@ -5,6 +5,10 @@ class BaseControl implements IControl {
 	protected elementName: string;
 	protected textValue: string;
 
+	ViewId(): string {
+		return this.id;
+	}
+
 	constructor(id: string) {
 		this.id = id;
 	}
@@ -37,6 +41,10 @@ class BaseControl implements IControl {
 		html += this.textValue;
 		html += "</" + this.elementName + ">";
 		return html;
+	}
+
+	RefreshView() {
+		this.target.html(this.ToHtml());
 	}
 
 }

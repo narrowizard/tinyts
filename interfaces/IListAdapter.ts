@@ -1,0 +1,3 @@
+interface IListAdapter extends IAdapter {
+	
+}

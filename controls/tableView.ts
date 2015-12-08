@@ -1,12 +1,10 @@
-﻿class Table implements IView {
-    id: string;
-    target: JQuery;
+﻿class Table extends ListControl {
     columns: {};
     length: number;
     beforeAppend: (index: number, data: IModel) => string;
 
     constructor(id: string) {
-        this.id = id;
+        super(id);
     }
 
     Append(obj: IModel) {
@@ -29,7 +27,7 @@
     }
 
     LoadView() {
-        this.target = $("#" + this.id);
+        super.LoadView();
         this.columns = {};
         var me = this;
         //列长度
