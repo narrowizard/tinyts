@@ -23,7 +23,12 @@ var Table = (function (_super) {
                 html += "<td>" + value + "</td>";
             }
             else {
-                html += this.beforeAppend(i, this.mData[index]);
+                if (this.beforeAppend == null) {
+                    html += "<td></td>";
+                }
+                else {
+                    html += this.beforeAppend(i, this.mData[index]);
+                }
             }
         }
         html += "</tr>";

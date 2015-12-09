@@ -10,6 +10,9 @@ var RadioButton = (function (_super) {
         _super.call(this, id);
         this.name = "radio" + id;
     }
+    RadioButton.prototype.SetName = function (name) {
+        this.name = name;
+    };
     RadioButton.prototype.GetView = function (index) {
         if (index < 0 || index > this.mData.length) {
             return "";
@@ -25,7 +28,8 @@ var RadioButton = (function (_super) {
         }
     };
     RadioButton.prototype.Value = function () {
-        return $("input:radio[name=" + this.name + "]").filter(":checked").val();
+        var r = $("input:radio[name=" + this.name + "]").filter(":checked");
+        return r.val();
     };
     RadioButton.prototype.SetValue = function (value) {
         $("input:radio[name=" + this.name + "]").filter("[value=" + value + "]").prop("checked", true);

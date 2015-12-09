@@ -10,18 +10,53 @@ var TextBox = (function (_super) {
     }
     TextBox.prototype.LoadView = function () {
         _super.prototype.LoadView.call(this);
+        this.minLength = +this.target.attr("data-min-length");
+        this.maxLength = +this.target.attr("data-max-length");
         this.validationArea = this.target.parent().children(".validation");
     };
     TextBox.prototype.Value = function () {
         var value = this.target.val();
-        if ($.trim(value) == "") {
-            this.validationArea.css("display", "block");
-            return null;
+        if (this.required) {
+            if (!this.Required(value)) {
+                this.SetErrorMsg("必须");
+                this.ShowError();
+                return null;
+            }
         }
-        else {
-            this.validationArea.css("display", "");
-            return value;
+        if (this.minLength) {
+            if (!this.MinLength(value)) {
+                this.SetErrorMsg("长度必须大于等于" + this.minLength);
+                this.ShowError();
+                return null;
+            }
         }
+        if (this.maxLength) {
+            if (!this.MaxLength(value)) {
+                this.SetErrorMsg("长度必须小于等于" + this.maxLength);
+                this.ShowError();
+                return null;
+            }
+        }
+        this.HideError();
+        return value;
+    };
+    TextBox.prototype.SetErrorMsg = function (msg) {
+        this.validationArea.text(msg);
+    };
+    TextBox.prototype.ShowError = function () {
+        this.validationArea.css("display", "block");
+    };
+    TextBox.prototype.HideError = function () {
+        this.validationArea.css("display", "none");
+    };
+    TextBox.prototype.Required = function (value) {
+        return value.trim() !== "";
+    };
+    TextBox.prototype.MinLength = function (value) {
+        return value.length >= this.minLength;
+    };
+    TextBox.prototype.MaxLength = function (value) {
+        return value.length <= this.maxLength;
     };
     TextBox.prototype.SetValue = function (value) {
         this.target.val(value);

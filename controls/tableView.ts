@@ -25,7 +25,11 @@
             if (value) {
                 html += "<td>" + value + "</td>";
             } else {
-                html += this.beforeAppend(i, this.mData[index]);
+                if (this.beforeAppend == null) {
+                    html += "<td></td>";
+                } else {
+                    html += this.beforeAppend(i, this.mData[index]);
+                }
             }
         }
         html += "</tr>";
@@ -42,7 +46,7 @@
         this.target.find("tr").eq(0).children("th").each(function(index, element) {
             var c = $(element).attr("data-column");
             if (c) {
-                me.columns[index] = c
+                me.columns[index] = c;
             }
         });
     }

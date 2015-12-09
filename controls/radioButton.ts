@@ -8,6 +8,10 @@ class RadioButton<T extends RadioModel> extends ListControl<T>{
 		this.name = "radio" + id;
 	}
 
+	SetName(name: string) {
+		this.name = name;
+	}
+
 	GetView(index: number): string {
 		if (index < 0 || index > this.mData.length) {
 			return "";
@@ -25,7 +29,8 @@ class RadioButton<T extends RadioModel> extends ListControl<T>{
 	}
 
 	Value() {
-		return $("input:radio[name=" + this.name + "]").filter(":checked").val();
+		var r = $("input:radio[name=" + this.name + "]").filter(":checked");
+		return r.val();
 	}
 
 	SetValue(value: any) {

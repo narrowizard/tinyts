@@ -4,6 +4,7 @@ class BaseControl implements IControl {
 	protected data: { [index: string]: any };
 	protected elementName: string;
 	protected textValue: string;
+	protected required: boolean;
 
 	ViewId(): string {
 		return this.id;
@@ -16,6 +17,7 @@ class BaseControl implements IControl {
 
 	LoadView() {
 		this.target = $("#" + this.id);
+		this.required = Boolean(this.target.attr("data-required"));
 	}
 	
 	// On 注册控件事件

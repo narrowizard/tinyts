@@ -8,6 +8,7 @@ var BaseControl = (function () {
     };
     BaseControl.prototype.LoadView = function () {
         this.target = $("#" + this.id);
+        this.required = Boolean(this.target.attr("data-required"));
     };
     // On 注册控件事件
     // @param eventName:事件名称
