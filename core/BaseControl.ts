@@ -1,7 +1,7 @@
 class BaseControl implements IControl {
 	private id: string;
 	protected target: JQuery;
-	protected data: { [index: string]: {} };
+	protected data: { [index: string]: any };
 	protected elementName: string;
 	protected textValue: string;
 
@@ -11,6 +11,7 @@ class BaseControl implements IControl {
 
 	constructor(id: string) {
 		this.id = id;
+		this.data = new Object();
 	}
 
 	LoadView() {

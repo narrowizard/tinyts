@@ -1,4 +1,4 @@
-abstract class ListControl<T> extends BaseControl {
+abstract class ListControl<T extends IModel> extends BaseControl {
 	mData: T[];
 	
 	// RegisterEvents 在这里注册Item的事件
@@ -44,11 +44,31 @@ abstract class ListControl<T> extends BaseControl {
 
 	abstract GetView(index: number): string;
 
-	GetItem(index: number): T {
-		if (index < 0 || index > this.mData.length) {
-			return null;
+	GetItem(predicate: (p: T) => boolean): T;
+	GetItem(index: number): T;
+	GetItem(param: any) {
+		if (typeof param == "number") {
+			var index = <number>param;
+			if (index < 0 || index > this.mData.length) {
+				return null;
+			}
+			return this.mData[index];
+		} else if (typeof param == "function") {
+			var predicate = <(p: T) => boolean>param;
+			return this.mData.where(predicate).first();
 		}
-		return this.mData[index];
+	}
+
+	GetItemId(index: number): number {
+		if (index < 0 || index > this.mData.length) {
+			return 0;
+		} else {
+			return this.mData[index].Id;
+		}
+	}
+
+	Count(): number {
+		return this.mData.length;
 	}
 
 	abstract RefreshView();

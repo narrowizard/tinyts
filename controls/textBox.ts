@@ -25,5 +25,15 @@ class TextBox extends BaseControl {
 		this.target.val(value);
 	}
 
-
+	SetColor(color: string) {
+		this.target.css("color", color);
+	}
+	
+	// ColorPicker 将TextBox构造为一个ColorPicker
+	// @param 当选择一个颜色之后的回调函数
+	ColorPicker(handler: (event: JQueryEventObject) => void) {
+		this.target.colorpicker({
+			format: "hex"
+		}).on("changeColor.colorpicker", handler);
+	}
 }

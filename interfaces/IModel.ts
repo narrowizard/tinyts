@@ -1,3 +1,3 @@
-interface IModel{
-	
+interface IModel {
+	Id: number;
 }
