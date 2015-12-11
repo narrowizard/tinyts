@@ -1,7 +1,7 @@
 var HttpRequest = (function () {
     function HttpRequest() {
     }
-    HttpRequest.POST = function (url, data, callback) {
+    HttpRequest.POST = function (url, data, callback, error) {
         $.ajax({
             url: url,
             type: "POST",
@@ -11,6 +11,9 @@ var HttpRequest = (function () {
                     callback(res.Data);
                 }
                 else {
+                    if (error) {
+                        error(res.Code);
+                    }
                 }
             },
             error: function (res) {

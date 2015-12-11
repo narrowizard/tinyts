@@ -19,6 +19,11 @@ var Button = (function (_super) {
             this.target.click(handler);
         }
     };
+    Button.prototype.PerformClick = function () {
+        if (this.target != null) {
+            this.target.click();
+        }
+    };
     return Button;
 })(BaseControl);
 //# sourceMappingURL=button.js.map

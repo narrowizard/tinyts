@@ -40,6 +40,26 @@ var TextBox = (function (_super) {
         this.HideError();
         return value;
     };
+    TextBox.prototype.ReadOnly = function (readonly) {
+        if (readonly) {
+            this.target.attr("readonly", "readonly");
+        }
+        else {
+            this.target.removeAttr("readonly");
+        }
+    };
+    TextBox.prototype.SetAcceptButton = function (p) {
+        this.target.keydown(function (event) {
+            if (event.keyCode == 13) {
+                if (typeof p == "string") {
+                    $("#" + p).click();
+                }
+                else if (typeof p == "object") {
+                    p.PerformClick();
+                }
+            }
+        });
+    };
     TextBox.prototype.SetErrorMsg = function (msg) {
         this.validationArea.text(msg);
     };

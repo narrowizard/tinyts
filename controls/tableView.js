@@ -57,6 +57,7 @@ var Table = (function (_super) {
         if (this.registerEvents != null) {
             this.registerEvents();
         }
+        // 在这里加上页面导航链接
     };
     // Sortable 将table设置为可排序
     // @param handler 排完序之后的回调

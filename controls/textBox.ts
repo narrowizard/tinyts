@@ -9,7 +9,7 @@ class TextBox extends BaseControl {
 
 	LoadView() {
 		super.LoadView();
-		
+
 		this.minLength = +this.target.attr("data-min-length");
 		this.maxLength = +this.target.attr("data-max-length");
 		this.validationArea = this.target.parent().children(".validation");
@@ -42,7 +42,28 @@ class TextBox extends BaseControl {
 		return value;
 	}
 
+	ReadOnly(readonly: boolean) {
+		if (readonly) {
+			this.target.attr("readonly", "readonly");
+		} else {
+			this.target.removeAttr("readonly");
+		}
+	}
 
+	SetAcceptButton(id: string);
+	SetAcceptButton(btn: Button);
+	SetAcceptButton(p: any) {
+		this.target.keydown((event) => {
+			if (event.keyCode == 13) {
+				if (typeof p == "string") {
+					$("#" + p).click();
+				} else if (typeof p == "object") {
+					(p as Button).PerformClick();
+				}
+			}
+		});
+
+	}
 
 	SetErrorMsg(msg: string) {
 		this.validationArea.text(msg);

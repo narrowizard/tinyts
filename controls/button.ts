@@ -1,5 +1,5 @@
 class Button extends BaseControl {
-	
+
 	constructor(id: string) {
 		super(id);
 		this.elementName = "button";
@@ -16,5 +16,11 @@ class Button extends BaseControl {
 			this.target.click(handler);
 		}
 	}
-	
+
+	PerformClick() {
+		if (this.target != null) {
+			this.target.click();
+		}
+	}
+
 }
