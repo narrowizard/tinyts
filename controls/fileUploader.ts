@@ -1,4 +1,4 @@
-class FileUploader extends TextBox {
+class FileUploader extends TextView {
 
 	GetFile(): any {
 		var files = this.target.prop("files");

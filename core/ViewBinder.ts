@@ -1,6 +1,6 @@
 class ViewBinder {
 
-	private static getInjectionPoints<T>(Class: { __inject__?: {[prop: string]: IControl}}): Array<InjectionPoint> {
+	private static getInjectionPoints<T>(Class: { __inject__?: {[prop: string]: View}}): Array<InjectionPoint> {
 		var result: Array<InjectionPoint> = [];
 
 		if (Class.__inject__) {
@@ -31,5 +31,5 @@ class ViewBinder {
 
 interface InjectionPoint {
 	propertyName: string;
-	instance: IControl;
+	instance: View;
 }

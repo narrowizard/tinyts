@@ -16,5 +16,5 @@ var FileUploader = (function (_super) {
         return null;
     };
     return FileUploader;
-})(TextBox);
+})(TextView);
 //# sourceMappingURL=fileUploader.js.map

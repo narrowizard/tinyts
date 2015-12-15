@@ -1,15 +1,13 @@
-class TextBox extends BaseControl {
+class TextBox extends TextView {
 	validationArea: JQuery;
 	minLength: number;
 	maxLength: number;
-
-	constructor(id: string) {
-		super(id);
-	}
+	required: boolean;
 
 	LoadView() {
 		super.LoadView();
 
+		this.required = Boolean(this.target.attr("data-required"));
 		this.minLength = +this.target.attr("data-min-length");
 		this.maxLength = +this.target.attr("data-max-length");
 		this.validationArea = this.target.parent().children(".validation");
@@ -91,10 +89,6 @@ class TextBox extends BaseControl {
 
 	SetValue(value: string) {
 		this.target.val(value);
-	}
-
-	SetColor(color: string) {
-		this.target.css("color", color);
 	}
 	
 	// ColorPicker 将TextBox构造为一个ColorPicker

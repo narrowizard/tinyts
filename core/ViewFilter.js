@@ -7,7 +7,9 @@ function view(Class) {
         if (!targetType.hasOwnProperty('__inject__')) {
             targetType.__inject__ = {};
         }
-        targetType.__inject__[decoratedPropertyName] = new Class(decoratedPropertyName);
+        var temp = new Class();
+        temp.SetID(decoratedPropertyName);
+        targetType.__inject__[decoratedPropertyName] = temp;
     };
 }
 //# sourceMappingURL=ViewFilter.js.map

@@ -5,11 +5,12 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 var TextBox = (function (_super) {
     __extends(TextBox, _super);
-    function TextBox(id) {
-        _super.call(this, id);
+    function TextBox() {
+        _super.apply(this, arguments);
     }
     TextBox.prototype.LoadView = function () {
         _super.prototype.LoadView.call(this);
+        this.required = Boolean(this.target.attr("data-required"));
         this.minLength = +this.target.attr("data-min-length");
         this.maxLength = +this.target.attr("data-max-length");
         this.validationArea = this.target.parent().children(".validation");
@@ -81,9 +82,6 @@ var TextBox = (function (_super) {
     TextBox.prototype.SetValue = function (value) {
         this.target.val(value);
     };
-    TextBox.prototype.SetColor = function (color) {
-        this.target.css("color", color);
-    };
     // ColorPicker 将TextBox构造为一个ColorPicker
     // @param 当选择一个颜色之后的回调函数
     TextBox.prototype.ColorPicker = function (handler) {
@@ -92,5 +90,5 @@ var TextBox = (function (_super) {
         }).on("changeColor.colorpicker", handler);
     };
     return TextBox;
-})(BaseControl);
+})(TextView);
 //# sourceMappingURL=textBox.js.map

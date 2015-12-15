@@ -1,0 +1,3 @@
+class ViewGroup extends View{
+	
+}

@@ -3,16 +3,11 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var Button = (function (_super) {
-    __extends(Button, _super);
-    function Button() {
+var ViewGroup = (function (_super) {
+    __extends(ViewGroup, _super);
+    function ViewGroup() {
         _super.apply(this, arguments);
     }
-    Button.prototype.PerformClick = function () {
-        if (this.target != null) {
-            this.target.click();
-        }
-    };
-    return Button;
-})(TextView);
-//# sourceMappingURL=button.js.map
+    return ViewGroup;
+})(View);
+//# sourceMappingURL=ViewGroup.js.map
