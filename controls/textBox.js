@@ -15,6 +15,9 @@ var TextBox = (function (_super) {
         this.maxLength = +this.target.attr("data-max-length");
         this.validationArea = this.target.parent().children(".validation");
     };
+    TextBox.prototype.Clear = function () {
+        this.target.val("");
+    };
     TextBox.prototype.Value = function () {
         var value = this.target.val();
         if (this.required) {

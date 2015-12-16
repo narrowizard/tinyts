@@ -8,6 +8,13 @@ var EditDialog = (function (_super) {
     function EditDialog() {
         _super.apply(this, arguments);
     }
+    EditDialog.prototype.MoveTo = function (x, y) {
+        this.target.css("left", x);
+        this.target.css("top", y);
+    };
+    EditDialog.prototype.SetTitle = function (title) {
+        this.target.children(".title").text(title);
+    };
     return EditDialog;
 })(ViewGroup);
 //# sourceMappingURL=editDialog.js.map

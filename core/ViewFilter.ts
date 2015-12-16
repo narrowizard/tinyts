@@ -5,8 +5,8 @@
 function view<T extends View>(Class: { new (...args: any[]): T }) {
 	return function inject(target: Object, decoratedPropertyName: string): void {
 		const targetType: { __inject__?: Object } = target.constructor;
-		
-		if(!targetType.hasOwnProperty('__inject__')){
+
+		if (!targetType.hasOwnProperty('__inject__')) {
 			targetType.__inject__ = {};
 		}
 		var temp = new Class();

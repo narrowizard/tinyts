@@ -32,10 +32,18 @@ var Table = (function (_super) {
             return "";
         }
         var html = "";
-        html += "<tr data-id=" + this.GetItemId(index) + " >";
+        if (this.beforeAppend != null) {
+            var res = this.beforeAppend(-1, this.mData[index]);
+            if (res != "") {
+                html += res;
+            }
+            else {
+                html += "<tr data-id=" + this.GetItemId(index) + " >";
+            }
+        }
         for (var i = 0; i < this.length; i++) {
             var value = this.mData[index][this.columns[i]];
-            if (value) {
+            if (value !== undefined) {
                 html += "<td>" + value + "</td>";
             }
             else {
@@ -65,10 +73,9 @@ var Table = (function (_super) {
         });
     };
     Table.prototype.RefreshView = function () {
-        var tbody = this.target.find("tbody");
         this.Clear();
         for (var i = 0; i < this.mData.length; i++) {
-            tbody.append(this.GetView(i));
+            this.append(this.GetView(i));
         }
         // 在这里加上页面导航链接
         var html = "<a href='#'>下一页</a>";
@@ -106,7 +113,9 @@ var Table = (function (_super) {
                     temp[i] = _this.mData.where(function (p) { return p.Id == ids[i]; }).first();
                 }
                 _this.mData = temp;
-                handler();
+                if (handler) {
+                    handler();
+                }
             }
         });
     };

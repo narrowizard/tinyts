@@ -12,6 +12,10 @@ class TextBox extends TextView {
 		this.maxLength = +this.target.attr("data-max-length");
 		this.validationArea = this.target.parent().children(".validation");
 	}
+	
+	Clear(){
+		this.target.val("");
+	}
 
 	Value(): string {
 		var value = this.target.val();

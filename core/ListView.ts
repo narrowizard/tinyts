@@ -1,4 +1,4 @@
-abstract class ListView<T> extends View {
+class ListView<T> extends View {
 	mData: T[];
 
 	/**
@@ -95,7 +95,9 @@ abstract class ListView<T> extends View {
 	 * 获取列表中某一个元素的html代码
 	 * @param index 索引
 	*/
-	abstract GetView(index: number): string;
+	GetView(index: number): string{
+		return "";
+	};
 
 	/**
 	 * 刷新整个ListView的列表部分

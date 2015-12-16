@@ -82,6 +82,14 @@ var ListView = (function (_super) {
         return 0;
     };
     /**
+     * 获取列表中某一个元素的html代码
+     * @param index 索引
+    */
+    ListView.prototype.GetView = function (index) {
+        return "";
+    };
+    ;
+    /**
      * 刷新整个ListView的列表部分
      */
     ListView.prototype.RefreshView = function () {

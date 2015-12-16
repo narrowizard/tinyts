@@ -7,6 +7,7 @@ var View = (function () {
      * @param id 唯一id
      */
     View.prototype.SetID = function (id) {
+        this.attributes = {};
         this.id = id;
     };
     View.prototype.ViewId = function () {

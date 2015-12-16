@@ -9,6 +9,7 @@ abstract class View {
 	 * @param id 唯一id
 	 */
 	SetID(id: string) {
+		this.attributes = {};
 		this.id = id;
 	}
 

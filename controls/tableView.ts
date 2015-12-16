@@ -19,9 +19,9 @@
     BeforeAppend(index: number): string {
         return "<td></td>";
     }
-    
-    RegisterEvents(){
-        
+
+    RegisterEvents() {
+
     }
 
     Clear() {
@@ -40,10 +40,17 @@
             return "";
         }
         var html: string = "";
-        html += "<tr data-id=" + this.GetItemId(index) + " >";
+        if (this.beforeAppend != null) {
+            var res = this.beforeAppend(-1, this.mData[index]);
+            if (res != "") {
+                html += res;
+            } else {
+                html += "<tr data-id=" + this.GetItemId(index) + " >";
+            }
+        }
         for (var i = 0; i < this.length; i++) {
             var value = this.mData[index][this.columns[i]];
-            if (value) {
+            if (value !== undefined) {
                 html += "<td>" + value + "</td>";
             } else {
                 if (this.beforeAppend == null) {
@@ -73,10 +80,9 @@
     }
 
     RefreshView() {
-        var tbody = this.target.find("tbody");
         this.Clear();
         for (var i = 0; i < this.mData.length; i++) {
-            tbody.append(this.GetView(i));
+            this.append(this.GetView(i));
         }
         // 在这里加上页面导航链接
         var html = "<a href='#'>下一页</a>";
@@ -87,19 +93,19 @@
             this.registerEvents();
         }
     }
-    
-    TreeTable(config: any,force?:boolean) {
-        this.target.treetable(config,force);
+
+    TreeTable(config: any, force?: boolean) {
+        this.target.treetable(config, force);
     }
-    
-    ExpandAll(){
+
+    ExpandAll() {
         this.target.treetable("expandAll");
     }
     
     /** Sortable 将table设置为可排序
     * @param handler 排完序之后的回调
     */
-    Sortable(handler: () => void) {
+    Sortable(handler?: () => void) {
         this.target.children("tbody").sortable({
             containerSelector: "table",
             itemPath: "> tbody",
@@ -116,7 +122,9 @@
                     temp[i] = this.mData.where((p: T) => { return p.Id == ids[i] }).first();
                 }
                 this.mData = temp;
-                handler();
+                if (handler) {
+                    handler();
+                }
             }
         });
     }
