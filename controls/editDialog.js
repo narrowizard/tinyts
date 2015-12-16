@@ -5,21 +5,9 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 var EditDialog = (function (_super) {
     __extends(EditDialog, _super);
-    function EditDialog(id) {
-        _super.call(this, id);
+    function EditDialog() {
+        _super.apply(this, arguments);
     }
-    EditDialog.prototype.Hide = function () {
-        this.target.css("display", "none");
-        this.state = false;
-    };
-    EditDialog.prototype.Show = function () {
-        this.target.css("display", "block");
-        this.state = true;
-    };
-    EditDialog.prototype.MoveTo = function (x, y) {
-        this.target.css("left", x);
-        this.target.css("top", y);
-    };
     return EditDialog;
-})(BaseControl);
+})(ViewGroup);
 //# sourceMappingURL=editDialog.js.map

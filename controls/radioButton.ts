@@ -1,11 +1,10 @@
 // 初始化会在每一个input:radio上加上name属性为radio + id
-class RadioButton<T extends RadioModel> extends ListControl<T>{
-	mData: T[];
+class RadioButton<T extends RadioModel> extends ListView<T>{
 	name: string;
-
-	constructor(id: string) {
-		super(id);
-		this.name = "radio" + id;
+	
+	SetId(id: string) {
+		super.SetID(id);
+		this.name = "radio_" + id;
 	}
 
 	SetName(name: string) {
@@ -20,12 +19,9 @@ class RadioButton<T extends RadioModel> extends ListControl<T>{
 		html += "<input type='radio' value=" + this.mData[index].value + " name='" + this.name + "'/>" + this.mData[index].text;
 		return html;
 	}
-
-	RefreshView() {
+	
+	Clear(){
 		this.target.html("");
-		for (var i = 0; i < this.mData.length; i++) {
-			this.target.append(this.GetView(i));
-		}
 	}
 
 	Value() {
@@ -35,5 +31,9 @@ class RadioButton<T extends RadioModel> extends ListControl<T>{
 
 	SetValue(value: any) {
 		$("input:radio[name=" + this.name + "]").filter("[value=" + value + "]").prop("checked", true);
+	}
+	
+	protected append(viewString:string){
+		this.target.append(viewString);
 	}
 }

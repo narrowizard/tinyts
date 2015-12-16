@@ -5,12 +5,12 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 var ImageView = (function (_super) {
     __extends(ImageView, _super);
-    function ImageView(id) {
-        _super.call(this, id);
+    function ImageView() {
+        _super.apply(this, arguments);
     }
     ImageView.prototype.SetUrl = function (url) {
         this.target.attr("src", url);
     };
     return ImageView;
-})(BaseControl);
+})(View);
 //# sourceMappingURL=imageView.js.map

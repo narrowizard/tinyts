@@ -1,8 +1,4 @@
-class ImageView extends BaseControl {
-
-	constructor(id: string) {
-		super(id);
-	}
+class ImageView extends View {
 
 	SetUrl(url: string) {
 		this.target.attr("src", url);

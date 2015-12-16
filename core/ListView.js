@@ -8,6 +8,81 @@ var ListView = (function (_super) {
     function ListView() {
         _super.apply(this, arguments);
     }
+    /**
+     * 设置数据,并刷新视图
+     * @param data 数据集合
+     */
+    ListView.prototype.SetData = function (data) {
+        this.mData = data;
+        this.RefreshView();
+    };
+    /**
+     * 添加数据,并刷新视图
+     * @param T 数据元素
+    */
+    ListView.prototype.Add = function (model) {
+        this.mData.push(model);
+        this.append(this.GetView(this.mData.length));
+    };
+    ListView.prototype.Remove = function (p) {
+        if (typeof p == "number") {
+            var index = p;
+            if (index < 0 || index > this.mData.length) {
+                return;
+            }
+            for (var i = index; i < this.mData.length - 1; i++) {
+                this.mData[i] = this.mData[i + 1];
+            }
+        }
+        else {
+            var obj = p;
+            for (var j = 0; j < this.mData.length; j++) {
+                if (this.mData[j] == obj) {
+                    for (var i = j; i < this.mData.length - 1; i++) {
+                        this.mData[i] = this.mData[i + 1];
+                    }
+                    break;
+                }
+            }
+        }
+        this.RefreshView();
+    };
+    ListView.prototype.GetItem = function (param) {
+        if (typeof param == "number") {
+            var index = param;
+            if (index < 0 || index > this.mData.length) {
+                return null;
+            }
+            return this.mData[index];
+        }
+        else if (typeof param == "function") {
+            var predicate = param;
+            return this.mData.where(predicate).first();
+        }
+    };
+    /**
+     * 获取数组元素的长度
+     */
+    ListView.prototype.Count = function () {
+        return this.mData.length;
+    };
+    /**
+     * 获取指定索引元素的Id(唯一编号)
+     * 未在该类中实现,请在子类中实现
+     * @param index 索引
+     */
+    ListView.prototype.GetItemId = function (index) {
+        return 0;
+    };
+    /**
+     * 刷新整个ListView的列表部分
+     */
+    ListView.prototype.RefreshView = function () {
+        this.Clear();
+        for (var i = 0; i < this.mData.length; i++) {
+            this.append(this.GetView(i));
+        }
+    };
     return ListView;
 })(View);
 //# sourceMappingURL=ListView.js.map

@@ -2,7 +2,12 @@ abstract class View {
 	private id: string;
 	protected target: JQuery;
 	protected attributes: { [index: string]: any };
-
+	
+	/**
+	 * 设置元素的id,该方法会在View初始化之后被调用
+	 * 可以重载该方法来实现额外的初始化
+	 * @param id 唯一id
+	 */
 	SetID(id: string) {
 		this.id = id;
 	}

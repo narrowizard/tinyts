@@ -5,11 +5,27 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 var Table = (function (_super) {
     __extends(Table, _super);
-    function Table(id) {
-        _super.call(this, id);
+    function Table() {
+        _super.apply(this, arguments);
     }
+    /**
+     * 自定义table row可以继承该类,在自己的类中实现该方法
+     * 如果采用继承的方法,请不要设置beforeAppend属性
+     * @param index 索引
+     */
+    Table.prototype.BeforeAppend = function (index) {
+        return "<td></td>";
+    };
+    Table.prototype.RegisterEvents = function () {
+    };
     Table.prototype.Clear = function () {
         this.target.find("tbody").html("");
+    };
+    Table.prototype.GetItemId = function (index) {
+        if (index < 0 || index > this.Count()) {
+            return 0;
+        }
+        return this.mData[index].Id;
     };
     Table.prototype.GetView = function (index) {
         if (index < 0 || index > this.mData.length) {
@@ -24,7 +40,7 @@ var Table = (function (_super) {
             }
             else {
                 if (this.beforeAppend == null) {
-                    html += "<td></td>";
+                    html += this.BeforeAppend(index);
                 }
                 else {
                     html += this.beforeAppend(i, this.mData[index]);
@@ -54,13 +70,18 @@ var Table = (function (_super) {
         for (var i = 0; i < this.mData.length; i++) {
             tbody.append(this.GetView(i));
         }
+        // 在这里加上页面导航链接
+        var html = "<a href='#'>下一页</a>";
+        $(html).insertAfter(this.target);
+        //注册item事件
+        this.RegisterEvents();
         if (this.registerEvents != null) {
             this.registerEvents();
         }
-        // 在这里加上页面导航链接
     };
-    // Sortable 将table设置为可排序
-    // @param handler 排完序之后的回调
+    /** Sortable 将table设置为可排序
+    * @param handler 排完序之后的回调
+    */
     Table.prototype.Sortable = function (handler) {
         var _this = this;
         this.target.children("tbody").sortable({
@@ -83,6 +104,9 @@ var Table = (function (_super) {
             }
         });
     };
+    Table.prototype.append = function (viewString) {
+        this.target.find("tbody").append(viewString);
+    };
     return Table;
-})(ListControl);
+})(ListView);
 //# sourceMappingURL=tableView.js.map

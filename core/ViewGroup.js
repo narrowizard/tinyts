@@ -8,6 +8,14 @@ var ViewGroup = (function (_super) {
     function ViewGroup() {
         _super.apply(this, arguments);
     }
+    ViewGroup.prototype.Hide = function () {
+        this.target.css("display", "none");
+        this.visiable = false;
+    };
+    ViewGroup.prototype.Show = function () {
+        this.target.css("display", "block");
+        this.visiable = true;
+    };
     return ViewGroup;
 })(View);
 //# sourceMappingURL=ViewGroup.js.map
