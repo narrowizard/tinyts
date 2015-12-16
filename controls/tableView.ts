@@ -14,7 +14,6 @@
             hanlder(me.pageCount, me.GetPageSize());
         });
         this.navBar.find(".nav-next-page").click(() => {
-            debugger;
             if (me.curPage == me.pageCount) {
                 return;
             }
@@ -22,7 +21,6 @@
             hanlder(me.curPage + 1, me.GetPageSize());
         });
         this.navBar.find(".nav-prev-page").click(() => {
-            debugger;
             if (me.curPage == 0) {
                 return;
             }
@@ -56,7 +54,7 @@
         if (page < 1 || page > this.pageCount) {
             return;
         }
-        this.curPage = page;
+        this.curPage = +page;
     }
     /**
      * 获取每页条数
@@ -164,8 +162,9 @@
         html += "<button class='btn btn-xs btn-success nav-prev-page'>上一页</button>";
         html += "<button class='btn btn-xs btn-success nav-next-page'>下一页</button>";
         html += "<button class='btn btn-xs btn-success nav-last-page'>末页</button>";
-        html += "每页<input type='text' value='10' class='pagesize' />条";
-        html += "跳转到<input type='text' class='page' value='1'/>";
+        html += "页次 <label class='curPage'></label>/<label class='totalPage'></label>";
+        html += " 每页<input type='text' value='10' class='pagesize' />条";
+        html += " 跳转到<input type='text' class='page' value='1'/>";
         html += "<button class='btn btn-xs btn-success nav-to-page'>跳转</button>";
         this.navBar.append(html);
 
@@ -176,7 +175,8 @@
         for (var i = 0; i < this.mData.length; i++) {
             this.append(this.GetView(i));
         }
-        
+        this.navBar.find(".curPage").text(this.curPage);
+        this.navBar.find(".totalPage").text(this.pageCount);
         //注册item事件
         this.RegisterEvents();
         if (this.registerEvents != null) {
