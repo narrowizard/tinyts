@@ -22,7 +22,9 @@ abstract class ListView<T> extends View {
 	/**
 	 * 清空列表
 	*/
-	abstract Clear();
+	Clear() {
+		this.target.html("");
+	};
 
 	/**
 	 * 移除某个指定元素
@@ -109,5 +111,7 @@ abstract class ListView<T> extends View {
 	 * 在列表的最后插入元素,请在子类中实现该方法
 	 * @param viewString 元素的html字符串
 	 */
-	protected abstract append(viewString:string);
+	protected append(viewString: string) {
+		this.target.append(viewString);
+	}
 }

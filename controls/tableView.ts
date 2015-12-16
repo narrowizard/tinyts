@@ -87,6 +87,15 @@
             this.registerEvents();
         }
     }
+    
+    TreeTable(config: any,force?:boolean) {
+        this.target.treetable(config,force);
+    }
+    
+    ExpandAll(){
+        this.target.treetable("expandAll");
+    }
+    
     /** Sortable 将table设置为可排序
     * @param handler 排完序之后的回调
     */

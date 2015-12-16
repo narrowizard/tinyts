@@ -19,10 +19,6 @@ class RadioButton<T extends RadioModel> extends ListView<T>{
 		html += "<input type='radio' value=" + this.mData[index].value + " name='" + this.name + "'/>" + this.mData[index].text;
 		return html;
 	}
-	
-	Clear(){
-		this.target.html("");
-	}
 
 	Value() {
 		var r = $("input:radio[name=" + this.name + "]").filter(":checked");
@@ -32,8 +28,5 @@ class RadioButton<T extends RadioModel> extends ListView<T>{
 	SetValue(value: any) {
 		$("input:radio[name=" + this.name + "]").filter("[value=" + value + "]").prop("checked", true);
 	}
-	
-	protected append(viewString:string){
-		this.target.append(viewString);
-	}
+
 }

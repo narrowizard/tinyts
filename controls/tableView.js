@@ -79,6 +79,12 @@ var Table = (function (_super) {
             this.registerEvents();
         }
     };
+    Table.prototype.TreeTable = function (config, force) {
+        this.target.treetable(config, force);
+    };
+    Table.prototype.ExpandAll = function () {
+        this.target.treetable("expandAll");
+    };
     /** Sortable 将table设置为可排序
     * @param handler 排完序之后的回调
     */

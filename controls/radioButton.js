@@ -24,18 +24,12 @@ var RadioButton = (function (_super) {
         html += "<input type='radio' value=" + this.mData[index].value + " name='" + this.name + "'/>" + this.mData[index].text;
         return html;
     };
-    RadioButton.prototype.Clear = function () {
-        this.target.html("");
-    };
     RadioButton.prototype.Value = function () {
         var r = $("input:radio[name=" + this.name + "]").filter(":checked");
         return r.val();
     };
     RadioButton.prototype.SetValue = function (value) {
         $("input:radio[name=" + this.name + "]").filter("[value=" + value + "]").prop("checked", true);
-    };
-    RadioButton.prototype.append = function (viewString) {
-        this.target.append(viewString);
     };
     return RadioButton;
 })(ListView);

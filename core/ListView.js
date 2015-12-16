@@ -24,6 +24,13 @@ var ListView = (function (_super) {
         this.mData.push(model);
         this.append(this.GetView(this.mData.length));
     };
+    /**
+     * 清空列表
+    */
+    ListView.prototype.Clear = function () {
+        this.target.html("");
+    };
+    ;
     ListView.prototype.Remove = function (p) {
         if (typeof p == "number") {
             var index = p;
@@ -82,6 +89,13 @@ var ListView = (function (_super) {
         for (var i = 0; i < this.mData.length; i++) {
             this.append(this.GetView(i));
         }
+    };
+    /**
+     * 在列表的最后插入元素,请在子类中实现该方法
+     * @param viewString 元素的html字符串
+     */
+    ListView.prototype.append = function (viewString) {
+        this.target.append(viewString);
     };
     return ListView;
 })(View);
