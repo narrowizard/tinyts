@@ -44,6 +44,14 @@ var SelectButton = (function (_super) {
         html += "</button>";
         return html;
     };
+    SelectButton.prototype.GetSelectedItemId = function () {
+        if (this.muiltiSelect) {
+            return 0;
+        }
+        else {
+            return +this.target.find("button").filter(".active").attr("data-id");
+        }
+    };
     SelectButton.prototype.RefreshView = function () {
         var _this = this;
         var me = this;

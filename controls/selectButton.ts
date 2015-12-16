@@ -45,6 +45,14 @@ class SelectButton<T extends RadioModel> extends ListView<T>
 		return html;
 	}
 
+	GetSelectedItemId(): number {
+		if (this.muiltiSelect) {
+			return 0;
+		} else {
+			return +this.target.find("button").filter(".active").attr("data-id");
+		}
+	}
+
 	RefreshView() {
 		var me = this;
 		super.RefreshView();

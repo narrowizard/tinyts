@@ -8,6 +8,60 @@ var Table = (function (_super) {
     function Table() {
         _super.apply(this, arguments);
     }
+    Table.prototype.TurnToPage = function (hanlder) {
+        var me = this;
+        this.navBar.find(".nav-first-page").click(function () {
+            hanlder(1, me.GetPageSize());
+        });
+        this.navBar.find(".nav-last-page").click(function () {
+            hanlder(me.pageCount, me.GetPageSize());
+        });
+        this.navBar.find(".nav-next-page").click(function () {
+            debugger;
+            if (me.curPage == me.pageCount) {
+                return;
+            }
+            hanlder(me.curPage + 1, me.GetPageSize());
+        });
+        this.navBar.find(".nav-prev-page").click(function () {
+            debugger;
+            if (me.curPage == 0) {
+                return;
+            }
+            hanlder(me.curPage - 1, me.GetPageSize());
+        });
+        this.navBar.find(".nav-to-page").click(function () {
+            var t = me.navBar.find(".page").val();
+            if (t < 1 || t > me.pageCount) {
+                return;
+            }
+            hanlder(t, me.GetPageSize());
+        });
+    };
+    /**
+     * 设置总页数
+     */
+    Table.prototype.SetPageCount = function (count) {
+        this.pageCount = count;
+    };
+    /**
+     * 设置当前页
+     */
+    Table.prototype.SetCurPage = function (page) {
+        if (page < 1 || page > this.pageCount) {
+            return;
+        }
+        this.curPage = page;
+    };
+    /**
+     * 获取每页条数
+     */
+    Table.prototype.GetPageSize = function () {
+        return this.navBar.find(".pagesize").val();
+    };
+    Table.prototype.ResetPage = function () {
+        this.curPage = 1;
+    };
     /**
      * 自定义table row可以继承该类,在自己的类中实现该方法
      * 如果采用继承的方法,请不要设置beforeAppend属性
@@ -86,10 +140,13 @@ var Table = (function (_super) {
     };
     Table.prototype.createNavigation = function () {
         var html = "";
-        html += "<button class='btn btn-xs btn-success'>首页</button>";
-        html += "<button class='btn btn-xs btn-success'>上一页</button>";
-        html += "<button class='btn btn-xs btn-success'>下一页</button>";
-        html += "<button class='btn btn-xs btn-success'>末页</button>";
+        html += "<button class='btn btn-xs btn-success nav-first-page'>首页</button>";
+        html += "<button class='btn btn-xs btn-success nav-prev-page'>上一页</button>";
+        html += "<button class='btn btn-xs btn-success nav-next-page'>下一页</button>";
+        html += "<button class='btn btn-xs btn-success nav-last-page'>末页</button>";
+        html += "每页<input type='text' value='10' class='pagesize' />条";
+        html += "跳转到<input type='text' class='page' value='1'/>";
+        html += "<button class='btn btn-xs btn-success nav-to-page'>跳转</button>";
         this.navBar.append(html);
     };
     Table.prototype.RefreshView = function () {

@@ -4,6 +4,70 @@
 
     navBarId: string;
     navBar: JQuery;
+
+    TurnToPage(hanlder: (page: number, pagesize: number) => void) {
+        var me = this;
+        this.navBar.find(".nav-first-page").click(() => {
+            hanlder(1, me.GetPageSize());
+        });
+        this.navBar.find(".nav-last-page").click(() => {
+            hanlder(me.pageCount, me.GetPageSize());
+        });
+        this.navBar.find(".nav-next-page").click(() => {
+            debugger;
+            if (me.curPage == me.pageCount) {
+                return;
+            }
+
+            hanlder(me.curPage + 1, me.GetPageSize());
+        });
+        this.navBar.find(".nav-prev-page").click(() => {
+            debugger;
+            if (me.curPage == 0) {
+                return;
+            }
+            hanlder(me.curPage - 1, me.GetPageSize());
+        });
+        this.navBar.find(".nav-to-page").click(() => {
+            var t = me.navBar.find(".page").val();
+            if (t < 1 || t > me.pageCount) {
+                return;
+            }
+            hanlder(t, me.GetPageSize());
+        });
+    }
+
+    /**
+     * 总页数
+     */
+    protected pageCount: number;
+    protected curPage: number;
+    
+    /**
+     * 设置总页数
+     */
+    SetPageCount(count: number) {
+        this.pageCount = count;
+    }
+    /**
+     * 设置当前页
+     */
+    SetCurPage(page: number) {
+        if (page < 1 || page > this.pageCount) {
+            return;
+        }
+        this.curPage = page;
+    }
+    /**
+     * 获取每页条数
+     */
+    GetPageSize(): number {
+        return this.navBar.find(".pagesize").val();
+    }
+
+    ResetPage() {
+        this.curPage = 1;
+    }
     
     /* 自定义table row 可以设置该回调,在该回调中处理row的自定义
     * @param index 列索引
@@ -12,6 +76,7 @@
     beforeAppend: (index: number, data: IModel) => string;
     /**
      * 该回调将会在RefreshView之后被调用
+     * 请在该函数中注册行中元素的事件
      */
     registerEvents: () => void;
     /**
@@ -95,12 +160,15 @@
 
     protected createNavigation() {
         var html = "";
-        html += "<button class='btn btn-xs btn-success'>首页</button>";
-        html += "<button class='btn btn-xs btn-success'>上一页</button>";
-        html += "<button class='btn btn-xs btn-success'>下一页</button>";
-        html += "<button class='btn btn-xs btn-success'>末页</button>";
-
+        html += "<button class='btn btn-xs btn-success nav-first-page'>首页</button>";
+        html += "<button class='btn btn-xs btn-success nav-prev-page'>上一页</button>";
+        html += "<button class='btn btn-xs btn-success nav-next-page'>下一页</button>";
+        html += "<button class='btn btn-xs btn-success nav-last-page'>末页</button>";
+        html += "每页<input type='text' value='10' class='pagesize' />条";
+        html += "跳转到<input type='text' class='page' value='1'/>";
+        html += "<button class='btn btn-xs btn-success nav-to-page'>跳转</button>";
         this.navBar.append(html);
+
     }
 
     RefreshView() {
