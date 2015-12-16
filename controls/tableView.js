@@ -41,6 +41,9 @@ var Table = (function (_super) {
                 html += "<tr data-id=" + this.GetItemId(index) + " >";
             }
         }
+        else {
+            html += "<tr data-id=" + this.GetItemId(index) + " >";
+        }
         for (var i = 0; i < this.length; i++) {
             var value = this.mData[index][this.columns[i]];
             if (value !== undefined) {
@@ -71,15 +74,29 @@ var Table = (function (_super) {
                 me.columns[index] = c;
             }
         });
+        var naved = Boolean(this.target.attr("data-navigation"));
+        if (naved) {
+            //创建页面导航
+            this.navBarId = this.ViewId() + "Navigation";
+            var html = "<div id='" + this.navBarId + "'></div>";
+            $(html).insertAfter(this.target);
+            this.navBar = $("#" + this.navBarId);
+            this.createNavigation();
+        }
+    };
+    Table.prototype.createNavigation = function () {
+        var html = "";
+        html += "<button class='btn btn-xs btn-success'>首页</button>";
+        html += "<button class='btn btn-xs btn-success'>上一页</button>";
+        html += "<button class='btn btn-xs btn-success'>下一页</button>";
+        html += "<button class='btn btn-xs btn-success'>末页</button>";
+        this.navBar.append(html);
     };
     Table.prototype.RefreshView = function () {
         this.Clear();
         for (var i = 0; i < this.mData.length; i++) {
             this.append(this.GetView(i));
         }
-        // 在这里加上页面导航链接
-        var html = "<a href='#'>下一页</a>";
-        $(html).insertAfter(this.target);
         //注册item事件
         this.RegisterEvents();
         if (this.registerEvents != null) {
