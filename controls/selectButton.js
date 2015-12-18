@@ -44,12 +44,33 @@ var SelectButton = (function (_super) {
         html += "</button>";
         return html;
     };
+    /**
+     * 选择指定项
+     * @param index 选择项的索引
+     */
+    SelectButton.prototype.Select = function (index) {
+        this.target.find("button").eq(index).click();
+    };
+    /**
+     * 获取选择项的id,仅单选时有效
+     */
     SelectButton.prototype.GetSelectedItemId = function () {
         if (this.muiltiSelect) {
             return 0;
         }
         else {
             return +this.target.find("button").filter(".active").attr("data-id");
+        }
+    };
+    /**
+     * 获取选择项的文本内容,仅单选时有效
+     */
+    SelectButton.prototype.GetSelectedItemText = function () {
+        if (this.muiltiSelect) {
+            return "";
+        }
+        else {
+            return this.target.find("button").filter(".active").text();
         }
     };
     SelectButton.prototype.RefreshView = function () {

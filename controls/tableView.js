@@ -153,8 +153,10 @@ var Table = (function (_super) {
         for (var i = 0; i < this.mData.length; i++) {
             this.append(this.GetView(i));
         }
-        this.navBar.find(".curPage").text(this.curPage);
-        this.navBar.find(".totalPage").text(this.pageCount);
+        if (this.navBar) {
+            this.navBar.find(".curPage").text(this.curPage);
+            this.navBar.find(".totalPage").text(this.pageCount);
+        }
         //注册item事件
         this.RegisterEvents();
         if (this.registerEvents != null) {
