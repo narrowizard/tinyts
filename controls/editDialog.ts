@@ -15,6 +15,10 @@ class EditDialog extends ViewGroup {
 		this.target.width(width);
 	}
 
+	SetHeight(height: number) {
+		this.target.height(height);
+	}
+
 	LoadView() {
 		super.LoadView();
 		var masked = this.target.attr("data-mask");
@@ -48,8 +52,8 @@ class EditDialog extends ViewGroup {
 		this.mask.css("left", "0");
 		this.mask.css("right", "0");
 		this.mask.css("background-color", "#353B4B");
-		this.mask.css("z-index", "9999");
-		this.target.css("z-index", "10000");
+		this.mask.css("z-index", "1000");
+		this.target.css("z-index", "1001");
 		this.mask.css("opacity", "0.5");
 	}
 }

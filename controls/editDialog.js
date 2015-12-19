@@ -18,6 +18,9 @@ var EditDialog = (function (_super) {
     EditDialog.prototype.SetWidth = function (width) {
         this.target.width(width);
     };
+    EditDialog.prototype.SetHeight = function (height) {
+        this.target.height(height);
+    };
     EditDialog.prototype.LoadView = function () {
         _super.prototype.LoadView.call(this);
         var masked = this.target.attr("data-mask");
@@ -48,8 +51,8 @@ var EditDialog = (function (_super) {
         this.mask.css("left", "0");
         this.mask.css("right", "0");
         this.mask.css("background-color", "#353B4B");
-        this.mask.css("z-index", "9999");
-        this.target.css("z-index", "10000");
+        this.mask.css("z-index", "1000");
+        this.target.css("z-index", "1001");
         this.mask.css("opacity", "0.5");
     };
     return EditDialog;
