@@ -92,6 +92,9 @@ var TextBox = (function (_super) {
             format: "hex"
         }).on("changeColor.colorpicker", handler);
     };
+    TextBox.prototype.DatePicker = function (config) {
+        this.target.datetimepicker(config);
+    };
     return TextBox;
 })(TextView);
 //# sourceMappingURL=textBox.js.map

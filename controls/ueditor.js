@@ -9,7 +9,6 @@ var UEditor = (function (_super) {
         _super.apply(this, arguments);
     }
     UEditor.prototype.LoadView = function () {
-        debugger;
         _super.prototype.LoadView.call(this);
         var param = this.target.attr("data-param");
         this.editor = UE.getEditor(this.ViewId());

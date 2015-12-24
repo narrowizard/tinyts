@@ -1,0 +1,4 @@
+class ScrollPageModel {
+    target: JQuery;
+
+}

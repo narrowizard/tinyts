@@ -16,6 +16,9 @@ var View = (function () {
     View.prototype.LoadView = function () {
         this.target = $("#" + this.id);
     };
+    /**
+     * 通过选择器绑定View
+     */
     View.prototype.BindBySelector = function (selector) {
         this.target = $(selector);
     };

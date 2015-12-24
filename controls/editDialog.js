@@ -28,6 +28,7 @@ var EditDialog = (function (_super) {
             this.masked = true;
             this.initMask();
         }
+        this.Hide();
     };
     EditDialog.prototype.Show = function () {
         _super.prototype.Show.call(this);

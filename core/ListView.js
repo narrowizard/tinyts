@@ -22,7 +22,11 @@ var ListView = (function (_super) {
     */
     ListView.prototype.Add = function (model) {
         this.mData.push(model);
-        this.append(this.GetView(this.mData.length));
+        this.append(this.GetView(this.mData.length - 1));
+    };
+    ListView.prototype.LoadView = function () {
+        _super.prototype.LoadView.call(this);
+        this.mData = [];
     };
     /**
      * 清空列表
@@ -40,6 +44,7 @@ var ListView = (function (_super) {
             for (var i = index; i < this.mData.length - 1; i++) {
                 this.mData[i] = this.mData[i + 1];
             }
+            this.mData.pop();
         }
         else {
             var obj = p;
@@ -48,6 +53,7 @@ var ListView = (function (_super) {
                     for (var i = j; i < this.mData.length - 1; i++) {
                         this.mData[i] = this.mData[i + 1];
                     }
+                    this.mData.pop();
                     break;
                 }
             }

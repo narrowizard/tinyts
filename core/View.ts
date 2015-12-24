@@ -21,6 +21,9 @@ abstract class View {
 		this.target = $("#" + this.id);
 	}
 
+    /**
+     * 通过选择器绑定View
+     */
 	BindBySelector(selector: string) {
 		this.target = $(selector);
 	}

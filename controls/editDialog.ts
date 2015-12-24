@@ -26,6 +26,7 @@ class EditDialog extends ViewGroup {
 			this.masked = true;
 			this.initMask();
 		}
+        this.Hide();
 	}
 
 	Show() {

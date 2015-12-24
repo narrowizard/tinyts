@@ -10,15 +10,20 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var Demo = (function () {
     function Demo() {
     }
+    Demo.prototype.init = function () {
+        this.mainScrollPageView.NextPage();
+    };
     Demo.prototype.RegisterEvents = function () {
         var me = this;
-        this.btnSubmit.OnClick(function (obj) {
-        });
     };
     __decorate([
-        view(Button), 
-        __metadata('design:type', Button)
-    ], Demo.prototype, "btnSubmit", void 0);
+        view(ScrollPageView), 
+        __metadata('design:type', ScrollPageView)
+    ], Demo.prototype, "mainScrollPageView", void 0);
     return Demo;
 })();
+$().ready(function () {
+    var demo = ViewBinder.instantiate(Demo);
+    demo.init();
+});
 //# sourceMappingURL=demo.js.map

@@ -80,23 +80,23 @@ var SelectButton = (function (_super) {
         for (var i = 0; i < this.itemClasses.length; i++) {
             this.target.find("button").addClass(this.itemClasses[i]);
         }
-        if (me.onItemClick != null) {
-            this.target.find("button").click(function (p) {
-                if (_this.muiltiSelect) {
-                    if ($(p.target).hasClass("active")) {
-                        $(p.target).removeClass("active");
-                    }
-                    else {
-                        $(p.target).addClass("active");
-                    }
+        this.target.find("button").click(function (p) {
+            if (_this.muiltiSelect) {
+                if ($(p.target).hasClass("active")) {
+                    $(p.target).removeClass("active");
                 }
                 else {
-                    _this.target.find("button").removeClass("active");
                     $(p.target).addClass("active");
                 }
+            }
+            else {
+                _this.target.find("button").removeClass("active");
+                $(p.target).addClass("active");
+            }
+            if (me.onItemClick != null) {
                 me.onItemClick($(p.target));
-            });
-        }
+            }
+        });
     };
     SelectButton.prototype.SetItemClass = function (className) {
         if (className.trim() == "") {

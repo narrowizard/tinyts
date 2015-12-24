@@ -2,7 +2,6 @@ class UEditor extends View {
     editor: UE;
 
     LoadView() {
-        debugger;
         super.LoadView();
         var param = this.target.attr("data-param");
         this.editor = UE.getEditor(this.ViewId());
