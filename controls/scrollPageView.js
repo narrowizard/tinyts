@@ -44,25 +44,34 @@ var ScrollPageView = (function (_super) {
             }
             return false;
         });
+        me.onScroll = false;
     };
     ScrollPageView.prototype.LastPage = function () {
-        if (this.curPage == 0) {
-            return;
+        if (!this.onScroll) {
+            if (this.curPage == 0) {
+                return;
+            }
+            this.ToPage(--this.curPage);
         }
-        this.ToPage(--this.curPage);
     };
     ScrollPageView.prototype.NextPage = function () {
-        if (this.curPage == this.Count() - 1) {
-            return;
+        if (!this.onScroll) {
+            if (this.curPage == this.Count() - 1) {
+                return;
+            }
+            this.ToPage(++this.curPage);
         }
-        this.ToPage(++this.curPage);
     };
     ScrollPageView.prototype.ToPage = function (index) {
+        var me = this;
         if (index < 0 || index > this.Count() - 1) {
             return;
         }
         var h = parseInt(this.GetItem(index).target.css("top"));
-        $("body,html").animate({ scrollTop: h }, 1000);
+        me.onScroll = true;
+        $("body,html").animate({ scrollTop: h }, 1000, function () {
+            me.onScroll = false;
+        });
         // this.GetItem(index).target.slideToggle(1000, () => { });
     };
     return ScrollPageView;
