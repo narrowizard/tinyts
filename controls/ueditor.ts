@@ -4,7 +4,9 @@ class UEditor extends View {
     LoadView() {
         super.LoadView();
         var param = this.target.attr("data-param");
-        this.editor = UE.getEditor(this.ViewId());
+        this.editor = UE.getEditor(this.ViewId(), {
+            initialFrameHeight: $(window).height() - 340
+        });
         //多个参数以|分割
         var ps = param.split("|");
         for (var i = 0; i < ps.length; i++) {
@@ -26,6 +28,10 @@ class UEditor extends View {
         });
     }
 
+    static SetHeight(height: number) {
+        $(".edui-editor-iframeholder.edui-default").css("height", height);
+    }
+
     SetContent(html: string) {
         this.editor.setContent(html);
     }
@@ -35,8 +41,8 @@ class UEditor extends View {
     }
 
     static ResizeEditor() {
-        $(".edui-editor").css("width", "95%");
-        $(".edui-editor").css("margin-left", "1%");
+        $(".edui-editor").css("width", "100%");
+        $(".edui-editor").css("margin", "auto");
         $(".edui-editor-iframeholder").css("width", "100%");
     }
 }

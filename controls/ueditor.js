@@ -11,7 +11,9 @@ var UEditor = (function (_super) {
     UEditor.prototype.LoadView = function () {
         _super.prototype.LoadView.call(this);
         var param = this.target.attr("data-param");
-        this.editor = UE.getEditor(this.ViewId());
+        this.editor = UE.getEditor(this.ViewId(), {
+            initialFrameHeight: $(window).height() - 340
+        });
         //多个参数以|分割
         var ps = param.split("|");
         for (var i = 0; i < ps.length; i++) {
@@ -31,6 +33,9 @@ var UEditor = (function (_super) {
             _this.editor.execCommand("serverparam");
         });
     };
+    UEditor.SetHeight = function (height) {
+        $(".edui-editor-iframeholder.edui-default").css("height", height);
+    };
     UEditor.prototype.SetContent = function (html) {
         this.editor.setContent(html);
     };
@@ -38,8 +43,8 @@ var UEditor = (function (_super) {
         return this.editor.getContent();
     };
     UEditor.ResizeEditor = function () {
-        $(".edui-editor").css("width", "95%");
-        $(".edui-editor").css("margin-left", "1%");
+        $(".edui-editor").css("width", "100%");
+        $(".edui-editor").css("margin", "auto");
         $(".edui-editor-iframeholder").css("width", "100%");
     };
     return UEditor;

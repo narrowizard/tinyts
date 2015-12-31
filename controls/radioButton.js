@@ -15,7 +15,6 @@ var RadioButton = (function (_super) {
     };
     RadioButton.prototype.LoadView = function () {
         _super.prototype.LoadView.call(this);
-        debugger;
         var datas = this.target.find("input[type='radio']");
         for (var i = 0; i < datas.length; i++) {
             var model = new RadioModel($(datas[i]).val(), $(datas[i]).parent().text());

@@ -1,9 +1,17 @@
 class Button extends TextView {
 
-	PerformClick() {
-		if (this.target != null) {
-			this.target.click();
-		}
-	}
+    PerformClick() {
+        if (this.target != null) {
+            this.target.click();
+        }
+    }
+
+    Disable() {
+        this.target.attr("disabled", "true");
+    }
+
+    Enable() {
+        this.target.removeAttr("disabled");
+    }
 
 }

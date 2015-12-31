@@ -83,6 +83,26 @@ class ListView<T> extends View {
         }
     }
 
+    SetItem(predicate: (p: T) => boolean, item: T);
+    SetItem(index: number, item: T);
+    SetItem(param: any, item: T) {
+        if (typeof param == "number") {
+            if (param < 0 || param >= this.Count()) {
+                return;
+            }
+            this.mData[param] = item;
+        } else if (typeof param == "function") {
+            var predicate = <(p: T) => boolean>param;
+            for (var i = 0; i < this.Count(); i++) {
+                if(predicate(this.mData[i])){
+                    this.mData[i] = item;
+                    break;
+                }
+            }
+        }
+        this.RefreshView();
+    }
+
 	/**
 	 * 获取数组元素的长度
 	 */

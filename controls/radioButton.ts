@@ -9,7 +9,6 @@ class RadioButton<T extends RadioModel> extends ListView<T>{
 
     LoadView() {
         super.LoadView();
-        debugger;
         var datas = this.target.find("input[type='radio']");
         for (var i = 0; i < datas.length; i++) {
             var model = new RadioModel($(datas[i]).val(), $(datas[i]).parent().text());

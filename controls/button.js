@@ -13,6 +13,12 @@ var Button = (function (_super) {
             this.target.click();
         }
     };
+    Button.prototype.Disable = function () {
+        this.target.attr("disabled", "true");
+    };
+    Button.prototype.Enable = function () {
+        this.target.removeAttr("disabled");
+    };
     return Button;
 })(TextView);
 //# sourceMappingURL=button.js.map

@@ -5,9 +5,11 @@ var JsonListModel = (function () {
         this.Children = [];
     }
     JsonListModel.prototype.SetData = function (obj, pid, name) {
-        this.Id = JsonListModel.curId++;
-        this.PId = pid;
-        this.Option = name;
+        if (!this.Id) {
+            this.Id = JsonListModel.curId++;
+            this.PId = pid;
+            this.Option = name;
+        }
         //二级商品
         if (obj.Options == null) {
             this.Product = obj.Product;

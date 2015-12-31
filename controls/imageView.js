@@ -11,6 +11,14 @@ var ImageView = (function (_super) {
     ImageView.prototype.SetUrl = function (url) {
         this.target.attr("src", url);
     };
+    ImageView.prototype.SetSize = function (height, width) {
+        if (height > 0) {
+            this.target.css("height", height);
+        }
+        if (width > 0) {
+            this.target.css("width", width);
+        }
+    };
     return ImageView;
 })(View);
 //# sourceMappingURL=imageView.js.map

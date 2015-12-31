@@ -9,9 +9,11 @@ class JsonListModel {
     Children: JsonListModel[] = [];
 
     SetData(obj: any, pid: number, name: string) {
-        this.Id = JsonListModel.curId++;
-        this.PId = pid;
-        this.Option = name;
+        if (!this.Id) {
+            this.Id = JsonListModel.curId++;
+            this.PId = pid;
+            this.Option = name;
+        }
         //二级商品
         if (obj.Options == null) {
             this.Product = obj.Product;

@@ -23,7 +23,7 @@ var Table = (function (_super) {
             hanlder(me.curPage + 1, me.GetPageSize());
         });
         this.navBar.find(".nav-prev-page").click(function () {
-            if (me.curPage == 0) {
+            if (me.curPage == 1) {
                 return;
             }
             hanlder(me.curPage - 1, me.GetPageSize());
@@ -50,6 +50,12 @@ var Table = (function (_super) {
             return;
         }
         this.curPage = +page;
+    };
+    /**
+     * 获取当前页码
+     */
+    Table.prototype.CurrentPage = function () {
+        return this.curPage;
     };
     /**
      * 获取每页条数
@@ -138,14 +144,14 @@ var Table = (function (_super) {
     };
     Table.prototype.createNavigation = function () {
         var html = "";
-        html += "<button class='btn btn-xs btn-success nav-first-page'>首页</button>";
-        html += "<button class='btn btn-xs btn-success nav-prev-page'>上一页</button>";
-        html += "<button class='btn btn-xs btn-success nav-next-page'>下一页</button>";
-        html += "<button class='btn btn-xs btn-success nav-last-page'>末页</button>";
+        html += "<button class='btn btn-xs btn-info nav-first-page'>首页</button>";
+        html += "<button class='btn btn-xs btn-info nav-prev-page'>上一页</button>";
+        html += "<button class='btn btn-xs btn-info nav-next-page'>下一页</button>";
+        html += "<button class='btn btn-xs btn-info nav-last-page'>末页</button>";
         html += "页次 <label class='curPage'></label>/<label class='totalPage'></label>";
         html += " 每页<input type='text' value='10' class='pagesize' />条";
         html += " 跳转到<input type='text' class='page' value='1'/>";
-        html += "<button class='btn btn-xs btn-success nav-to-page'>跳转</button>";
+        html += "<button class='btn btn-xs btn-info nav-to-page'>跳转</button>";
         this.navBar.append(html);
     };
     Table.prototype.RefreshView = function () {

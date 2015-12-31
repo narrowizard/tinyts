@@ -73,6 +73,24 @@ var ListView = (function (_super) {
             return this.mData.where(predicate).first();
         }
     };
+    ListView.prototype.SetItem = function (param, item) {
+        if (typeof param == "number") {
+            if (param < 0 || param >= this.Count()) {
+                return;
+            }
+            this.mData[param] = item;
+        }
+        else if (typeof param == "function") {
+            var predicate = param;
+            for (var i = 0; i < this.Count(); i++) {
+                if (predicate(this.mData[i])) {
+                    this.mData[i] = item;
+                    break;
+                }
+            }
+        }
+        this.RefreshView();
+    };
     /**
      * 获取数组元素的长度
      */
