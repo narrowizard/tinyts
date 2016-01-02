@@ -15,35 +15,6 @@ function view(Class: { new (...args: any[]): View }) {
     }
 }
 
-// function ViewModel<T extends IViewModel>(Class: { new (...args: any[]): T }) {
-//     console.log("viewmodel's decorator");
-//     return function constructor(): T {
-//         const instance: T = new Class();
-//         for (let injectionPoint of getInjectionPoints(Class)) {
-//             injectionPoint.instance.LoadView();
-//             instance[injectionPoint.propertyName] = injectionPoint.instance;
-//         }
-//         instance.RegisterEvents();
-//         return instance;
-//     }
-// }
-
-// function getInjectionPoints<T>(Class: { __inject__?: { [prop: string]: View } }): Array<InjectionPoint> {
-//     var result: Array<InjectionPoint> = [];
-
-//     if (Class.__inject__) {
-//         result = Object.keys(Class.__inject__)
-//             .map((propertyName: string) => {
-//                 return {
-//                     propertyName: propertyName,
-//                     instance: Class.__inject__[propertyName]
-//                 }
-//             });
-//     }
-
-//     return result;
-// }
-
 interface InjectionPoint {
     propertyName: string;
     instance: View;

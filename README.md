@@ -41,7 +41,7 @@ View<-ViewGroup
 ```
 +  ViewModel的初始化流程如下：
 ```
-  ViewBinder.instantiate => View.constructor => ViewModel.constructor => View.LoadView => ViewModel.RegisterEvents
+  view decorator => View.constructor => BaseViewModel.constructor => View.LoadView => ViewModel.RegisterEvents
 ```
 +  controls中定义了一些常用的控件，你也可以继承这些类（或继承以上四个基类）开发自己的控件   
 这些控件中用到了第三方的开源js插件（jqueryui等）
@@ -69,7 +69,7 @@ View<-ViewGroup
     });
     
     //根据你需要使用的控件加载核心文件
-    requirejs(["core/ViewFilter","core/ViewBinder","core/View","core/TextView","controls/button","application/viewmodels/demo"],function(){
+    requirejs(["core/ViewFilter","core/View","core/BaseViewModel","core/TextView","controls/button","application/viewmodels/demo"],function(){
       
     });
 ```
@@ -92,8 +92,6 @@ View<-ViewGroup
     }
     
     $().ready(()=>{
-      var demo = ViewBinder.instantiate(Demo);
+      var demo = new Demo();
     });
 ```
-+  请调用ViewBinder的instantiate方法来初始化你的ViewModel，   
-这将会在你的HTML页面上（根据控件名称）寻找你在ViewModel中定义的控件，并进行依赖注入
