@@ -14,18 +14,25 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var Demo = (function (_super) {
-    __extends(Demo, _super);
-    function Demo() {
+var AddDialog = (function (_super) {
+    __extends(AddDialog, _super);
+    function AddDialog() {
         _super.apply(this, arguments);
     }
+    AddDialog.prototype.RegisterEvents = function () {
+        var me = this;
+        me.btnSubmit.OnClick(function () {
+            alert(me.txtInput.Value());
+        });
+    };
     __decorate([
-        partialView(AddDialog), 
-        __metadata('design:type', AddDialog)
-    ], Demo.prototype, "addDialog");
-    return Demo;
-})(BaseViewModel);
-$().ready(function () {
-    var demo = new Demo();
-});
-//# sourceMappingURL=demo.js.map
+        view(Button), 
+        __metadata('design:type', Button)
+    ], AddDialog.prototype, "btnSubmit");
+    __decorate([
+        view(TextBox), 
+        __metadata('design:type', TextBox)
+    ], AddDialog.prototype, "txtInput");
+    return AddDialog;
+})(ViewGroup);
+//# sourceMappingURL=addDialog.js.map

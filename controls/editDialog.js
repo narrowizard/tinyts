@@ -31,13 +31,13 @@ var EditDialog = (function (_super) {
         this.Hide();
     };
     EditDialog.prototype.Show = function () {
-        _super.prototype.Show.call(this);
+        this.target.css("display", "block");
         if (this.masked) {
             this.mask.css("display", "block");
         }
     };
     EditDialog.prototype.Hide = function () {
-        _super.prototype.Hide.call(this);
+        this.target.css("display", "none");
         if (this.masked) {
             this.mask.css("display", "none");
         }
@@ -57,5 +57,5 @@ var EditDialog = (function (_super) {
         this.mask.css("opacity", "0.5");
     };
     return EditDialog;
-})(ViewGroup);
+})(View);
 //# sourceMappingURL=editDialog.js.map
