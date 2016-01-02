@@ -14,28 +14,36 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var Demo = (function (_super) {
-    __extends(Demo, _super);
-    function Demo() {
+function log(target, key, value) {
+    return {
+        value: function () {
+            var args = [];
+            for (var _i = 0; _i < arguments.length; _i++) {
+                args[_i - 0] = arguments[_i];
+            }
+            var a = args.map(function (a) { return JSON.stringify(a); }).join();
+            var result = value.value.apply(this, args);
+            var r = JSON.stringify(result);
+            console.log("Call:" + key + "(" + a + ")=>" + r);
+            return result;
+        }
+    };
+}
+var D = (function (_super) {
+    __extends(D, _super);
+    function D() {
         _super.apply(this, arguments);
     }
-    Demo.prototype.RegisterEvents = function () {
-        var me = this;
-        me.btnSubmit.OnClick(function () {
-            alert(me.txtInput.Value());
-        });
+    D.prototype.foo = function (n) {
+        return n * 2;
     };
-    __decorate([
-        view(Button), 
-        __metadata('design:type', Button)
-    ], Demo.prototype, "btnSubmit");
-    __decorate([
-        view(TextBox), 
-        __metadata('design:type', TextBox)
-    ], Demo.prototype, "txtInput");
-    return Demo;
-})(BaseViewModel);
-$().ready(function () {
-    var demo = new Demo();
-});
-//# sourceMappingURL=demo.js.map
+    Object.defineProperty(D.prototype, "foo",
+        __decorate([
+            log, 
+            __metadata('design:type', Function), 
+            __metadata('design:paramtypes', [Number]), 
+            __metadata('design:returntype', void 0)
+        ], D.prototype, "foo", Object.getOwnPropertyDescriptor(D.prototype, "foo")));
+    return D;
+})(Function);
+//# sourceMappingURL=example.js.map

@@ -1,19 +1,21 @@
-class Demo implements IViewModel {
+class Demo extends BaseViewModel {
 
-    @view(ScrollPageView)
-    mainScrollPageView: ScrollPageView;
+    @view(Button)
+    btnSubmit: Button;
 
-    init() {
-        this.mainScrollPageView.NextPage();
-    }
+    @view(TextBox)
+    txtInput: TextBox;
 
     RegisterEvents() {
         var me = this;
+
+        me.btnSubmit.OnClick(() => {
+            alert(me.txtInput.Value());
+        });
     }
 
 }
 
 $().ready(() => {
-    var demo = ViewBinder.instantiate(Demo);
-    demo.init();
+    var demo = new Demo();
 });
