@@ -10,12 +10,9 @@ function view(Class) {
         if (!targetType.hasOwnProperty('__inject__')) {
             targetType.__inject__ = {};
         }
-        var temp = new Class();
-        //循环注入
-        if (Class["__inject__"]) {
-        }
-        temp.SetID(decoratedPropertyName);
-        targetType.__inject__[decoratedPropertyName] = temp;
+        // var temp = new Class();
+        // temp.SetID(decoratedPropertyName);
+        targetType.__inject__[decoratedPropertyName] = Class;
     };
 }
 /**
@@ -27,11 +24,8 @@ function partialView(Class) {
         if (!targetType.hasOwnProperty('__inject__')) {
             targetType.__inject__ = {};
         }
-        var temp = new Class();
-        //循环注入
-        if (Class["__inject__"]) {
-        }
-        targetType.__inject__[decoratedPropertyName] = temp;
+        // var temp = new Class();
+        targetType.__inject__[decoratedPropertyName] = Class;
     };
 }
 //# sourceMappingURL=ViewFilter.js.map

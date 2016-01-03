@@ -12,13 +12,9 @@ function view(Class: { new (...args: any[]): View }) {
         if (!targetType.hasOwnProperty('__inject__')) {
             targetType.__inject__ = {};
         }
-        var temp = new Class();
-        //循环注入
-        if (Class["__inject__"]) {
-
-        }
-        temp.SetID(decoratedPropertyName);
-        targetType.__inject__[decoratedPropertyName] = temp;
+        // var temp = new Class();
+        // temp.SetID(decoratedPropertyName);
+        targetType.__inject__[decoratedPropertyName] = Class;
     }
 }
 
@@ -32,16 +28,12 @@ function partialView(Class: { new (...args: any[]): ViewGroup }) {
         if (!targetType.hasOwnProperty('__inject__')) {
             targetType.__inject__ = {};
         }
-        var temp = new Class();
-        //循环注入
-        if (Class["__inject__"]) {
-
-        }
-        targetType.__inject__[decoratedPropertyName] = temp;
+        // var temp = new Class();
+        targetType.__inject__[decoratedPropertyName] = Class;
     }
 }
 
 interface InjectionPoint {
     propertyName: string;
-    instance: View;
+    constructor: { new (...args: any[]): View };
 }

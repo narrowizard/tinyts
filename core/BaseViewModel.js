@@ -7,15 +7,22 @@ var BaseViewModel = (function () {
         if (Class["__inject__"]) {
             var result = Object.keys(Class["__inject__"])
                 .map(function (propertyName) {
-                return {
-                    propertyName: propertyName,
-                    instance: Class["__inject__"][propertyName]
-                };
+                var temp = { propertyName: "", constructor: null };
+                temp.propertyName = propertyName;
+                temp.constructor = Class["__inject__"][propertyName];
+                return temp;
             });
             for (var _i = 0; _i < result.length; _i++) {
                 var injectionPoint = result[_i];
-                injectionPoint.instance.LoadView();
-                this[injectionPoint.propertyName] = injectionPoint.instance;
+                var temp = new injectionPoint.constructor();
+                //如果是View
+                if (temp instanceof View) {
+                    temp.SetID(injectionPoint.propertyName);
+                    temp.LoadView();
+                }
+                else if (temp instanceof BaseViewModel) {
+                }
+                this[injectionPoint.propertyName] = temp;
             }
             this.RegisterEvents();
         }
