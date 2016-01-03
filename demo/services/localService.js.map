@@ -1,0 +1,1 @@
+{"version":3,"file":"localService.js","sourceRoot":"","sources":["localService.ts"],"names":["LocalService","LocalService.constructor","LocalService.GetReport"],"mappings":"AAAA;IAAAA;IAMAC,CAACA;IALGD,gCAASA,GAATA,UAAUA,OAAaA;QACnBE,CAACA,CAACA,OAAOA,CAACA,qBAAqBA,EAAEA,UAACA,IAAIA,EAAEA,UAAUA,EAAEA,KAAKA;QAEzDA,CAACA,CAACA,CAACA;IACPA,CAACA;IACLF,mBAACA;AAADA,CAACA,AAND,IAMC"}
