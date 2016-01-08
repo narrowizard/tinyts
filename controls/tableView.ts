@@ -182,10 +182,7 @@
     }
 
     RefreshView() {
-        this.Clear();
-        for (var i = 0; i < this.mData.length; i++) {
-            this.append(this.GetView(i));
-        }
+        super.RefreshView();
         if (this.navBar) {
             this.navBar.find(".curPage").text(this.curPage);
             this.navBar.find(".totalPage").text(this.pageCount);

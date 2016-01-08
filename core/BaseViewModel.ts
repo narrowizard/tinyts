@@ -1,7 +1,7 @@
 /**
  * ViewModel的基类,该类实现了依赖注入
  */
-class BaseViewModel implements IViewModel {
+abstract class BaseViewModel implements IViewModel {
 
     constructor() {
         var Class = this.constructor;
@@ -29,7 +29,5 @@ class BaseViewModel implements IViewModel {
         }
     }
 
-    RegisterEvents() {
-
-    }
+    abstract RegisterEvents();
 }

@@ -118,6 +118,9 @@ var ListView = (function (_super) {
      */
     ListView.prototype.RefreshView = function () {
         this.Clear();
+        if (this.mData == null) {
+            return;
+        }
         for (var i = 0; i < this.mData.length; i++) {
             this.append(this.GetView(i));
         }

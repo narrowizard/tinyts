@@ -1,8 +1,9 @@
-class ViewGroup extends BaseViewModel {
-    
-    
+abstract class ViewGroup extends BaseViewModel {
+
+
     constructor() {
         super();
-        
     }
+
+
 }

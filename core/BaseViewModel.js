@@ -27,8 +27,6 @@ var BaseViewModel = (function () {
             this.RegisterEvents();
         }
     }
-    BaseViewModel.prototype.RegisterEvents = function () {
-    };
     return BaseViewModel;
 })();
 //# sourceMappingURL=BaseViewModel.js.map

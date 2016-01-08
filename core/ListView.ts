@@ -94,7 +94,7 @@ class ListView<T> extends View {
         } else if (typeof param == "function") {
             var predicate = <(p: T) => boolean>param;
             for (var i = 0; i < this.Count(); i++) {
-                if(predicate(this.mData[i])){
+                if (predicate(this.mData[i])) {
                     this.mData[i] = item;
                     break;
                 }
@@ -131,6 +131,9 @@ class ListView<T> extends View {
 	 */
     RefreshView() {
         this.Clear();
+        if (this.mData == null) {
+            return;
+        }
         for (var i = 0; i < this.mData.length; i++) {
             this.append(this.GetView(i));
         }

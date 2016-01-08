@@ -160,10 +160,7 @@ var Table = (function (_super) {
         this.navBar.append(html);
     };
     Table.prototype.RefreshView = function () {
-        this.Clear();
-        for (var i = 0; i < this.mData.length; i++) {
-            this.append(this.GetView(i));
-        }
+        _super.prototype.RefreshView.call(this);
         if (this.navBar) {
             this.navBar.find(".curPage").text(this.curPage);
             this.navBar.find(".totalPage").text(this.pageCount);
