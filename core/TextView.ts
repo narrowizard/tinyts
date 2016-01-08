@@ -1,18 +1,22 @@
 class TextView extends View {
 
-	SetText(text: string) {
-		this.target.text(text);
-	}
+    SetText(text: string) {
+        this.target.text(text);
+    }
 
-	SetColor(color: string) {
-		this.target.css("color", color);
-	}
+    GetText(): string {
+        return this.target.text();
+    }
 
-	SetBackgroundColor(color: string) {
-		this.target.css("background-color", color);
-	}
+    SetColor(color: string) {
+        this.target.css("color", color);
+    }
 
-	SetSize(pixel: number) {
-		this.target.css("font-size", pixel);
-	}
+    SetBackgroundColor(color: string) {
+        this.target.css("background-color", color);
+    }
+
+    SetSize(pixel: number) {
+        this.target.css("font-size", pixel);
+    }
 }

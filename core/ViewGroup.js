@@ -6,7 +6,7 @@ var __extends = (this && this.__extends) || function (d, b) {
 var ViewGroup = (function (_super) {
     __extends(ViewGroup, _super);
     function ViewGroup() {
-        _super.apply(this, arguments);
+        _super.call(this);
     }
     return ViewGroup;
 })(BaseViewModel);

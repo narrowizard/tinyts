@@ -11,6 +11,9 @@ var TextView = (function (_super) {
     TextView.prototype.SetText = function (text) {
         this.target.text(text);
     };
+    TextView.prototype.GetText = function () {
+        return this.target.text();
+    };
     TextView.prototype.SetColor = function (color) {
         this.target.css("color", color);
     };

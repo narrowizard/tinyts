@@ -9,28 +9,32 @@
         var me = this;
         this.navBar.find(".nav-first-page").click(() => {
             hanlder(1, me.GetPageSize());
+            me.curPage = 1;
         });
         this.navBar.find(".nav-last-page").click(() => {
             hanlder(me.pageCount, me.GetPageSize());
+            me.curPage = me.pageCount;
         });
         this.navBar.find(".nav-next-page").click(() => {
             if (me.curPage == me.pageCount) {
                 return;
             }
-
             hanlder(me.curPage + 1, me.GetPageSize());
+            me.curPage = me.curPage + 1;
         });
         this.navBar.find(".nav-prev-page").click(() => {
             if (me.curPage == 1) {
                 return;
             }
             hanlder(me.curPage - 1, me.GetPageSize());
+            me.curPage = me.curPage - 1;
         });
         this.navBar.find(".nav-to-page").click(() => {
             var t = me.navBar.find(".page").val();
             if (t < 1 || t > me.pageCount) {
                 return;
             }
+            me.curPage = +t;
             hanlder(t, me.GetPageSize());
         });
     }

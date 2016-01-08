@@ -12,27 +12,32 @@ var Table = (function (_super) {
         var me = this;
         this.navBar.find(".nav-first-page").click(function () {
             hanlder(1, me.GetPageSize());
+            me.curPage = 1;
         });
         this.navBar.find(".nav-last-page").click(function () {
             hanlder(me.pageCount, me.GetPageSize());
+            me.curPage = me.pageCount;
         });
         this.navBar.find(".nav-next-page").click(function () {
             if (me.curPage == me.pageCount) {
                 return;
             }
             hanlder(me.curPage + 1, me.GetPageSize());
+            me.curPage = me.curPage + 1;
         });
         this.navBar.find(".nav-prev-page").click(function () {
             if (me.curPage == 1) {
                 return;
             }
             hanlder(me.curPage - 1, me.GetPageSize());
+            me.curPage = me.curPage - 1;
         });
         this.navBar.find(".nav-to-page").click(function () {
             var t = me.navBar.find(".page").val();
             if (t < 1 || t > me.pageCount) {
                 return;
             }
+            me.curPage = +t;
             hanlder(t, me.GetPageSize());
         });
     };

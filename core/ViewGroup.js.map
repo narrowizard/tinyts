@@ -1,1 +1,1 @@
-{"version":3,"file":"ViewGroup.js","sourceRoot":"","sources":["ViewGroup.ts"],"names":["ViewGroup","ViewGroup.constructor"],"mappings":";;;;;AAAA;IAAwBA,6BAAaA;IAArCA;QAAwBC,8BAAaA;IAErCA,CAACA;IAADD,gBAACA;AAADA,CAACA,AAFD,EAAwB,aAAa,EAEpC"}
+{"version":3,"file":"ViewGroup.js","sourceRoot":"","sources":["ViewGroup.ts"],"names":["ViewGroup","ViewGroup.constructor"],"mappings":";;;;;AAAA;IAAwBA,6BAAaA;IAGjCA;QACIC,iBAAOA,CAACA;IAEZA,CAACA;IACLD,gBAACA;AAADA,CAACA,AAPD,EAAwB,aAAa,EAOpC"}

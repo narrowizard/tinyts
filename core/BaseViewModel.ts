@@ -20,7 +20,7 @@ class BaseViewModel implements IViewModel {
                     temp.SetID(injectionPoint.propertyName);
                     temp.LoadView();
                 } else if (temp instanceof BaseViewModel) {
-
+                    
                 }
 
                 this[injectionPoint.propertyName] = temp;
