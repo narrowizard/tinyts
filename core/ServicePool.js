@@ -1,5 +1,6 @@
 var ServicePool = (function () {
     function ServicePool() {
+        this.instances = {};
     }
     ServicePool.prototype.GetService = function (Class) {
         var name = Class.prototype.constructor.name;
@@ -12,4 +13,5 @@ var ServicePool = (function () {
     };
     return ServicePool;
 })();
+var ServicePoolInstance = new ServicePool();
 //# sourceMappingURL=ServicePool.js.map
