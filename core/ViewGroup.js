@@ -8,6 +8,9 @@ var ViewGroup = (function (_super) {
     function ViewGroup() {
         _super.call(this);
     }
+    ViewGroup.prototype.SetContext = function (context) {
+        this.context = context;
+    };
     return ViewGroup;
 })(BaseViewModel);
 //# sourceMappingURL=ViewGroup.js.map

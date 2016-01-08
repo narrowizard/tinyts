@@ -1,5 +1,8 @@
 class Demo extends BaseViewModel {
 
+    @partialView(Test)
+    test: Test;
+
     localService: LocalService;
 
     constructor() {
@@ -9,6 +12,10 @@ class Demo extends BaseViewModel {
 
     LoadData() {
         this.localService.GetReport(this);
+    }
+
+    RegisterEvents() {
+
     }
 
 }

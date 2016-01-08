@@ -15,12 +15,13 @@ abstract class BaseViewModel implements IViewModel {
                 });
             for (let injectionPoint of result) {
                 var temp = new injectionPoint.constructor();
-                //如果是View
+                //如果是Control
                 if (temp instanceof View) {
-                    temp.SetID(injectionPoint.propertyName);
-                    temp.LoadView();
-                } else if (temp instanceof BaseViewModel) {
-                    
+                    (temp as View).SetID(injectionPoint.propertyName);
+                    (temp as View).LoadView();
+                } else if (temp instanceof ViewGroup) {
+                    //如果是View
+                    temp.SetContext(this);
                 }
 
                 this[injectionPoint.propertyName] = temp;

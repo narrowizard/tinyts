@@ -21,8 +21,8 @@ function view(Class: { new (...args: any[]): View }) {
 /**
  * 用于封装的部分视图
  */
-function partialView(Class: { new (...args: any[]): ViewGroup }) {
-    return function inject(target: IViewModel, decoratedPropertyName: string): void {
+function partialView<T>(Class: { new (...args: any[]): ViewGroup<T> }) {
+    return function inject(target: T, decoratedPropertyName: string): void {
         const targetType: { __inject__?: Object } = target.constructor;
 
         if (!targetType.hasOwnProperty('__inject__')) {
@@ -35,5 +35,5 @@ function partialView(Class: { new (...args: any[]): ViewGroup }) {
 
 interface InjectionPoint {
     propertyName: string;
-    constructor: { new (...args: any[]): View };
+    constructor: { new (...args: any[]): any };
 }

@@ -1,5 +1,10 @@
-abstract class ViewGroup extends BaseViewModel {
+abstract class ViewGroup<T> extends BaseViewModel {
 
+    context: T;
+
+    SetContext(context: T) {
+        this.context = context;
+    }
 
     constructor() {
         super();
