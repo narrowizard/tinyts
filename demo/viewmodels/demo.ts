@@ -1,17 +1,15 @@
 class Demo extends BaseViewModel {
 
-    @partialView(Test)
-    test: Test;
+    @view(Table)
+    testTable: Table<User>;
 
-    localService: LocalService;
+    init() {
+        var data = [];
+        data.push(new User(1, "张三"));
+        data.push(new User(2, "John"));
+        data.push(new User(3, "Jobs"));
+        this.testTable.SetData(data);
 
-    constructor() {
-        super();
-        this.localService = new LocalService();
-    }
-
-    LoadData() {
-        this.localService.GetReport(this);
     }
 
     RegisterEvents() {
@@ -22,5 +20,5 @@ class Demo extends BaseViewModel {
 
 $().ready(() => {
     var demo = new Demo();
-    demo.LoadData();
+    demo.init();
 });

@@ -95,6 +95,7 @@ var Table = (function (_super) {
             return "";
         }
         var html = "";
+        //增加tr
         if (this.beforeAppend != null) {
             var res = this.beforeAppend(-1, this.mData[index]);
             if (res != "") {
@@ -107,10 +108,22 @@ var Table = (function (_super) {
         else {
             html += "<tr data-id=" + this.GetItemId(index) + " >";
         }
+        //增加td
         for (var i = 0; i < this.length; i++) {
-            var value = this.mData[index][this.columns[i]];
-            if (value !== undefined) {
-                html += "<td>" + value + "</td>";
+            //首先判断是否是checkbox
+            if (this.columns[i].checkBox) {
+                html += "<td><input type='checkbox' data-id=" + this.mData[index].Id + " data-column-index=" + i + " /></td>";
+                continue;
+            }
+            if (this.columns[i].dataBind) {
+                var value = this.mData[index][this.columns[i].dataColumn];
+                //data-column数据绑定
+                if (value !== undefined) {
+                    html += "<td>" + value + "</td>";
+                }
+                else {
+                    html += "<td></td>";
+                }
             }
             else {
                 if (this.beforeAppend == null) {
@@ -126,17 +139,25 @@ var Table = (function (_super) {
     };
     Table.prototype.LoadView = function () {
         _super.prototype.LoadView.call(this);
-        this.columns = {};
+        this.columns = [];
         var me = this;
         //列长度
         this.length = this.target.find("thead tr").children("th").length;
         //列绑定
         this.target.find("tr").eq(0).children("th").each(function (index, element) {
+            var temp = new TableColumn();
             var c = $(element).attr("data-column");
             if (c) {
-                me.columns[index] = c;
+                temp.dataBind = true;
+                temp.dataColumn = c;
             }
+            if ($(element).attr("data-checkbox")) {
+                $(element).append("<input type='checkbox' data-column-index='" + index + "' />");
+                temp.checkBox = true;
+            }
+            me.columns[index] = temp;
         });
+        //导航
         var naved = Boolean(this.target.attr("data-navigation"));
         if (naved) {
             //创建页面导航
@@ -146,6 +167,8 @@ var Table = (function (_super) {
             this.navBar = $("#" + this.navBarId);
             this.createNavigation();
         }
+        //点击选中
+        this.selectOnClick = Boolean(this.target.attr("data-select-on-click"));
     };
     Table.prototype.createNavigation = function () {
         var html = "";
@@ -160,6 +183,7 @@ var Table = (function (_super) {
         this.navBar.append(html);
     };
     Table.prototype.RefreshView = function () {
+        var me = this;
         _super.prototype.RefreshView.call(this);
         if (this.navBar) {
             this.navBar.find(".curPage").text(this.curPage);
@@ -169,6 +193,25 @@ var Table = (function (_super) {
         this.RegisterEvents();
         if (this.registerEvents != null) {
             this.registerEvents();
+        }
+        //注册全选事件
+        this.target.find("thead input[type='checkbox']").click(function (obj) {
+            var columnIndex = $(obj.target).attr("data-column-index");
+            var state = $(obj.target).prop("checked");
+            me.target.find("tbody input[type='checkbox'][data-column-index=" + columnIndex + "]").prop("checked", state);
+        });
+        //点击选中
+        if (this.selectOnClick) {
+            this.target.find("tbody tr").click(function (obj) {
+                $(obj.target).find("input[type='checkbox']").each(function (index, elem) {
+                    if ($(elem).prop("checked")) {
+                        $(elem).prop("checked", false);
+                    }
+                    else {
+                        $(elem).prop("checked", true);
+                    }
+                });
+            });
         }
     };
     Table.prototype.TreeTable = function (config, force) {

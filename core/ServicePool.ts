@@ -15,6 +15,10 @@ class ServicePool {
         return <T>this.instances[name];
     }
 
+    ReleaseService() {
+
+    }
+
 
 }
 

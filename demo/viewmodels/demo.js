@@ -15,22 +15,25 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var Demo = (function (_super) {
     __extends(Demo, _super);
     function Demo() {
-        _super.call(this);
-        this.localService = new LocalService();
+        _super.apply(this, arguments);
     }
-    Demo.prototype.LoadData = function () {
-        this.localService.GetReport(this);
+    Demo.prototype.init = function () {
+        var data = [];
+        data.push(new User(1, "张三"));
+        data.push(new User(2, "John"));
+        data.push(new User(3, "Jobs"));
+        this.testTable.SetData(data);
     };
     Demo.prototype.RegisterEvents = function () {
     };
     __decorate([
-        partialView(Test), 
-        __metadata('design:type', Test)
-    ], Demo.prototype, "test", void 0);
+        view(Table), 
+        __metadata('design:type', Table)
+    ], Demo.prototype, "testTable", void 0);
     return Demo;
 })(BaseViewModel);
 $().ready(function () {
     var demo = new Demo();
-    demo.LoadData();
+    demo.init();
 });
 //# sourceMappingURL=demo.js.map

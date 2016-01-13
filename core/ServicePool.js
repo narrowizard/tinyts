@@ -11,6 +11,8 @@ var ServicePool = (function () {
         }
         return this.instances[name];
     };
+    ServicePool.prototype.ReleaseService = function () {
+    };
     return ServicePool;
 })();
 var ServicePoolInstance = new ServicePool();
