@@ -182,6 +182,19 @@ var Table = (function (_super) {
         html += "<button class='btn btn-xs btn-info nav-to-page'>跳转</button>";
         this.navBar.append(html);
     };
+    /**
+     * 遍历所有选中行的数据,如果return false,将终止遍历
+     */
+    Table.prototype.TraverseSelected = function (handler) {
+        var me = this;
+        this.target.find("tbody input[type='checkbox']").each(function (index, elem) {
+            if ($(elem).prop("checked")) {
+                if (!handler(index, me.mData[index])) {
+                    return false;
+                }
+            }
+        });
+    };
     Table.prototype.RefreshView = function () {
         var me = this;
         _super.prototype.RefreshView.call(this);

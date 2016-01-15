@@ -206,6 +206,20 @@
 
     }
 
+    /**
+     * 遍历所有选中行的数据,如果return false,将终止遍历
+     */
+    TraverseSelected(handler: (index: number, data: T) => boolean) {
+        var me = this;
+        this.target.find("tbody input[type='checkbox']").each((index, elem) => {
+            if ($(elem).prop("checked")) {
+                if (!handler(index, me.mData[index])) {
+                    return false;
+                }
+            }
+        });
+    }
+
     RefreshView() {
         var me = this;
         super.RefreshView();

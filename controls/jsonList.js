@@ -55,7 +55,7 @@ var JsonList = (function (_super) {
             return html;
         }
         if (data.Product && data.Product != 0) {
-            return "<li>已经绑定到二级商品了</li>";
+            return "<li>二级商品编号：" + data.Product + "</li>";
         }
         html += "<li>";
         if (this.editable) {
