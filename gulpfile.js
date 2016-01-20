@@ -38,6 +38,22 @@ gulp.task('default', function () {
         .pipe(gulp.dest(scriptsPath));
     //  control
     gulp.src(path.join("controls", "/*.js"))
+        .pipe(order([
+            "album.js",
+            "button.js",
+            "textBox.js",
+            "datetimePicker.js",
+            "editDialog.js",
+            "fileUploader.js",
+            "imageView.js",
+            "itemlist.js",
+            "jsonList.js",
+            "radioButton.js",
+            "scrollPageView.js",
+            "selectButton.js",
+            "tableView.js",
+            "ueditor.js"
+        ]))
         .pipe(concat("controls.js"))
         .pipe(gulp.dest(scriptsPath))
         .pipe(uglify())
