@@ -24,6 +24,7 @@ var EditDialog = (function (_super) {
     EditDialog.prototype.LoadView = function () {
         _super.prototype.LoadView.call(this);
         var masked = this.target.attr("data-mask");
+        this.closeOnClick = Boolean(this.target.attr("data-close-on-click"));
         if (masked) {
             this.masked = true;
             this.initMask();
@@ -55,6 +56,12 @@ var EditDialog = (function (_super) {
         this.mask.css("z-index", "1000");
         this.target.css("z-index", "1001");
         this.mask.css("opacity", "0.5");
+        var me = this;
+        if (this.closeOnClick) {
+            this.mask.click(function () {
+                me.Hide();
+            });
+        }
     };
     return EditDialog;
 })(View);

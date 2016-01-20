@@ -1,6 +1,7 @@
 class EditDialog extends View {
     mask: JQuery;
     masked: boolean;
+    closeOnClick: boolean;
 
     MoveTo(x: number, y: number) {
         this.target.css("left", x);
@@ -22,6 +23,7 @@ class EditDialog extends View {
     LoadView() {
         super.LoadView();
         var masked = this.target.attr("data-mask");
+        this.closeOnClick = Boolean(this.target.attr("data-close-on-click"));
         if (masked) {
             this.masked = true;
             this.initMask();
@@ -56,5 +58,12 @@ class EditDialog extends View {
         this.mask.css("z-index", "1000");
         this.target.css("z-index", "1001");
         this.mask.css("opacity", "0.5");
+        
+        var me = this;
+        if (this.closeOnClick) {
+            this.mask.click(() => {
+                me.Hide();
+            });
+        }
     }
 }
