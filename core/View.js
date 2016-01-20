@@ -41,6 +41,32 @@ var View = (function () {
             this.target.click(handler);
         }
     };
+    /**
+     * SetClass 设置class属性
+     * @param className
+     * @param selector:该View的子元素选择器
+     */
+    View.prototype.SetClass = function (className, selector) {
+        if (!selector) {
+            this.target.addClass(className);
+        }
+        else {
+            this.target.find(selector).addClass(className);
+        }
+    };
+    /**
+     * SetClass 移除class
+     * @param className
+     * @param selector:该View的子元素选择器
+     */
+    View.prototype.RemoveClass = function (className, selector) {
+        if (!selector) {
+            this.target.removeClass(className);
+        }
+        else {
+            this.target.find(selector).removeClass(className);
+        }
+    };
     return View;
 })();
 //# sourceMappingURL=View.js.map

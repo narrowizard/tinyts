@@ -16,6 +16,7 @@ var ScrollPageView = (function (_super) {
         var me = this;
         _super.prototype.LoadView.call(this);
         this.mousewheel = Boolean(this.target.attr("data-mousewheel"));
+        this.navScrolled = Boolean(this.target.attr("data-nav-scrolled"));
         this.navigation = this.target.attr("data-page-nav");
         //页面导航
         if (this.navigation) {
@@ -45,6 +46,9 @@ var ScrollPageView = (function (_super) {
                 me.ToPage(index);
             });
         }
+        $(window).resize(function () {
+            me.InitPage();
+        });
         this.InitPage();
     };
     //添加自定义功能键
@@ -66,9 +70,6 @@ var ScrollPageView = (function (_super) {
             this.mData[i].target.css("top", h * i);
             this.mData[i].target.css("height", h);
         }
-        $(window).resize(function () {
-            me.InitPage();
-        });
         //绑定鼠标滚轮事件
         if (this.mousewheel) {
             this.curPage = 0;
@@ -107,11 +108,17 @@ var ScrollPageView = (function (_super) {
             return;
         }
         var h = parseInt(this.GetItem(index).target.css("top"));
-        me.onScroll = true;
         var selector = this.container == null ? "body,html" : this.container;
-        $(selector).animate({ scrollTop: h }, 1000, function () {
-            me.onScroll = false;
-        });
+        //滑动
+        if (me.navScrolled) {
+            me.onScroll = true;
+            $(selector).animate({ scrollTop: h }, 1000, function () {
+                me.onScroll = false;
+            });
+        }
+        else {
+            $(selector).scrollTop(h);
+        }
         this.curPage = index;
         // this.GetItem(index).target.slideToggle(1000, () => { });
     };

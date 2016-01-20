@@ -7,12 +7,14 @@ class ScrollPageView extends ListView<ScrollPageModel>{
     container: string;
     mousewheel: boolean;
     navigation: string;
+    navScrolled: boolean;
     nav: JQuery;
 
     LoadView() {
         var me = this;
         super.LoadView();
         this.mousewheel = Boolean(this.target.attr("data-mousewheel"));
+        this.navScrolled = Boolean(this.target.attr("data-nav-scrolled"));
         this.navigation = this.target.attr("data-page-nav");
         //页面导航
         if (this.navigation) {
@@ -45,6 +47,9 @@ class ScrollPageView extends ListView<ScrollPageModel>{
             //添加关闭按钮
             
         }
+        $(window).resize(() => {
+            me.InitPage();
+        });
         this.InitPage();
     }
 
@@ -54,7 +59,7 @@ class ScrollPageView extends ListView<ScrollPageModel>{
             var html = "";
             html += "<li>" + text + "</li>";
             this.nav.append(html);
-           this.nav.children("li").last().click(callback);
+            this.nav.children("li").last().click(callback);
         }
     }
 
@@ -69,9 +74,6 @@ class ScrollPageView extends ListView<ScrollPageModel>{
             this.mData[i].target.css("top", h * i);
             this.mData[i].target.css("height", h);
         }
-        $(window).resize(() => {
-            me.InitPage();
-        });
         //绑定鼠标滚轮事件
         if (this.mousewheel) {
             this.curPage = 0;
@@ -112,15 +114,17 @@ class ScrollPageView extends ListView<ScrollPageModel>{
             return;
         }
         var h = parseInt(this.GetItem(index).target.css("top"));
-
-        me.onScroll = true;
         var selector = this.container == null ? "body,html" : this.container;
-        $(selector).animate({ scrollTop: h }, 1000, () => {
-            me.onScroll = false;
-        });
+        //滑动
+        if (me.navScrolled) {
+            me.onScroll = true;
+            $(selector).animate({ scrollTop: h }, 1000, () => {
+                me.onScroll = false;
+            });
+        } else {
+            $(selector).scrollTop(h);
+        }
         this.curPage = index;
         // this.GetItem(index).target.slideToggle(1000, () => { });
     }
-
-
 }
