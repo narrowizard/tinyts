@@ -12,23 +12,28 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var Demo = (function (_super) {
-    __extends(Demo, _super);
-    function Demo() {
+var Searcher = (function (_super) {
+    __extends(Searcher, _super);
+    function Searcher() {
         _super.apply(this, arguments);
     }
-    Demo.prototype.init = function () {
+    Searcher.prototype.SetTemplate = function () {
+        this.template = "<div>\n                            <h1>\u6807\u9898</h1>\n                            <div>\u5185\u5BB9\u5185\u5BB9\u5185\u5BB9</div>\n                            <input type='text' id='sInput' />\n                            <button type='button' id='btnSubmit'>\u63D0\u4EA4</button>\n                        </div>";
     };
-    Demo.prototype.RegisterEvents = function () {
+    Searcher.prototype.RegisterEvents = function () {
+        var me = this;
+        this.btnSubmit.OnClick(function () {
+            alert("hello" + me.sInput.Value());
+        });
     };
     __decorate([
-        view(Searcher), 
-        __metadata('design:type', Searcher)
-    ], Demo.prototype, "searcher", void 0);
-    return Demo;
-})(BaseViewModel);
-$().ready(function () {
-    var demo = new Demo();
-    demo.init();
-});
-//# sourceMappingURL=demo.js.map
+        view(TextBox), 
+        __metadata('design:type', TextBox)
+    ], Searcher.prototype, "sInput", void 0);
+    __decorate([
+        view(Button), 
+        __metadata('design:type', Button)
+    ], Searcher.prototype, "btnSubmit", void 0);
+    return Searcher;
+})(VirtualView);
+//# sourceMappingURL=searcher.js.map
