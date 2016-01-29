@@ -15,6 +15,9 @@ var FileUploader = (function (_super) {
         }
         return null;
     };
+    FileUploader.prototype.OnChange = function (handler) {
+        this.target.change(handler);
+    };
     return FileUploader;
 })(TextView);
 //# sourceMappingURL=fileUploader.js.map

@@ -137,6 +137,10 @@
                 html += "<td><input type='checkbox' data-id=" + this.mData[index].Id + " data-column-index=" + i + " /></td>";
                 continue;
             }
+            if (this.columns[i].indexColumn) {
+                html += "<td>" + (index + 1) + "</td>";
+                continue;
+            }
             if (this.columns[i].dataBind) {
                 var value = this.mData[index][this.columns[i].dataColumn];
                 //data-column数据绑定
@@ -176,6 +180,9 @@
                 $(element).append("<input type='checkbox' data-column-index='" + index + "' />");
                 temp.checkBox = true;
             }
+            if ($(element).attr("data-index")) {
+                temp.indexColumn = true;
+            }
             me.columns[index] = temp;
         });
         //导航
@@ -190,6 +197,8 @@
         }
         //点击选中
         this.selectOnClick = Boolean(this.target.attr("data-select-on-click"));
+
+
     }
 
     protected createNavigation() {
