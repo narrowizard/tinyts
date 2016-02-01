@@ -4,6 +4,10 @@ var ServicePool = (function () {
     }
     ServicePool.prototype.GetService = function (Class) {
         var name = Class.prototype.constructor.name;
+        if (!name) {
+            //IE不支持name属性
+            name = Class.toString().match(/^function\s*([^\s(]+)/)[1];
+        }
         if (this.instances[name]) {
         }
         else {

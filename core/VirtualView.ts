@@ -1,5 +1,5 @@
 abstract class VirtualView extends View implements IViewModel {
-
+    
     template: string;
 
     LoadView() {
@@ -19,8 +19,8 @@ abstract class VirtualView extends View implements IViewModel {
                 });
             for (let injectionPoint of result) {
                 var temp = new injectionPoint.constructor();
-                //如果是Control
                 if (temp instanceof View) {
+                    //如果是Control
                     (temp as View).SetID(injectionPoint.propertyName);
                     (temp as View).LoadView();
                 } else if (temp instanceof ViewGroup) {
@@ -33,6 +33,8 @@ abstract class VirtualView extends View implements IViewModel {
             this.RegisterEvents();
         }
     }
+    
+    
 
     abstract SetTemplate();
 

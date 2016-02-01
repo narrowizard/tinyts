@@ -43,6 +43,7 @@ interface JQuery {
     treetable(func: string);
     datetimepicker(conhfig?: any);
     bind(eventType: string, handler: (event: JQueryEventObject, delta: number, deltaX: number, deltaY: Number) => boolean);
+    print(options?: any);
 }
 
 interface JQueryStatic {
@@ -56,3 +57,4 @@ interface JQueryEventObject {
 interface Color {
     toHex(): string;
 }
+

@@ -17,16 +17,16 @@ var View = (function () {
         this.target = $("#" + this.id);
     };
     /**
-     * 通过选择器绑定View
-     */
-    View.prototype.BindBySelector = function (selector) {
-        this.target = $(selector);
-    };
-    /**
      * 设置style属性
      */
     View.prototype.SetStyle = function (key, value) {
         this.target.css(key, value);
+    };
+    /**
+     * 通过选择器绑定View
+     */
+    View.prototype.BindBySelector = function (selector) {
+        this.target = $(selector);
     };
     View.prototype.SetAttr = function (attrName, value) {
         this.attributes[attrName] = value;

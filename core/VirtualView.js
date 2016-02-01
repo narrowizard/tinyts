@@ -25,8 +25,8 @@ var VirtualView = (function (_super) {
             for (var _i = 0; _i < result.length; _i++) {
                 var injectionPoint = result[_i];
                 var temp = new injectionPoint.constructor();
-                //如果是Control
                 if (temp instanceof View) {
+                    //如果是Control
                     temp.SetID(injectionPoint.propertyName);
                     temp.LoadView();
                 }
