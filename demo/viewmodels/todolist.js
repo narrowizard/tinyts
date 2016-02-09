@@ -46,5 +46,6 @@ var TodoList = (function (_super) {
 })(BaseViewModel);
 $().ready(function () {
     var tl = new TodoList();
+    tl.init();
 });
 //# sourceMappingURL=todolist.js.map

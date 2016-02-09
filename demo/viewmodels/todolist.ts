@@ -27,4 +27,5 @@ class TodoList extends BaseViewModel {
 
 $().ready(() => {
     var tl = new TodoList();
+    tl.init();
 });

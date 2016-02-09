@@ -4,46 +4,31 @@
 项目结构如下：
 ```
 |-tinyts
-  |-controls
-    |-button.ts
-    |-textBox.ts
-    |-tableView.ts
-    |-selectButton.ts
-    |-radioButton.ts
-    |-imageView.ts
-    |-fileUploader.ts
-    |-editDialog.ts
-  |-core
-    |-View.ts
-    |-ViewGroup.ts
-    |-TextView.ts
-    |-ListView.ts
-    |-ViewFilter.ts
-    |-ViewBinder.ts
-  |-interfaces
-  |-models
-  |-public
-  |-third-party
-|-application
-  |-interfaces
-  |-reference
-  |-services
-  |-viewmodels
-  |-models
+  |-src
+    |-core.min.js
+    |-models.min.js
+    |-controls.min.js
+  |-application
+    |-interfaces
+    |-reference
+    |-services
+    |-viewmodels
+    |-models
 ```
 +  tinyts为框架主目录，本项目依赖Jquery
-+  core中包含了框架的核心内容，包含四个控件基类和用于依赖注入的两个类。
-+  控件基类的继承关系如下，其中View为控件基类，TextView为具有文本展示的简单控件，ViewGroup可以包含其他的View，ListView为列表控件：
++  core中包含了框架的核心内容，包含依赖注入类ViewFilter,控件基类View,TextView,ListView,ViewGroup,VirtualView,视图模型基类BaseViewModel以及服务池(service pool)的实现
++  控件基类的继承关系如下，其中View为控件基类，TextView为具有文本展示的简单控件，ViewGroup可以包含其他的View，ListView为列表控件,VirtualView为虚拟视图(在ts中设置template)：
 ```
 View<-TextView
 View<-ListView
 View<-ViewGroup
+View<-VirtualView
 ```
 +  ViewModel的初始化流程如下：
 ```
   view decorator => View.constructor => BaseViewModel.constructor => View.LoadView => ViewModel.RegisterEvents
 ```
-+  controls中定义了一些常用的控件，你也可以继承这些类（或继承以上四个基类）开发自己的控件   
++  controls中定义了一些常用的控件，你也可以继承这些类（或继承以上几个基类）开发自己的控件   
 这些控件中用到了第三方的开源js插件（jqueryui等）
 +  application目录结构仅做参考，你也可以使用自己定义的结构
 
@@ -53,45 +38,55 @@ View<-ViewGroup
 ```
     <!DOCTYPE html>
     <html>
-    <head>
-      <script src="[YourTsPath]/public/require.js" data-main="[YourTsPath]/application/references/[YourRequireJsMain].js"></script>
-      <meta charset="utf-8" />
-    </head>
-    <body>
-      <button id="btnSubmit">提交</button>
-    </body>
+        <head>
+            <script src="../../public/jquery.min.js"></script>
+            <script src="../../src/core.min.js"></script>
+            <script src="../../src/models.min.js"></script>
+            <script src="../../src/controls.min.js"></script>
+            
+            <script src="../viewmodels/todolist.js"></script>
+            <meta charset="utf-8">
+        </head>
+        <body>
+            <h1>Todo List</h1>
+            <div>
+                <input type="text" id="mInput">
+                <ul id="mTodoList"></ul>
+            </div>
+        </body>
     </html>
-```
-+  RequireJS代码
-```
-    requirejs.config({
-      baseUrl:"[YouTsPath]"
-    });
-    
-    //根据你需要使用的控件加载核心文件
-    requirejs(["core/ViewFilter","core/View","core/BaseViewModel","core/TextView","controls/button","application/viewmodels/demo"],function(){
-      
-    });
 ```
 +  TypeScript代码，[YouTsPath]/application/viewmodels/demo.ts
 ```
-    class Demo implement IViewModel{
-        
-        @view(Button)
-        btnSubmit:Button;
-        
-        /**
-        * 请实现该方法，在该方法中注册ViewModel中控件的事件
-        */
-        RegisterEvents(){
-          var me = this;
-          me.btnSubmit.OnClick(()=>{
-            //code here 
-          });
+    class TodoList extends BaseViewModel {
+
+        @view(TextBox)
+        mInput: TextBox;
+
+        @view(ItemList)
+        mTodoList: ItemList;
+
+        init() {
+            var data = [];
+            this.mTodoList.SetData(data);
+        }
+
+        RegisterEvents() {
+            var me = this;
+            me.mInput.On("keypress", (event) => {
+                if (event.which == 13) {
+                    me.mTodoList.Add(new RadioModel(0, me.mInput.Value()));
+                }
+            });
+
+            me.mTodoList.onItemClick = (obj) => {
+                $(obj.target).remove();
+            };
         }
     }
-    
-    $().ready(()=>{
-      var demo = new Demo();
+
+    $().ready(() => {
+        var tl = new TodoList();
+        tl.init();
     });
 ```
