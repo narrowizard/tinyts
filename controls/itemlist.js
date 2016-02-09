@@ -54,4 +54,4 @@ var ItemList = (function (_super) {
     };
     return ItemList;
 })(ListView);
-//# sourceMappingURL=itemList.js.map
+//# sourceMappingURL=itemlist.js.map

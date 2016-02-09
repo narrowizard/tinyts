@@ -35,20 +35,6 @@ abstract class View {
         this.target.css(key, value);
     }
 
-    /**
-     * 设置style属性
-     */
-    SetStyle(key: string, value: string) {
-        this.target.css(key, value);
-    }
-
-    /**
-     * 通过选择器绑定View
-     */
-    BindBySelector(selector: string) {
-        this.target = $(selector);
-    }
-
     SetAttr(attrName: string, value: any) {
         this.attributes[attrName] = value;
     }
