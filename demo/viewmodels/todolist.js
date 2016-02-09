@@ -14,27 +14,37 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var Demo = (function (_super) {
-    __extends(Demo, _super);
-    function Demo() {
+var TodoList = (function (_super) {
+    __extends(TodoList, _super);
+    function TodoList() {
         _super.apply(this, arguments);
     }
-    Demo.prototype.init = function () {
+    TodoList.prototype.init = function () {
+        var data = [];
+        this.mTodoList.SetData(data);
     };
-    Demo.prototype.RegisterEvents = function () {
+    TodoList.prototype.RegisterEvents = function () {
+        var me = this;
+        me.mInput.On("keypress", function (event) {
+            if (event.which == 13) {
+                me.mTodoList.Add(new RadioModel(0, me.mInput.Value()));
+            }
+        });
+        me.mTodoList.onItemClick = function (obj) {
+            $(obj.target).remove();
+        };
     };
     __decorate([
-        view(Searcher), 
-        __metadata('design:type', Searcher)
-    ], Demo.prototype, "searcher");
+        view(TextBox), 
+        __metadata('design:type', TextBox)
+    ], TodoList.prototype, "mInput");
     __decorate([
-        partialView(Test), 
-        __metadata('design:type', Test)
-    ], Demo.prototype, "test");
-    return Demo;
+        view(ItemList), 
+        __metadata('design:type', ItemList)
+    ], TodoList.prototype, "mTodoList");
+    return TodoList;
 })(BaseViewModel);
 $().ready(function () {
-    var demo = new Demo();
-    demo.init();
+    var tl = new TodoList();
 });
-//# sourceMappingURL=demo.js.map
+//# sourceMappingURL=todolist.js.map
