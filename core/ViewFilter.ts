@@ -33,6 +33,37 @@ function partialView<T>(Class: { new (...args: any[]): ViewGroup<T> }) {
     }
 }
 
+/**
+ * 注入
+ * @param Class ViewModel's constructor
+ * @param instance ViewModel instance
+ */
+function inject(Class: Function, instance: IViewModel) {
+    if (Class["__inject__"]) {
+        var result = Object.keys(Class["__inject__"])
+            .map((propertyName: string) => {
+                var temp: InjectionPoint = { propertyName: "", constructor: null };
+                temp.propertyName = propertyName;
+                temp.constructor = Class["__inject__"][propertyName];
+                return temp;
+            });
+        for (let injectionPoint of result) {
+            var temp = new injectionPoint.constructor();
+            if (temp instanceof View) {
+                //如果是View
+                (temp as View).SetID(injectionPoint.propertyName);
+                (temp as View).LoadView();
+            } else if (temp instanceof ViewGroup) {
+                //如果是ViewGroup
+                temp.SetContext(instance);
+            }
+
+            instance[injectionPoint.propertyName] = temp;
+        }
+        instance.RegisterEvents();
+    }
+}
+
 interface InjectionPoint {
     propertyName: string;
     constructor: { new (...args: any[]): any };

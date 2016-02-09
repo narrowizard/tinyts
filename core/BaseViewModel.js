@@ -3,31 +3,7 @@
  */
 var BaseViewModel = (function () {
     function BaseViewModel() {
-        var Class = this.constructor;
-        if (Class["__inject__"]) {
-            var result = Object.keys(Class["__inject__"])
-                .map(function (propertyName) {
-                var temp = { propertyName: "", constructor: null };
-                temp.propertyName = propertyName;
-                temp.constructor = Class["__inject__"][propertyName];
-                return temp;
-            });
-            for (var _i = 0; _i < result.length; _i++) {
-                var injectionPoint = result[_i];
-                var temp = new injectionPoint.constructor();
-                //如果是Control
-                if (temp instanceof View) {
-                    temp.SetID(injectionPoint.propertyName);
-                    temp.LoadView();
-                }
-                else if (temp instanceof ViewGroup) {
-                    //如果是View
-                    temp.SetContext(this);
-                }
-                this[injectionPoint.propertyName] = temp;
-            }
-            this.RegisterEvents();
-        }
+        inject(this.constructor, this);
     }
     return BaseViewModel;
 })();

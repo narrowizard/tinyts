@@ -2,6 +2,9 @@ class Demo extends BaseViewModel {
 
     @view(Searcher)
     searcher: Searcher;
+    
+    @partialView(Test)
+    test:Test;
 
     init() {
 

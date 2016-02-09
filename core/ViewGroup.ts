@@ -6,9 +6,4 @@ abstract class ViewGroup<T> extends BaseViewModel {
         this.context = context;
     }
 
-    constructor() {
-        super();
-    }
-
-
 }

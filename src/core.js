@@ -134,8 +134,8 @@ var VirtualView = (function (_super) {
             for (var _i = 0; _i < result.length; _i++) {
                 var injectionPoint = result[_i];
                 var temp = new injectionPoint.constructor();
-                //如果是Control
                 if (temp instanceof View) {
+                    //如果是Control
                     temp.SetID(injectionPoint.propertyName);
                     temp.LoadView();
                 }
@@ -372,6 +372,10 @@ var ServicePool = (function () {
     }
     ServicePool.prototype.GetService = function (Class) {
         var name = Class.prototype.constructor.name;
+        if (!name) {
+            //IE不支持name属性
+            name = Class.toString().match(/^function\s*([^\s(]+)/)[1];
+        }
         if (this.instances[name]) {
         }
         else {

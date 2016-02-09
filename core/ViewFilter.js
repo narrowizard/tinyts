@@ -28,4 +28,35 @@ function partialView(Class) {
         targetType.__inject__[decoratedPropertyName] = Class;
     };
 }
+/**
+ * 注入
+ * @param Class ViewModel's constructor
+ * @param instance ViewModel instance
+ */
+function inject(Class, instance) {
+    if (Class["__inject__"]) {
+        var result = Object.keys(Class["__inject__"])
+            .map(function (propertyName) {
+            var temp = { propertyName: "", constructor: null };
+            temp.propertyName = propertyName;
+            temp.constructor = Class["__inject__"][propertyName];
+            return temp;
+        });
+        for (var _i = 0; _i < result.length; _i++) {
+            var injectionPoint = result[_i];
+            var temp = new injectionPoint.constructor();
+            if (temp instanceof View) {
+                //如果是View
+                temp.SetID(injectionPoint.propertyName);
+                temp.LoadView();
+            }
+            else if (temp instanceof ViewGroup) {
+                //如果是ViewGroup
+                temp.SetContext(instance);
+            }
+            instance[injectionPoint.propertyName] = temp;
+        }
+        instance.RegisterEvents();
+    }
+}
 //# sourceMappingURL=ViewFilter.js.map
