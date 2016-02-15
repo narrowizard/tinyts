@@ -52,7 +52,7 @@ function inject(Class: Function, instance: IViewModel) {
             if (temp instanceof VirtualView) {
                 temp.SetContext(instance);
             }
-            else if (temp instanceof View) {
+            if (temp instanceof View) {
                 //如果是View
                 (temp as View).SetID(injectionPoint.propertyName);
                 (temp as View).LoadView();
