@@ -9,11 +9,20 @@ var TextBox = (function (_super) {
         _super.apply(this, arguments);
     }
     TextBox.prototype.LoadView = function () {
+        var _this = this;
         _super.prototype.LoadView.call(this);
         this.required = Boolean(this.target.attr("data-required"));
         this.minLength = +this.target.attr("data-min-length");
         this.maxLength = +this.target.attr("data-max-length");
         this.validationArea = this.target.parent().children(".validation");
+        this.acceptBtn = this.target.attr("data-accept-button");
+        if (this.acceptBtn) {
+            this.On("keypress", function (args) {
+                if (args.which == 13) {
+                    $("#" + _this.acceptBtn).click();
+                }
+            });
+        }
     };
     TextBox.prototype.Clear = function () {
         this.target.val("");

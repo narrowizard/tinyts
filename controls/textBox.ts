@@ -3,6 +3,7 @@ class TextBox extends TextView {
     minLength: number;
     maxLength: number;
     required: boolean;
+    acceptBtn: string;
 
     LoadView() {
         super.LoadView();
@@ -11,6 +12,14 @@ class TextBox extends TextView {
         this.minLength = +this.target.attr("data-min-length");
         this.maxLength = +this.target.attr("data-max-length");
         this.validationArea = this.target.parent().children(".validation");
+        this.acceptBtn = this.target.attr("data-accept-button");
+        if (this.acceptBtn) {
+            this.On("keypress", (args) => {
+                if (args.which == 13) {
+                    $("#" + this.acceptBtn).click();
+                }
+            });
+        }
     }
 
     Clear() {
