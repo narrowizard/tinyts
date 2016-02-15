@@ -45,7 +45,10 @@ function inject(Class, instance) {
         for (var _i = 0; _i < result.length; _i++) {
             var injectionPoint = result[_i];
             var temp = new injectionPoint.constructor();
-            if (temp instanceof View) {
+            if (temp instanceof VirtualView) {
+                temp.SetContext(instance);
+            }
+            else if (temp instanceof View) {
                 //如果是View
                 temp.SetID(injectionPoint.propertyName);
                 temp.LoadView();

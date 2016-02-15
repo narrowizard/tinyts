@@ -49,7 +49,10 @@ function inject(Class: Function, instance: IViewModel) {
             });
         for (let injectionPoint of result) {
             var temp = new injectionPoint.constructor();
-            if (temp instanceof View) {
+            if (temp instanceof VirtualView) {
+                temp.SetContext(instance);
+            }
+            else if (temp instanceof View) {
                 //如果是View
                 (temp as View).SetID(injectionPoint.propertyName);
                 (temp as View).LoadView();

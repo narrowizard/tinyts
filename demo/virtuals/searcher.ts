@@ -1,4 +1,4 @@
-class Searcher extends VirtualView {
+class Searcher extends VirtualView<Demo> {
 
     @view(TextBox)
     sInput: TextBox;

@@ -1,6 +1,12 @@
-abstract class VirtualView extends View implements IViewModel {
-    
+abstract class VirtualView<T> extends View implements IViewModel {
+
+    context: T;
+
     template: string;
+
+    SetContext(context: T) {
+        this.context = context;
+    }
 
     LoadView() {
         this.SetTemplate();

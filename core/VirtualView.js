@@ -8,6 +8,9 @@ var VirtualView = (function (_super) {
     function VirtualView() {
         _super.apply(this, arguments);
     }
+    VirtualView.prototype.SetContext = function (context) {
+        this.context = context;
+    };
     VirtualView.prototype.LoadView = function () {
         this.SetTemplate();
         _super.prototype.LoadView.call(this);
