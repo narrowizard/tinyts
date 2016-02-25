@@ -33,6 +33,15 @@ var ItemList = (function (_super) {
             me.target.children("li").eq(0).click();
         }
     };
+    ItemList.prototype.Select = function (index) {
+        if (index < 0) {
+            return;
+        }
+        this.target.children("li").eq(index).click();
+    };
+    ItemList.prototype.SelectLast = function () {
+        this.target.children("li").last().click();
+    };
     ItemList.prototype.RemoveSelected = function () {
         var index = this.target.children(".active").index();
         if (index == -1) {

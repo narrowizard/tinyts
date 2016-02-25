@@ -28,6 +28,17 @@ class ItemList extends ListView<RadioModel>{
             me.target.children("li").eq(0).click();
         }
     }
+    
+    Select(index: number) {
+        if (index < 0) {
+            return;
+        }
+        this.target.children("li").eq(index).click();
+    }
+
+    SelectLast() {
+        this.target.children("li").last().click();
+    }
 
     RemoveSelected() {
         var index = this.target.children(".active").index();

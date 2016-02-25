@@ -48,7 +48,7 @@ function inject(Class, instance) {
             if (temp instanceof VirtualView) {
                 temp.SetContext(instance);
             }
-            else if (temp instanceof View) {
+            if (temp instanceof View) {
                 //如果是View
                 temp.SetID(injectionPoint.propertyName);
                 temp.LoadView();
