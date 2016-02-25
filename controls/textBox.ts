@@ -1,17 +1,22 @@
-class TextBox extends TextView {
-    validationArea: JQuery;
-    minLength: number;
-    maxLength: number;
-    required: boolean;
+class TextBox extends InputView {
     acceptBtn: string;
 
     LoadView() {
         super.LoadView();
 
-        this.required = Boolean(this.target.attr("data-required"));
-        this.minLength = +this.target.attr("data-min-length");
-        this.maxLength = +this.target.attr("data-max-length");
-        this.validationArea = this.target.parent().children(".validation");
+        var req = Boolean(this.target.attr("data-required"));
+        if (req) {
+            this.AddValidator(new VRequired());
+        }
+
+        var min = +this.target.attr("data-min-length");
+        if (min) {
+            this.AddValidator(new VMinLength(min));
+        }
+        var max = +this.target.attr("data-max-length");
+        if (max) {
+            this.AddValidator(new VMaxLength(max));
+        }
         this.acceptBtn = this.target.attr("data-accept-button");
         if (this.acceptBtn) {
             this.On("keypress", (args) => {
@@ -28,28 +33,6 @@ class TextBox extends TextView {
 
     Value(): string {
         var value = this.target.val();
-        if (this.required) {
-            if (!this.Required(value)) {
-                this.SetErrorMsg("必须");
-                this.ShowError();
-                return null;
-            }
-        }
-        if (this.minLength) {
-            if (!this.MinLength(value)) {
-                this.SetErrorMsg("长度必须大于等于" + this.minLength);
-                this.ShowError();
-                return null;
-            }
-        }
-        if (this.maxLength) {
-            if (!this.MaxLength(value)) {
-                this.SetErrorMsg("长度必须小于等于" + this.maxLength);
-                this.ShowError();
-                return null;
-            }
-        }
-        this.HideError();
         return value;
     }
 
@@ -74,30 +57,6 @@ class TextBox extends TextView {
             }
         });
 
-    }
-
-    SetErrorMsg(msg: string) {
-        this.validationArea.text(msg);
-    }
-
-    ShowError() {
-        this.validationArea.css("display", "block");
-    }
-
-    HideError() {
-        this.validationArea.css("display", "none");
-    }
-
-    Required(value: string): boolean {
-        return value.trim() !== "";
-    }
-
-    MinLength(value: string) {
-        return value.length >= this.minLength;
-    }
-
-    MaxLength(value: string) {
-        return value.length <= this.maxLength;
     }
 
     SetValue(value: string) {

@@ -11,10 +11,18 @@ var TextBox = (function (_super) {
     TextBox.prototype.LoadView = function () {
         var _this = this;
         _super.prototype.LoadView.call(this);
-        this.required = Boolean(this.target.attr("data-required"));
-        this.minLength = +this.target.attr("data-min-length");
-        this.maxLength = +this.target.attr("data-max-length");
-        this.validationArea = this.target.parent().children(".validation");
+        var req = Boolean(this.target.attr("data-required"));
+        if (req) {
+            this.AddValidator(new VRequired());
+        }
+        var min = +this.target.attr("data-min-length");
+        if (min) {
+            this.AddValidator(new VMinLength(min));
+        }
+        var max = +this.target.attr("data-max-length");
+        if (max) {
+            this.AddValidator(new VMaxLength(max));
+        }
         this.acceptBtn = this.target.attr("data-accept-button");
         if (this.acceptBtn) {
             this.On("keypress", function (args) {
@@ -29,28 +37,6 @@ var TextBox = (function (_super) {
     };
     TextBox.prototype.Value = function () {
         var value = this.target.val();
-        if (this.required) {
-            if (!this.Required(value)) {
-                this.SetErrorMsg("必须");
-                this.ShowError();
-                return null;
-            }
-        }
-        if (this.minLength) {
-            if (!this.MinLength(value)) {
-                this.SetErrorMsg("长度必须大于等于" + this.minLength);
-                this.ShowError();
-                return null;
-            }
-        }
-        if (this.maxLength) {
-            if (!this.MaxLength(value)) {
-                this.SetErrorMsg("长度必须小于等于" + this.maxLength);
-                this.ShowError();
-                return null;
-            }
-        }
-        this.HideError();
         return value;
     };
     TextBox.prototype.ReadOnly = function (readonly) {
@@ -73,24 +59,6 @@ var TextBox = (function (_super) {
             }
         });
     };
-    TextBox.prototype.SetErrorMsg = function (msg) {
-        this.validationArea.text(msg);
-    };
-    TextBox.prototype.ShowError = function () {
-        this.validationArea.css("display", "block");
-    };
-    TextBox.prototype.HideError = function () {
-        this.validationArea.css("display", "none");
-    };
-    TextBox.prototype.Required = function (value) {
-        return value.trim() !== "";
-    };
-    TextBox.prototype.MinLength = function (value) {
-        return value.length >= this.minLength;
-    };
-    TextBox.prototype.MaxLength = function (value) {
-        return value.length <= this.maxLength;
-    };
     TextBox.prototype.SetValue = function (value) {
         this.target.val(value);
     };
@@ -105,5 +73,5 @@ var TextBox = (function (_super) {
         this.target.datetimepicker(config);
     };
     return TextBox;
-})(TextView);
+})(InputView);
 //# sourceMappingURL=textBox.js.map
