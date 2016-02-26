@@ -4,14 +4,14 @@ class RadioButton<T extends RadioModel> extends ListView<T>{
 
     SetId(id: string) {
         super.SetID(id);
-        this.name = "radio_" + id;
+        this.name = controlConfig.radiobuttonPrefix + id;
     }
 
     LoadView() {
         super.LoadView();
         var datas = this.target.find("input[type='radio']");
         if (!this.name) {
-            this.name = "radio_" + this.ViewId();
+            this.name = controlConfig.radiobuttonPrefix + this.ViewId();
         }
         for (var i = 0; i < datas.length; i++) {
             var model = new RadioModel($(datas[i]).val(), $(datas[i]).parent().text());

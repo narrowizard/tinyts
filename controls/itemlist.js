@@ -24,8 +24,8 @@ var ItemList = (function (_super) {
         if (me.onItemClick) {
             me.target.children("li").unbind("click");
             me.target.children("li").click(function (obj) {
-                me.target.children("li").removeClass("active");
-                $(obj.target).addClass("active");
+                me.target.children("li").removeClass(controlConfig.itemlistActiveClass);
+                $(obj.target).addClass(controlConfig.itemlistActiveClass);
                 me.onItemClick(obj);
             });
         }
@@ -43,7 +43,7 @@ var ItemList = (function (_super) {
         this.target.children("li").last().click();
     };
     ItemList.prototype.RemoveSelected = function () {
-        var index = this.target.children(".active").index();
+        var index = this.target.children("." + controlConfig.itemlistActiveClass).index();
         if (index == -1) {
             return;
         }
@@ -55,8 +55,8 @@ var ItemList = (function (_super) {
         if (me.onItemClick) {
             me.target.children("li").unbind("click");
             me.target.children("li").click(function (obj) {
-                me.target.children("li").removeClass("active");
-                $(obj.target).addClass("active");
+                me.target.children("li").removeClass(controlConfig.itemlistActiveClass);
+                $(obj.target).addClass(controlConfig.itemlistActiveClass);
                 me.onItemClick(obj);
             });
         }

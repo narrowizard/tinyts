@@ -60,7 +60,7 @@ class SelectButton<T extends RadioModel> extends ListView<T>
         if (this.muiltiSelect) {
             return 0;
         } else {
-            return +this.target.find("button").filter(".active").attr("data-id");
+            return +this.target.find("button").filter(`.${controlConfig.selectbuttonActiveClass}`).attr("data-id");
         }
     }
 	
@@ -71,7 +71,7 @@ class SelectButton<T extends RadioModel> extends ListView<T>
         if (this.muiltiSelect) {
             return "";
         } else {
-            return this.target.find("button").filter(".active").text();
+            return this.target.find("button").filter(`.${controlConfig.selectbuttonActiveClass}`).text();
         }
     }
 
@@ -83,14 +83,14 @@ class SelectButton<T extends RadioModel> extends ListView<T>
         }
         this.target.find("button").click((p: JQueryEventObject) => {
             if (this.muiltiSelect) {
-                if ($(p.target).hasClass("active")) {
-                    $(p.target).removeClass("active");
+                if ($(p.target).hasClass(controlConfig.selectbuttonActiveClass)) {
+                    $(p.target).removeClass(controlConfig.selectbuttonActiveClass);
                 } else {
-                    $(p.target).addClass("active");
+                    $(p.target).addClass(controlConfig.selectbuttonActiveClass);
                 }
             } else {
-                this.target.find("button").removeClass("active");
-                $(p.target).addClass("active");
+                this.target.find("button").removeClass(controlConfig.selectbuttonActiveClass);
+                $(p.target).addClass(controlConfig.selectbuttonActiveClass);
             }
             if (me.onItemClick != null) {
                 me.onItemClick($(p.target));
@@ -105,5 +105,4 @@ class SelectButton<T extends RadioModel> extends ListView<T>
         }
         this.itemClasses.push(className);
     }
-
 }

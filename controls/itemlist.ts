@@ -19,8 +19,8 @@ class ItemList extends ListView<RadioModel>{
         if (me.onItemClick) {
             me.target.children("li").unbind("click");
             me.target.children("li").click((obj) => {
-                me.target.children("li").removeClass("active");
-                $(obj.target).addClass("active");
+                me.target.children("li").removeClass(controlConfig.itemlistActiveClass);
+                $(obj.target).addClass(controlConfig.itemlistActiveClass);
                 me.onItemClick(obj);
             });
         }
@@ -28,7 +28,7 @@ class ItemList extends ListView<RadioModel>{
             me.target.children("li").eq(0).click();
         }
     }
-    
+
     Select(index: number) {
         if (index < 0) {
             return;
@@ -41,7 +41,7 @@ class ItemList extends ListView<RadioModel>{
     }
 
     RemoveSelected() {
-        var index = this.target.children(".active").index();
+        var index = this.target.children(`.${controlConfig.itemlistActiveClass}`).index();
         if (index == -1) {
             return;
         }
@@ -54,8 +54,8 @@ class ItemList extends ListView<RadioModel>{
         if (me.onItemClick) {
             me.target.children("li").unbind("click");
             me.target.children("li").click((obj) => {
-                me.target.children("li").removeClass("active");
-                $(obj.target).addClass("active");
+                me.target.children("li").removeClass(controlConfig.itemlistActiveClass);
+                $(obj.target).addClass(controlConfig.itemlistActiveClass);
                 me.onItemClick(obj);
             });
         }

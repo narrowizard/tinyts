@@ -59,7 +59,7 @@ var SelectButton = (function (_super) {
             return 0;
         }
         else {
-            return +this.target.find("button").filter(".active").attr("data-id");
+            return +this.target.find("button").filter("." + controlConfig.selectbuttonActiveClass).attr("data-id");
         }
     };
     /**
@@ -70,7 +70,7 @@ var SelectButton = (function (_super) {
             return "";
         }
         else {
-            return this.target.find("button").filter(".active").text();
+            return this.target.find("button").filter("." + controlConfig.selectbuttonActiveClass).text();
         }
     };
     SelectButton.prototype.RefreshView = function () {
@@ -82,16 +82,16 @@ var SelectButton = (function (_super) {
         }
         this.target.find("button").click(function (p) {
             if (_this.muiltiSelect) {
-                if ($(p.target).hasClass("active")) {
-                    $(p.target).removeClass("active");
+                if ($(p.target).hasClass(controlConfig.selectbuttonActiveClass)) {
+                    $(p.target).removeClass(controlConfig.selectbuttonActiveClass);
                 }
                 else {
-                    $(p.target).addClass("active");
+                    $(p.target).addClass(controlConfig.selectbuttonActiveClass);
                 }
             }
             else {
-                _this.target.find("button").removeClass("active");
-                $(p.target).addClass("active");
+                _this.target.find("button").removeClass(controlConfig.selectbuttonActiveClass);
+                $(p.target).addClass(controlConfig.selectbuttonActiveClass);
             }
             if (me.onItemClick != null) {
                 me.onItemClick($(p.target));

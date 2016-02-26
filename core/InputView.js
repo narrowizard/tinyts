@@ -3,6 +3,10 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
+/**
+ * jquery ext: overload $.attr()
+ *      getting all attributes of elements
+ */
 (function (old) {
     $.fn.attr = function () {
         if (arguments.length === 0) {
@@ -49,7 +53,6 @@ var InputView = (function (_super) {
         return this.lastError;
     };
     InputView.prototype.Validate = function () {
-        debugger;
         var value = this.Value();
         for (var i = 0; i < this.validators.length; i++) {
             if (!this.validators[i].Validate(value)) {

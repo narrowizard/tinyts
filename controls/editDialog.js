@@ -12,15 +12,6 @@ var EditDialog = (function (_super) {
         this.target.css("left", x);
         this.target.css("top", y);
     };
-    EditDialog.prototype.SetTitle = function (title) {
-        this.target.children(".title").text(title);
-    };
-    EditDialog.prototype.SetWidth = function (width) {
-        this.target.width(width);
-    };
-    EditDialog.prototype.SetHeight = function (height) {
-        this.target.height(height);
-    };
     EditDialog.prototype.LoadView = function () {
         _super.prototype.LoadView.call(this);
         var masked = this.target.attr("data-mask");
@@ -33,29 +24,17 @@ var EditDialog = (function (_super) {
     };
     EditDialog.prototype.Show = function () {
         this.target.css("display", "block");
-        if (this.masked) {
-            this.mask.css("display", "block");
-        }
     };
     EditDialog.prototype.Hide = function () {
         this.target.css("display", "none");
-        if (this.masked) {
-            this.mask.css("display", "none");
-        }
     };
+    /**
+     * 需要添加mask的样式
+     */
     EditDialog.prototype.initMask = function () {
-        var html = "<div class='dialog-mask'></div>";
+        var html = "<div class='" + controlConfig.dialogMaskClass + "'></div>";
         this.mask = $(html);
-        this.mask.insertBefore(this.target);
-        this.mask.css("position", "fixed");
-        this.mask.css("top", "0");
-        this.mask.css("bottom", "0");
-        this.mask.css("left", "0");
-        this.mask.css("right", "0");
-        this.mask.css("background-color", "#353B4B");
-        this.mask.css("z-index", "1000");
-        this.target.css("z-index", "1001");
-        this.mask.css("opacity", "0.5");
+        this.target.append(this.mask);
         var me = this;
         if (this.closeOnClick) {
             this.mask.click(function () {

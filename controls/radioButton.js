@@ -11,13 +11,13 @@ var RadioButton = (function (_super) {
     }
     RadioButton.prototype.SetId = function (id) {
         _super.prototype.SetID.call(this, id);
-        this.name = "radio_" + id;
+        this.name = controlConfig.radiobuttonPrefix + id;
     };
     RadioButton.prototype.LoadView = function () {
         _super.prototype.LoadView.call(this);
         var datas = this.target.find("input[type='radio']");
         if (!this.name) {
-            this.name = "radio_" + this.ViewId();
+            this.name = controlConfig.radiobuttonPrefix + this.ViewId();
         }
         for (var i = 0; i < datas.length; i++) {
             var model = new RadioModel($(datas[i]).val(), $(datas[i]).parent().text());

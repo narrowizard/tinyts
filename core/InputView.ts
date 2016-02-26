@@ -1,3 +1,7 @@
+/**
+ * jquery ext: overload $.attr()
+ *      getting all attributes of elements
+ */
 (function(old) {
     $.fn.attr = function() {
         if (arguments.length === 0) {
@@ -52,7 +56,6 @@ abstract class InputView extends TextView {
     }
 
     Validate(): boolean {
-        debugger;
         var value = this.Value();
         for (var i = 0; i < this.validators.length; i++) {
             if (!this.validators[i].Validate(value)) {
