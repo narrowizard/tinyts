@@ -1,22 +1,24 @@
 class Demo extends BaseViewModel {
 
-    @view(Searcher)
-    searcher: Searcher;
-    
-    @partialView(Test)
-    test:Test;
+    @view(TextBox)
+    txtInput: TextBox;
 
-    init() {
-
-    }
+    @view(Button)
+    btnSubmit: Button;
 
     RegisterEvents() {
-
+        var me = this;
+        this.btnSubmit.OnClick(() => {
+            if (!me.txtInput.Validate()) {
+                alert(me.txtInput.GetLastError());
+            } else {
+                alert(me.txtInput.Value());
+            }
+        });
     }
 
 }
 
 $().ready(() => {
     var demo = new Demo();
-    demo.init();
 });

@@ -1,3 +1,23 @@
+(function(old) {
+    $.fn.attr = function() {
+        if (arguments.length === 0) {
+            if (this.length === 0) {
+                return null;
+            }
+
+            var obj = {};
+            $.each(this[0].attributes, function() {
+                if (this.specified) {
+                    obj[this.name] = this.value;
+                }
+            });
+            return obj;
+        }
+
+        return old.apply(this, arguments);
+    };
+})($.fn.attr);
+
 /**
  * InputView包含Validate方法
  */
@@ -10,7 +30,13 @@ abstract class InputView extends TextView {
     LoadView() {
         super.LoadView();
         this.validators = [];
-        
+        var attributes = this.target.attr();
+        for (var temp in attributes) {
+            if ((<string>temp).indexOf("data-validate") > -1) {
+                var v = ValidatePool.GetValidator(temp, attributes[temp]);
+                this.AddValidator(v);
+            }
+        }
     }
 
     AddValidator(validator: IValidator<any>) {
@@ -26,10 +52,11 @@ abstract class InputView extends TextView {
     }
 
     Validate(): boolean {
+        debugger;
         var value = this.Value();
         for (var i = 0; i < this.validators.length; i++) {
             if (!this.validators[i].Validate(value)) {
-                this.lastError = this.validators[i].message;
+                this.lastError = this.validators[i].GetMessage();
                 return false;
             }
         }

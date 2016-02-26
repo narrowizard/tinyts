@@ -17,22 +17,28 @@ var Demo = (function (_super) {
     function Demo() {
         _super.apply(this, arguments);
     }
-    Demo.prototype.init = function () {
-    };
     Demo.prototype.RegisterEvents = function () {
+        var me = this;
+        this.btnSubmit.OnClick(function () {
+            if (!me.txtInput.Validate()) {
+                alert(me.txtInput.GetLastError());
+            }
+            else {
+                alert(me.txtInput.Value());
+            }
+        });
     };
     __decorate([
-        view(Searcher), 
-        __metadata('design:type', Searcher)
-    ], Demo.prototype, "searcher", void 0);
+        view(TextBox), 
+        __metadata('design:type', TextBox)
+    ], Demo.prototype, "txtInput", void 0);
     __decorate([
-        partialView(Test), 
-        __metadata('design:type', Test)
-    ], Demo.prototype, "test", void 0);
+        view(Button), 
+        __metadata('design:type', Button)
+    ], Demo.prototype, "btnSubmit", void 0);
     return Demo;
 })(BaseViewModel);
 $().ready(function () {
     var demo = new Demo();
-    demo.init();
 });
 //# sourceMappingURL=demo.js.map

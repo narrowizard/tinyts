@@ -11,18 +11,6 @@ var TextBox = (function (_super) {
     TextBox.prototype.LoadView = function () {
         var _this = this;
         _super.prototype.LoadView.call(this);
-        var req = Boolean(this.target.attr("data-required"));
-        if (req) {
-            this.AddValidator(new VRequired());
-        }
-        var min = +this.target.attr("data-min-length");
-        if (min) {
-            this.AddValidator(new VMinLength(min));
-        }
-        var max = +this.target.attr("data-max-length");
-        if (max) {
-            this.AddValidator(new VMaxLength(max));
-        }
         this.acceptBtn = this.target.attr("data-accept-button");
         if (this.acceptBtn) {
             this.On("keypress", function (args) {

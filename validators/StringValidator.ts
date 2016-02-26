@@ -1,23 +1,28 @@
+@validator
 class VMaxLength implements IValidator<string>{
 
     constructor(private maxLength: number) {
-        this.message = "";
     }
 
-    message: string;
+    GetMessage() {
+        return `最多输入${this.maxLength}个字符.`;
+    }
 
     Validate(input: string): boolean {
         return input.length <= this.maxLength;
     }
 }
 
+@validator
 class VMinLength implements IValidator<string>{
 
     constructor(private minLength: number) {
 
     }
 
-    message: string;
+    GetMessage() {
+        return `至少输入${this.minLength}个字符.`;
+    }
 
     Validate(input: string): boolean {
         return input.length >= this.minLength;
@@ -25,9 +30,12 @@ class VMinLength implements IValidator<string>{
 
 }
 
+@validator
 class VRequired implements IValidator<string>{
 
-    message: string;
+    GetMessage() {
+        return "不能为空.";
+    }
 
     Validate(input: string): boolean {
         return input != "";

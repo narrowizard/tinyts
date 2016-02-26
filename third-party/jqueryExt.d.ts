@@ -44,6 +44,7 @@ interface JQuery {
     datetimepicker(conhfig?: any);
     bind(eventType: string, handler: (event: JQueryEventObject, delta: number, deltaX: number, deltaY: Number) => boolean);
     print(options?: any);
+    attr(): Object;
 }
 
 interface JQueryStatic {
