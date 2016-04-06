@@ -23,7 +23,16 @@
 })($.fn.attr);
 
 /**
- * InputView包含Validate方法
+ * InputView 包含验证方法的控件基类
+ * Validate:()=>boolean,验证value,返回是否验证通过
+ * abstract Value:()=>any,请在子类中实现该方法,获取控件的值
+ * GetLastError()=>string,获取错误消息
+ * 
+ * 验证器使用方法:
+ * 1.在Input对应的html元素上定义data-validate-$ValidateName,
+ * 其中$ValidateName是验证器名称,并且ValidateName对应到html中为validate-name
+ * 2.实现该验证器,加上@validator注解
+ * 3.调用Input的Validate方法,得到验证结果
  */
 abstract class InputView extends TextView {
 

@@ -1,1 +1,1 @@
-{"version":3,"file":"BaseViewModel.js","sourceRoot":"","sources":["BaseViewModel.ts"],"names":["BaseViewModel","BaseViewModel.constructor"],"mappings":"AAAA;;GAEG;AACH;IAEIA;QACIC,MAAMA,CAACA,IAAIA,CAACA,WAAWA,EAAEA,IAAIA,CAACA,CAACA;IACnCA,CAACA;IAGLD,oBAACA;AAADA,CAACA,AAPD,IAOC"}
+{"version":3,"file":"BaseViewModel.js","sourceRoot":"","sources":["BaseViewModel.ts"],"names":["BaseViewModel","BaseViewModel.constructor"],"mappings":"AAAA;;;;;;;;;;GAUG;AACH;IAEIA;QACIC,MAAMA,CAACA,IAAIA,CAACA,WAAWA,EAAEA,IAAIA,CAACA,CAACA;IACnCA,CAACA;IAGLD,oBAACA;AAADA,CAACA,AAPD,IAOC"}

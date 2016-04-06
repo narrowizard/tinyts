@@ -3,6 +3,10 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
+/**
+ * ViewGroup<T> ViewModel中的一个子视图模型
+ * T: 上下文类型(父ViewModel的类型)
+ */
 var ViewGroup = (function (_super) {
     __extends(ViewGroup, _super);
     function ViewGroup() {

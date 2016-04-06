@@ -1,5 +1,15 @@
+/**
+ * IValidator 验证器接口
+ * T: 验证的类型
+ */
 interface IValidator<T> {
+    /**
+     * Validate 验证方法,返回是否验证成功
+     */
     Validate(input: T): boolean;
+    /**
+     * GetMessage 获取验证的错误信息
+     */
     GetMessage(): string;
 }
 

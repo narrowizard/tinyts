@@ -1,3 +1,10 @@
+/**
+ * VirtualView<T> 虚拟视图
+ * 依靠类中的template属性渲染试图
+ * 
+ * 继承该类必须实现SetTemplate方法,在该方法中设置视图的View(Html code)
+ * 需要手动调用SetContext方法设置上下文
+ */
 abstract class VirtualView<T> extends View implements IViewModel {
 
     context: T;

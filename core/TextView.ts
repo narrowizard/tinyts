@@ -1,3 +1,6 @@
+/**
+ * TextView 具备文字展示功能的View
+ */
 class TextView extends View {
 
     SetText(text: string) {

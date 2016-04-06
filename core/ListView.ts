@@ -1,3 +1,11 @@
+/**
+ * ListView<T> 列表控件的基类
+ * T: 元数据类型
+ * methods:
+ * SetData(data: T[])=>void,set data to the list view and refresh it.
+ * RefreshView:()=>void,get each data item's html code(via method GetView),and refresh the whole view.
+ * GetView:(index:number):string,get the specific data item's html code.
+ */
 class ListView<T> extends View {
     mData: T[];
 
@@ -83,6 +91,9 @@ class ListView<T> extends View {
         }
     }
 
+    /**
+     * SetItem 设置(替换)数据数组中的某个元素
+     */
     SetItem(predicate: (p: T) => boolean, item: T);
     SetItem(index: number, item: T);
     SetItem(param: any, item: T) {

@@ -3,6 +3,14 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
+/**
+ * ListView<T> 列表控件的基类
+ * T: 元数据类型
+ * methods:
+ * SetData(data: T[])=>void,set data to the list view and refresh it.
+ * RefreshView:()=>void,get each data item's html code(via method GetView),and refresh the whole view.
+ * GetView:(index:number):string,get the specific data item's html code.
+ */
 var ListView = (function (_super) {
     __extends(ListView, _super);
     function ListView() {

@@ -3,6 +3,9 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
+/**
+ * TextView 具备文字展示功能的View
+ */
 var TextView = (function (_super) {
     __extends(TextView, _super);
     function TextView() {
