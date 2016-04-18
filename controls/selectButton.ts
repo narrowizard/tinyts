@@ -17,10 +17,6 @@ class SelectButton<T extends RadioModel> extends ListView<T>
         }
     }
 
-    Clear() {
-        this.target.html("");
-    }
-
     Add(model: T) {
         var me = this;
         super.Add(model);

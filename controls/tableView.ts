@@ -1,4 +1,20 @@
-﻿class Table<T extends IModel> extends ListView<T> {
+﻿/**
+ * Table<T> 表格插件
+ * 需要在DOM中定义table的thead
+ * 
+ * methods:
+ * TurnToPage: 定义table的翻页函数
+ * 
+ * table options:
+ * data-navigation:指示table是否需要分页控件
+ * data-select-on-click:指示是否在点击整行的时候选中复选框
+ * 
+ * td options:
+ * data-column:列绑定(绑定到T的某个属性)
+ * data-checkbox:指示列是否为checkbox列
+ * data-index:指示列是否为index列
+ */
+class Table<T extends IModel> extends ListView<T> {
     columns: TableColumn[];
     length: number;
 
@@ -46,7 +62,7 @@
      */
     protected pageCount: number;
     protected curPage: number;
-    
+
     /**
      * 设置总页数
      */
@@ -68,7 +84,7 @@
     CurrentPage(): number {
         return this.curPage;
     }
-    
+
     /**
      * 获取每页条数
      */
@@ -79,7 +95,7 @@
     ResetPage() {
         this.curPage = 1;
     }
-    
+
     /* 自定义table row 可以设置该回调,在该回调中处理row的自定义
     * @param index 列索引
     * @param data 当前行数据
@@ -103,7 +119,10 @@
 
     }
 
-    Clear() {
+    /**
+     * clear 清除列表元素的页面内容
+     */
+    protected clear() {
         this.target.find("tbody").html("");
     }
 
@@ -169,7 +188,7 @@
         //列长度
         this.length = this.target.find("thead tr").children("th").length;
         //列绑定
-        this.target.find("tr").eq(0).children("th").each(function(index, element) {
+        this.target.find("tr").eq(0).children("th").each(function (index, element) {
             var temp = new TableColumn();
             var c = $(element).attr("data-column");
             if (c) {
@@ -194,29 +213,31 @@
             $(html).insertAfter(this.target);
             this.navBar = $("#" + this.navBarId);
             this.createNavigation();
+            this.ResetPage();
         }
         //点击选中
         this.selectOnClick = Boolean(this.target.attr("data-select-on-click"));
-
-
-    }
-
-    protected createNavigation() {
-        var html = "";
-        html += "<button class='btn btn-xs btn-info nav-first-page'>首页</button>";
-        html += "<button class='btn btn-xs btn-info nav-prev-page'>上一页</button>";
-        html += "<button class='btn btn-xs btn-info nav-next-page'>下一页</button>";
-        html += "<button class='btn btn-xs btn-info nav-last-page'>末页</button>";
-        html += "页次 <label class='curPage'></label>/<label class='totalPage'></label>";
-        html += " 每页<input type='text' value='10' class='pagesize' />条";
-        html += " 跳转到<input type='text' class='page' value='1'/>";
-        html += "<button class='btn btn-xs btn-info nav-to-page'>跳转</button>";
-        this.navBar.append(html);
-
     }
 
     /**
-     * 遍历所有选中行的数据,如果return false,将终止遍历
+     * createNavigation 创建分页导航,并绑定到this.navBar
+     */
+    protected createNavigation() {
+        var html = "";
+        html += `<button class='${controlConfig.tableNavItemClass} nav-first-page'>首页</button>
+                    <button class='${controlConfig.tableNavItemClass} nav-prev-page'>上一页</button>
+                    <button class='${controlConfig.tableNavItemClass} nav-next-page'>下一页</button>
+                    <button class='${controlConfig.tableNavItemClass} nav-last-page'>末页</button>
+                    页次 <label class='curPage'></label>/<label class='totalPage'></label>
+                    每页<input type='text' value='10' class='pagesize' />条
+                    跳转到<input type='text' class='page' value='1'/>
+                    <button class='${controlConfig.tableNavItemClass} nav-to-page'>跳转</button>`;
+        this.navBar.append(html);
+    }
+
+    /**
+     * TraverseSelected 遍历所有选中行的数据
+     * @param handler (index:number,data:T)=>boolean 遍历函数,如果返回false,将终止遍历
      */
     TraverseSelected(handler: (index: number, data: T) => boolean) {
         var me = this;
@@ -262,6 +283,9 @@
         }
     }
 
+    /**
+     * 
+     */
     TreeTable(config: any, force?: boolean) {
         this.target.treetable(config, force);
     }
@@ -269,7 +293,7 @@
     ExpandAll() {
         this.target.treetable("expandAll");
     }
-    
+
     /** Sortable 将table设置为可排序
     * @param handler 排完序之后的回调
     */

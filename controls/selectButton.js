@@ -19,9 +19,6 @@ var SelectButton = (function (_super) {
             this.muiltiSelect = false;
         }
     };
-    SelectButton.prototype.Clear = function () {
-        this.target.html("");
-    };
     SelectButton.prototype.Add = function (model) {
         var me = this;
         _super.prototype.Add.call(this, model);

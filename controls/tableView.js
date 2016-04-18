@@ -3,6 +3,22 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
+/**
+ * Table<T> 表格插件
+ * 需要在DOM中定义table的thead
+ *
+ * methods:
+ * TurnToPage: 定义table的翻页函数
+ *
+ * table options:
+ * data-navigation:指示table是否需要分页控件
+ * data-select-on-click:指示是否在点击整行的时候选中复选框
+ *
+ * td options:
+ * data-column:列绑定(绑定到T的某个属性)
+ * data-checkbox:指示列是否为checkbox列
+ * data-index:指示列是否为index列
+ */
 var Table = (function (_super) {
     __extends(Table, _super);
     function Table() {
@@ -81,7 +97,10 @@ var Table = (function (_super) {
     };
     Table.prototype.RegisterEvents = function () {
     };
-    Table.prototype.Clear = function () {
+    /**
+     * clear 清除列表元素的页面内容
+     */
+    Table.prototype.clear = function () {
         this.target.find("tbody").html("");
     };
     Table.prototype.GetItemId = function (index) {
@@ -173,24 +192,22 @@ var Table = (function (_super) {
             $(html).insertAfter(this.target);
             this.navBar = $("#" + this.navBarId);
             this.createNavigation();
+            this.ResetPage();
         }
         //点击选中
         this.selectOnClick = Boolean(this.target.attr("data-select-on-click"));
     };
+    /**
+     * createNavigation 创建分页导航,并绑定到this.navBar
+     */
     Table.prototype.createNavigation = function () {
         var html = "";
-        html += "<button class='btn btn-xs btn-info nav-first-page'>首页</button>";
-        html += "<button class='btn btn-xs btn-info nav-prev-page'>上一页</button>";
-        html += "<button class='btn btn-xs btn-info nav-next-page'>下一页</button>";
-        html += "<button class='btn btn-xs btn-info nav-last-page'>末页</button>";
-        html += "页次 <label class='curPage'></label>/<label class='totalPage'></label>";
-        html += " 每页<input type='text' value='10' class='pagesize' />条";
-        html += " 跳转到<input type='text' class='page' value='1'/>";
-        html += "<button class='btn btn-xs btn-info nav-to-page'>跳转</button>";
+        html += "<button class='" + controlConfig.tableNavItemClass + " nav-first-page'>\u9996\u9875</button>\n                    <button class='" + controlConfig.tableNavItemClass + " nav-prev-page'>\u4E0A\u4E00\u9875</button>\n                    <button class='" + controlConfig.tableNavItemClass + " nav-next-page'>\u4E0B\u4E00\u9875</button>\n                    <button class='" + controlConfig.tableNavItemClass + " nav-last-page'>\u672B\u9875</button>\n                    \u9875\u6B21 <label class='curPage'></label>/<label class='totalPage'></label>\n                    \u6BCF\u9875<input type='text' value='10' class='pagesize' />\u6761\n                    \u8DF3\u8F6C\u5230<input type='text' class='page' value='1'/>\n                    <button class='" + controlConfig.tableNavItemClass + " nav-to-page'>\u8DF3\u8F6C</button>";
         this.navBar.append(html);
     };
     /**
-     * 遍历所有选中行的数据,如果return false,将终止遍历
+     * TraverseSelected 遍历所有选中行的数据
+     * @param handler (index:number,data:T)=>boolean 遍历函数,如果返回false,将终止遍历
      */
     Table.prototype.TraverseSelected = function (handler) {
         var me = this;
@@ -234,6 +251,9 @@ var Table = (function (_super) {
             });
         }
     };
+    /**
+     *
+     */
     Table.prototype.TreeTable = function (config, force) {
         this.target.treetable(config, force);
     };

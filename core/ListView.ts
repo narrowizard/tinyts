@@ -14,10 +14,13 @@ class ListView<T> extends View {
 	 * @param data 数据集合
 	 */
     SetData(data: T[]) {
+        if (!data) {
+            data = [];
+        }
         this.mData = data;
         this.RefreshView();
     }
-	
+
 	/**
 	 * 添加数据,并刷新视图
 	 * @param T 数据元素
@@ -31,11 +34,11 @@ class ListView<T> extends View {
         super.LoadView();
         this.mData = [];
     }
-	
+
 	/**
 	 * 清空列表
 	*/
-    Clear() {
+    protected clear() {
         this.target.html("");
     };
 
@@ -70,7 +73,7 @@ class ListView<T> extends View {
         }
         this.RefreshView();
     }
-	
+
 	/**
 	 * 获取某个指定的元素
 	 * @param index 指定索引
@@ -141,7 +144,7 @@ class ListView<T> extends View {
 	 * 刷新整个ListView的列表部分
 	 */
     RefreshView() {
-        this.Clear();
+        this.clear();
         if (this.mData == null) {
             return;
         }
@@ -149,7 +152,7 @@ class ListView<T> extends View {
             this.append(this.GetView(i));
         }
     }
-	
+
 	/**
 	 * 在列表的最后插入元素,请在子类中实现该方法
 	 * @param viewString 元素的html字符串

@@ -21,6 +21,9 @@ var ListView = (function (_super) {
      * @param data 数据集合
      */
     ListView.prototype.SetData = function (data) {
+        if (!data) {
+            data = [];
+        }
         this.mData = data;
         this.RefreshView();
     };
@@ -39,7 +42,7 @@ var ListView = (function (_super) {
     /**
      * 清空列表
     */
-    ListView.prototype.Clear = function () {
+    ListView.prototype.clear = function () {
         this.target.html("");
     };
     ;
@@ -125,7 +128,7 @@ var ListView = (function (_super) {
      * 刷新整个ListView的列表部分
      */
     ListView.prototype.RefreshView = function () {
-        this.Clear();
+        this.clear();
         if (this.mData == null) {
             return;
         }

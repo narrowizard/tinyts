@@ -2,6 +2,7 @@ var controlConfig = {
     dialogMaskClass: "dialog-mask",
     itemlistActiveClass: "active",
     radiobuttonPrefix: "radio_",
-    selectbuttonActiveClass: "active"
+    selectbuttonActiveClass: "active",
+    tableNavItemClass: "btn btn-xs btn-info"
 };
 //# sourceMappingURL=TinytsConfig.js.map
