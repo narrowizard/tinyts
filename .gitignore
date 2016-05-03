@@ -2,3 +2,5 @@ node_modules/
 *.js
 *.js.map
 demo/
+.vscode/
+tsconfig.json

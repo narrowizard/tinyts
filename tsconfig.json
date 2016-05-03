@@ -1,9 +1,0 @@
-{
-	"compilerOptions": {
-		"target": "ES5",
-		"module": "amd",
-		"sourceMap": true,
-		"emitDecoratorMetadata": true,
-		"experimentalDecorators": true
-	}
-}
