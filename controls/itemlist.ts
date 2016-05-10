@@ -1,6 +1,6 @@
 import {ListView} from '../core/ListView';
 import {RadioModel} from '../models/RadioModel';
-import {controlConfig} from '../core/TinytsConfig';
+import {controlConfig} from '../config/TinytsConfig';
 
 export class ItemList extends ListView<RadioModel>{
 

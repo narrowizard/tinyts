@@ -40,4 +40,4 @@ class ServicePool {
 
 }
 
-var ServicePoolInstance = new ServicePool();
+export var ServicePoolInstance = new ServicePool();

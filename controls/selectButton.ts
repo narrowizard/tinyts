@@ -1,4 +1,6 @@
 import {ListView} from '../core/ListView';
+import {RadioModel} from '../models/RadioModel';
+import {controlConfig} from '../config/TinytsConfig';
 
 class SelectButton<T extends RadioModel> extends ListView<T>
 {

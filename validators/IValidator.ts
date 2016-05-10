@@ -13,7 +13,7 @@ export interface IValidator<T> {
     GetMessage(): string;
 }
 
-function validator(target: { new (...args: any[]): IValidator<any> }) {
+export function validator(target: { new (...args: any[]): IValidator<any> }) {
     // save a reference to the original constructor
     var original = target;
 

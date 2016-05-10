@@ -1,5 +1,7 @@
+import {validator, IValidator} from './IValidator';
+
 @validator
-class VMaxLength implements IValidator<string>{
+export class VMaxLength implements IValidator<string>{
 
     constructor(private maxLength: number) {
     }
@@ -14,7 +16,7 @@ class VMaxLength implements IValidator<string>{
 }
 
 @validator
-class VMinLength implements IValidator<string>{
+export class VMinLength implements IValidator<string>{
 
     constructor(private minLength: number) {
 
@@ -31,7 +33,7 @@ class VMinLength implements IValidator<string>{
 }
 
 @validator
-class VRequired implements IValidator<string>{
+export class VRequired implements IValidator<string>{
 
     GetMessage() {
         return "不能为空.";
