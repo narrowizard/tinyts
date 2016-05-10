@@ -1,18 +1,18 @@
 import {TextView} from './TextView';
-
+import {IValidator, ValidatePool} from '../validators/IValidator';
 /**
  * jquery ext: overload $.attr()
  *      getting all attributes of elements
  */
-(function(old) {
-    $.fn.attr = function() {
+(function (old) {
+    $.fn.attr = function () {
         if (arguments.length === 0) {
             if (this.length === 0) {
                 return null;
             }
 
             var obj = {};
-            $.each(this[0].attributes, function() {
+            $.each(this[0].attributes, function () {
                 if (this.specified) {
                     obj[this.name] = this.value;
                 }

@@ -1,6 +1,8 @@
 import {ListView} from '../core/ListView';
+import {RadioModel} from '../models/RadioModel';
+import {controlConfig} from '../core/TinytsConfig';
 
-class ItemList extends ListView<RadioModel>{
+export class ItemList extends ListView<RadioModel>{
 
     onItemClick: (obj: JQueryEventObject) => void;
 

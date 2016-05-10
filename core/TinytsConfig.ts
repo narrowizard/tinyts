@@ -1,5 +1,5 @@
 
-var controlConfig = {
+export var controlConfig = {
     dialogMaskClass: "dialog-mask",
     itemlistActiveClass: "active",
     radiobuttonPrefix: "radio_",

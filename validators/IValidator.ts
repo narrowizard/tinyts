@@ -2,7 +2,7 @@
  * IValidator 验证器接口
  * T: 验证的类型
  */
-interface IValidator<T> {
+export interface IValidator<T> {
     /**
      * Validate 验证方法,返回是否验证成功
      */
@@ -52,7 +52,7 @@ function translateName(input: string) {
     return "data-validate" + input.replace(/([A-Z])/g, "-$1").toLowerCase().substr(2);
 }
 
-class ValidatePool {
+export class ValidatePool {
 
     private static validators: { [name: string]: { new (...param: any[]): IValidator<any> } } = {};
 

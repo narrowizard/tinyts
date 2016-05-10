@@ -8,7 +8,7 @@ import {ViewGroup} from './ViewGroup';
 /**
  * 用于某个控件
  */
-function view(Class: { new (...args: any[]): View }) {
+export function view(Class: { new (...args: any[]): View }) {
     return function inject(target: IViewModel, decoratedPropertyName: string): void {
         const targetType: { __inject__?: Object } = target.constructor;
 

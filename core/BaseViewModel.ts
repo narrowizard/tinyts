@@ -1,3 +1,5 @@
+/// <reference path="./ViewFilter.ts" />
+
 import {inject} from './ViewFilter';
 
 /**

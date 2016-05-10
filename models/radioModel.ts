@@ -1,4 +1,4 @@
-class RadioModel implements IModel{
+export class RadioModel implements IModel{
 	value: any;
 	text: string;
 	Id:number;
