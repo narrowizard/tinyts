@@ -1,3 +1,5 @@
+import {TextView} from './TextView';
+
 /**
  * jquery ext: overload $.attr()
  *      getting all attributes of elements
@@ -34,7 +36,7 @@
  * 2.实现该验证器,加上@validator注解
  * 3.调用Input的Validate方法,得到验证结果
  */
-abstract class InputView extends TextView {
+export abstract class InputView extends TextView {
 
     validators: IValidator<any>[];
 
