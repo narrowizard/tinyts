@@ -1,4 +1,3 @@
-/// <reference path="./BaseViewModel.ts" />
 import {BaseViewModel} from './BaseViewModel';
 
  /**

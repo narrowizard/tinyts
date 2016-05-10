@@ -1,6 +1,6 @@
 import {View} from './View';
 import {VirtualView} from './VirtualView';
-import {ViewGroup} from './ViewGroup';
+// import {ViewGroup} from './ViewGroup';
 //根据Control的属性名称和类型
 //自动初始化,绑定页面上的id
 //并注入到ViewModel中
