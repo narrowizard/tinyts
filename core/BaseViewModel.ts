@@ -1,3 +1,5 @@
+import {inject} from './ViewFilter';
+
 /**
  * BaseViewModel ViewModel的基类,该类实现了依赖注入
  * 可注入的类型有:
@@ -9,7 +11,7 @@
  * 
  * 继承该类必须实现RegisterEvents方法,在该方法中绑定ViewModel属性的事件
  */
-abstract class BaseViewModel implements IViewModel {
+export abstract class BaseViewModel implements IViewModel {
 
     constructor() {
         inject(this.constructor, this);

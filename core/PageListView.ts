@@ -1,3 +1,5 @@
+import {ListView} from './ListView';
+
 abstract class PageListView<T> extends ListView<T>{
     /**
      * 是否支持分页

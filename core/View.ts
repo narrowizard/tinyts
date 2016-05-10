@@ -1,7 +1,7 @@
 /**
  * View 控件基类,所有的控件类继承自View
  */
-abstract class View {
+export abstract class View {
     private id: string;
     protected target: JQuery;
     protected attributes: { [index: string]: any };

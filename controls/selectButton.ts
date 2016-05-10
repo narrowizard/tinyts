@@ -1,3 +1,5 @@
+import {ListView} from '../core/ListView';
+
 class SelectButton<T extends RadioModel> extends ListView<T>
 {
     protected itemClasses = [];

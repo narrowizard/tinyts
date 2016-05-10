@@ -6,7 +6,10 @@
  * RefreshView:()=>void,get each data item's html code(via method GetView),and refresh the whole view.
  * GetView:(index:number):string,get the specific data item's html code.
  */
-class ListView<T> extends View {
+
+ import {View} from './View';
+ 
+export class ListView<T> extends View {
     mData: T[];
 
 	/**

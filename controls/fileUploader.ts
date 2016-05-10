@@ -1,3 +1,5 @@
+import {TextView} from '../core/TextView';
+
 class FileUploader extends TextView {
 
     GetFile(): any {

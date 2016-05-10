@@ -1,3 +1,5 @@
+import {ListView} from '../core/ListView';
+
 /**
  * 鼠标滚动事件,需要JQuery MouseWheel的支持
  */

@@ -1,3 +1,5 @@
+import {View} from "../core/View";
+
 class ImageView extends View {
 
     SetUrl(url: string) {

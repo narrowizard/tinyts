@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Table<T> 表格插件
  * 需要在DOM中定义table的thead
  * 
@@ -14,6 +14,9 @@
  * data-checkbox:指示列是否为checkbox列
  * data-index:指示列是否为index列
  */
+
+import {ListView} from '../core/ListView';
+
 class Table<T extends IModel> extends ListView<T> {
     columns: TableColumn[];
     length: number;

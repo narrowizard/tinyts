@@ -1,3 +1,6 @@
+import {View} from './View';
+import {VirtualView} from './VirtualView';
+import {ViewGroup} from './ViewGroup';
 //根据Control的属性名称和类型
 //自动初始化,绑定页面上的id
 //并注入到ViewModel中
@@ -38,7 +41,7 @@ function partialView<T>(Class: { new (...args: any[]): ViewGroup<T> }) {
  * @param Class ViewModel's constructor
  * @param instance ViewModel instance
  */
-function inject(Class: Function, instance: IViewModel) {
+export function inject(Class: Function, instance: IViewModel) {
     if (Class["__inject__"]) {
         var result = Object.keys(Class["__inject__"])
             .map((propertyName: string) => {

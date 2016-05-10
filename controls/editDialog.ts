@@ -1,3 +1,5 @@
+import {View} from "../core/View";
+
 class EditDialog extends View {
     mask: JQuery;
     masked: boolean;

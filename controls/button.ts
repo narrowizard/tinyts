@@ -1,4 +1,6 @@
-class Button extends TextView {
+import {TextView} from '../core/TextView';
+
+export class Button extends TextView {
 
     PerformClick() {
         if (this.target != null) {

@@ -1,4 +1,11 @@
-class TextBox extends InputView {
+import {InputView} from "../core/InputView";
+import {Button} from "./Button";
+
+export class TextBox extends InputView {
+    validationArea: JQuery;
+    minLength: number;
+    maxLength: number;
+    required: boolean;
     acceptBtn: string;
 
     LoadView() {
@@ -49,7 +56,7 @@ class TextBox extends InputView {
     SetValue(value: string) {
         this.target.val(value);
     }
-	
+
     // ColorPicker 将TextBox构造为一个ColorPicker
     // @param 当选择一个颜色之后的回调函数
     ColorPicker(handler: (event: JQueryEventObject) => void) {

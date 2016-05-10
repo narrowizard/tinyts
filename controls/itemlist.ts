@@ -1,3 +1,5 @@
+import {ListView} from '../core/ListView';
+
 class ItemList extends ListView<RadioModel>{
 
     onItemClick: (obj: JQueryEventObject) => void;

@@ -4,7 +4,11 @@
  * 
  * 继承该类必须实现SetTemplate方法,在该方法中设置视图的View(Html code)
  */
-abstract class VirtualView<T> extends View implements IViewModel {
+ 
+import {View} from './View';
+import {inject} from './ViewFilter';
+ 
+export abstract class VirtualView<T> extends View implements IViewModel {
 
     context: T;
 

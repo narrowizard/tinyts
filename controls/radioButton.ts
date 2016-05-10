@@ -1,3 +1,5 @@
+import {ListView} from '../core/ListView';
+
 // 初始化会在每一个input:radio上加上name属性为radio + id
 class RadioButton<T extends RadioModel> extends ListView<T>{
     name: string;
