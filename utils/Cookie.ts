@@ -41,7 +41,7 @@ class Cookie {
         options = options || {};
         if (value === null) {
             value = '';
-            options = $.extend({}, options); // clone object since it's unexpected behavior if the expired property were changed
+            // options = $.extend({}, options); // clone object since it's unexpected behavior if the expired property were changed
             options.expires = -1;
         }
         var expires = '';
@@ -61,7 +61,7 @@ class Cookie {
         var path = options.path ? '; path=' + (options.path) : '';
         var domain = options.domain ? '; domain=' + (options.domain) : '';
         var secure = options.secure ? '; secure' : '';
-        document.cookie = [name, '=', encodeURIComponent(value), expires, path, domain, secure].join('');
+        document.cookie = [key, '=', encodeURIComponent(value), expires, path, domain, secure].join('');
     }
 }
 
