@@ -17,7 +17,7 @@ interface CookieOptions {
  */
 class Cookie {
 
-    Get(key: string) {
+    Get(key: string): string {
         var cookieValue = null;
         if (document.cookie && document.cookie != '') {
             var cookies = document.cookie.split(';');
@@ -33,7 +33,11 @@ class Cookie {
         return cookieValue;
     }
 
-    Set(key: string, value: string, options: CookieOptions) {
+    Remove(key: string) {
+        this.Set(key, null);
+    }
+
+    Set(key: string, value: string, options?: CookieOptions) {
         options = options || {};
         if (value === null) {
             value = '';
