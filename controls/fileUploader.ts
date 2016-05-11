@@ -1,6 +1,6 @@
 import {TextView} from '../core/TextView';
 
-class FileUploader extends TextView {
+export class FileUploader extends TextView {
 
     GetFile(): any {
         var files = this.target.prop("files");

@@ -1,6 +1,6 @@
 import {View} from "../core/View";
 
-class ImageView extends View {
+export class ImageView extends View {
 
     SetUrl(url: string) {
         this.target.attr("src", url);

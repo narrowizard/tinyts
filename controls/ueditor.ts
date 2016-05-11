@@ -1,6 +1,6 @@
 import {View} from "../core/View";
 
-class UEditor extends View {
+export class UEditor extends View {
     editor: UE;
 
     LoadView() {

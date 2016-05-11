@@ -17,7 +17,7 @@ import {controlConfig} from '../config/TinytsConfig';
  * data-checkbox:指示列是否为checkbox列
  * data-index:指示列是否为index列
  */
-class Table<T extends IModel> extends ListView<T> {
+export class Table<T extends IModel> extends ListView<T> {
     columns: TableColumn[];
     length: number;
 

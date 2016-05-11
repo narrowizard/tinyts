@@ -3,7 +3,7 @@ import {controlConfig} from '../config/TinytsConfig';
 import {RadioModel} from '../models/RadioModel';
 
 // 初始化会在每一个input:radio上加上name属性为radio + id
-class RadioButton<T extends RadioModel> extends ListView<T>{
+export class RadioButton<T extends RadioModel> extends ListView<T>{
     name: string;
 
     SetId(id: string) {

@@ -1,7 +1,7 @@
 import {View} from "../core/View";
 import {controlConfig} from '../config/TinytsConfig';
 
-class EditDialog extends View {
+export class EditDialog extends View {
     mask: JQuery;
     masked: boolean;
     closeOnClick: boolean;

@@ -26,7 +26,7 @@ export function view(Class: { new (...args: any[]): View }) {
 /**
  * 用于封装的部分视图
  */
-function partialView<T>(Class: { new (...args: any[]): ViewGroup<T> }) {
+export function partialView<T>(Class: { new (...args: any[]): ViewGroup<T> }) {
     return function inject(target: T, decoratedPropertyName: string): void {
         const targetType: { __inject__?: Object } = target.constructor;
 
