@@ -46,9 +46,13 @@ export abstract class InputView extends TextView {
         super.LoadView();
         this.validators = [];
         var attributes = this.target.attr();
+        var tag = this.target.attr("data-tag");
+        if (!tag) {
+            tag = "";
+        }
         for (var temp in attributes) {
             if ((<string>temp).indexOf("data-validate") > -1) {
-                var v = ValidatePool.GetValidator(temp, attributes[temp]);
+                var v = ValidatePool.GetValidator(temp, attributes[temp], tag);
                 this.AddValidator(v);
             }
         }

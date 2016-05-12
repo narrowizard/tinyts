@@ -18,4 +18,8 @@ export abstract class BaseViewModel implements IViewModel {
     }
 
     abstract RegisterEvents();
+
+    OnLoad() {
+
+    }
 }

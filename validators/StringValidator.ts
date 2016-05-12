@@ -3,11 +3,11 @@ import {validator, IValidator} from './IValidator';
 @validator
 export class VMaxLength implements IValidator<string>{
 
-    constructor(private maxLength: number) {
+    constructor(private tag: string, private maxLength: number) {
     }
 
     GetMessage() {
-        return `最多输入${this.maxLength}个字符.`;
+        return `${this.tag}不能超过${this.maxLength}个字符.`;
     }
 
     Validate(input: string): boolean {
@@ -18,12 +18,12 @@ export class VMaxLength implements IValidator<string>{
 @validator
 export class VMinLength implements IValidator<string>{
 
-    constructor(private minLength: number) {
+    constructor(private tag: string, private minLength: number) {
 
     }
 
     GetMessage() {
-        return `至少输入${this.minLength}个字符.`;
+        return `${this.tag}至少${this.minLength}个字符.`;
     }
 
     Validate(input: string): boolean {
@@ -35,11 +35,19 @@ export class VMinLength implements IValidator<string>{
 @validator
 export class VRequired implements IValidator<string>{
 
+    constructor(private tag: string) {
+
+    }
+
     GetMessage() {
-        return "不能为空.";
+        return `${this.tag}不能为空.`;
     }
 
     Validate(input: string): boolean {
         return input != "";
     }
 }
+
+export function Register() {
+
+};

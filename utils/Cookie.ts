@@ -41,7 +41,7 @@ class Cookie {
         options = options || {};
         if (value === null) {
             value = '';
-            // options = $.extend({}, options); // clone object since it's unexpected behavior if the expired property were changed
+            options = $.extend({}, options); // clone object since it's unexpected behavior if the expired property were changed
             options.expires = -1;
         }
         var expires = '';

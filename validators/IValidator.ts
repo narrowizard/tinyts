@@ -29,7 +29,7 @@ export function validator(target: { new (...args: any[]): IValidator<any> }) {
 
     // a utility function to generate instances of a class
     function construct(constructor, args) {
-        var c: any = function() {
+        var c: any = function () {
             return constructor.apply(this, args);
         }
         c.prototype = constructor.prototype;
@@ -37,7 +37,7 @@ export function validator(target: { new (...args: any[]): IValidator<any> }) {
     }
 
     // the new constructor behaviour
-    var f: any = function(...args) {
+    var f: any = function (...args) {
         return construct(original, args);
     }
 
@@ -66,9 +66,9 @@ export class ValidatePool {
     /**
      * 创建一个validator实例
      */
-    static GetValidator(name: string, value: any): IValidator<any> {
+    static GetValidator(name: string, value: any, tag: string): IValidator<any> {
         if (ValidatePool.validators[name]) {
-            return new ValidatePool.validators[name](value);
+            return new ValidatePool.validators[name](tag, value);
         } else {
             return null;
         }

@@ -69,6 +69,7 @@ export function inject(Class: Function, instance: IViewModel) {
             instance[injectionPoint.propertyName] = temp;
         }
         instance.RegisterEvents();
+        instance.OnLoad();
     }
 }
 
