@@ -13,8 +13,23 @@ import {inject} from './ViewFilter';
  */
 export abstract class BaseViewModel implements IViewModel {
 
-    constructor() {
+    container: string;
+    loading: string;
+
+    constructor(container?: string, loading?: string) {
+        if (!container) {
+            container = "body";
+        }
+        if (!loading) {
+            loading = "";
+        }
+        this.container = container;
+        this.loading = loading;
+
         inject(this.constructor, this);
+        //注入完成,隐藏loading,显示container
+        $(this.loading).hide();
+        $(this.container).show();
     }
 
     abstract RegisterEvents();
