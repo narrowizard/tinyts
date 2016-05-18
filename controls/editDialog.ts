@@ -12,6 +12,7 @@ export class EditDialog extends View {
     }
 
     LoadView() {
+        var me = this;
         super.LoadView();
         var masked = this.target.attr("data-mask");
         this.closeOnClick = Boolean(this.target.attr("data-close-on-click"));
@@ -20,6 +21,9 @@ export class EditDialog extends View {
             this.initMask();
         }
         this.Hide();
+        this.target.find(controlConfig.dialogCloseButton).click(() => {
+            me.Hide();
+        });
     }
 
     Show() {

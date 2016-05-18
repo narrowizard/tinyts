@@ -1,6 +1,7 @@
 
 export var controlConfig = {
     dialogMaskClass: "dialog-mask",
+    dialogCloseButton: ".close",
     itemlistActiveClass: "active",
     radiobuttonPrefix: "radio_",
     selectbuttonActiveClass: "active",
