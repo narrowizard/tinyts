@@ -26,28 +26,28 @@ export class Table<T extends IModel> extends ListView<T> {
 
     selectOnClick: boolean;
 
-    TurnToPage(hanlder: (page: number, pagesize: number) => void) {
+    TurnToPage(handler: (page: number, pagesize: number) => void) {
         var me = this;
         this.navBar.find(".nav-first-page").click(() => {
-            hanlder(1, me.GetPageSize());
+            handler(1, me.GetPageSize());
             me.curPage = 1;
         });
         this.navBar.find(".nav-last-page").click(() => {
-            hanlder(me.pageCount, me.GetPageSize());
+            handler(me.pageCount, me.GetPageSize());
             me.curPage = me.pageCount;
         });
         this.navBar.find(".nav-next-page").click(() => {
             if (me.curPage == me.pageCount) {
                 return;
             }
-            hanlder(me.curPage + 1, me.GetPageSize());
+            handler(me.curPage + 1, me.GetPageSize());
             me.curPage = me.curPage + 1;
         });
         this.navBar.find(".nav-prev-page").click(() => {
             if (me.curPage == 1) {
                 return;
             }
-            hanlder(me.curPage - 1, me.GetPageSize());
+            handler(me.curPage - 1, me.GetPageSize());
             me.curPage = me.curPage - 1;
         });
         this.navBar.find(".nav-to-page").click(() => {
@@ -56,7 +56,7 @@ export class Table<T extends IModel> extends ListView<T> {
                 return;
             }
             me.curPage = +t;
-            hanlder(t, me.GetPageSize());
+            handler(t, me.GetPageSize());
         });
     }
 
@@ -103,7 +103,7 @@ export class Table<T extends IModel> extends ListView<T> {
     * @param index 列索引
     * @param data 当前行数据
     */
-    beforeAppend: (index: number, data: IModel) => string;
+    beforeAppend: (index: number, data: T) => string;
     /**
      * 该回调将会在RefreshView之后被调用
      * 请在该函数中注册行中元素的事件
@@ -284,44 +284,6 @@ export class Table<T extends IModel> extends ListView<T> {
                 });
             });
         }
-    }
-
-    /**
-     * 
-     */
-    TreeTable(config: any, force?: boolean) {
-        this.target.treetable(config, force);
-    }
-
-    ExpandAll() {
-        this.target.treetable("expandAll");
-    }
-
-    /** Sortable 将table设置为可排序
-    * @param handler 排完序之后的回调
-    */
-    Sortable(handler?: () => void) {
-        this.target.children("tbody").sortable({
-            containerSelector: "table",
-            itemPath: "> tbody",
-            itemSelector: "tr",
-            placeholder: "<tr class='placeholder' />",
-            stop: () => {
-                var tbody = this.target.find("tbody");
-                var ids = [];
-                tbody.children("tr").each((index, elem) => {
-                    ids[index] = $(elem).attr("data-id");
-                });
-                var temp: T[] = [];
-                for (var i = 0; i < ids.length; i++) {
-                    temp[i] = this.mData.where((p: T) => { return p.Id == ids[i] }).first();
-                }
-                this.mData = temp;
-                if (handler) {
-                    handler();
-                }
-            }
-        });
     }
 
     protected append(viewString: string) {

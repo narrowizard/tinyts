@@ -21,7 +21,7 @@ export class EditDialog extends View {
             this.initMask();
         }
         this.Hide();
-        this.target.find(controlConfig.dialogCloseButton).click(() => {
+        this.target.find(controlConfig.dialogCloseButtonSelector).click(() => {
             me.Hide();
         });
     }

@@ -71,7 +71,7 @@ export abstract class InputView extends TextView {
     GetLastError(): string {
         return this.lastError;
     }
-    
+
     /**
      * SetErrorHandler 设置验证出错时的处理器,仅在ValidatedValue时被调用
      * @param handler 错误处理器

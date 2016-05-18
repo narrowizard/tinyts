@@ -71,6 +71,16 @@ export abstract class View {
     }
 
     /**
+     * Off 解除绑定事件
+     * @param eventName 事件名称 optional
+     */
+    Off(eventName?: string) {
+        if (this.target != null) {
+            this.target.off(eventName);
+        }
+    }
+
+    /**
      * OnClick 设置点击事件
      */
     OnClick(handler: (eventObject: JQueryEventObject) => void) {
