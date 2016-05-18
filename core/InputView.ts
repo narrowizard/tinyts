@@ -42,6 +42,8 @@ export abstract class InputView extends TextView {
 
     lastError: string;
 
+    errorHandler: { OnValidateError: (err: string) => void };
+
     LoadView() {
         super.LoadView();
         this.validators = [];
@@ -69,6 +71,14 @@ export abstract class InputView extends TextView {
     GetLastError(): string {
         return this.lastError;
     }
+    
+    /**
+     * SetErrorHandler 设置验证出错时的处理器,仅在ValidatedValue时被调用
+     * @param handler 错误处理器
+     */
+    SetErrorHandler(handler: { OnValidateError: (err: string) => void }) {
+        this.errorHandler = handler;
+    }
 
     Validate(): boolean {
         var value = this.Value();
@@ -82,6 +92,21 @@ export abstract class InputView extends TextView {
     }
 
     abstract Value(): any;
+
+    /**
+     * ValidatedValue 获取验证后的值
+     * 如果验证失败,则调用errorHandler的OnValidateError方法,并抛出异常
+     */
+    ValidatedValue(): any {
+        if (this.Validate()) {
+            return this.Value();
+        } else {
+            if (this.errorHandler) {
+                this.errorHandler.OnValidateError(this.lastError);
+            }
+            throw (`validate error${this.lastError}`);
+        }
+    }
 
 }
 
