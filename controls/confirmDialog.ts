@@ -11,19 +11,22 @@ export class ConfirmDialog extends EditDialog {
 
     LoadView() {
         super.LoadView();
+        this.confirmMessage = new TextView();
+        this.confirmButton = new Button();
         this.confirmMessage.BindBySelector(controlConfig.confirmDialogMessageSelector);
         this.confirmButton.BindBySelector(controlConfig.confirmButton);
     }
 
-    SetConfirmHandler(context: { OnConfirm: () => void }) {
+    SetConfirmHandler(context, handler: () => void) {
         this.confirmButton.Off("click");
-        
+
         this.confirmButton.OnClick(() => {
-            context.OnConfirm();
+            handler.apply(context);
         });
     }
 
-    Confirm() {
+    Confirm(msg: string) {
+        this.confirmMessage.SetText(msg);
         this.Show();
     }
 
