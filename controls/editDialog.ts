@@ -5,6 +5,7 @@ export class EditDialog extends View {
     mask: JQuery;
     masked: boolean;
     closeOnClick: boolean;
+    focus: View;
 
     MoveTo(x: number, y: number) {
         this.target.css("left", x);
@@ -15,19 +16,44 @@ export class EditDialog extends View {
         var me = this;
         super.LoadView();
         var masked = this.target.attr("data-mask");
+        //焦点元素
+        var focus = this.target.attr("data-focus");
+        if (focus) {
+            var temp: View = new View();
+            temp.SetID(focus);
+            temp.LoadView();
+            this.focus = temp;
+        }
         this.closeOnClick = Boolean(this.target.attr("data-close-on-click"));
+        //遮罩
         if (masked) {
             this.masked = true;
             this.initMask();
         }
         this.Hide();
+        //关闭按钮
         this.target.find(controlConfig.dialogCloseButtonSelector).click(() => {
             me.Hide();
         });
     }
 
+    SetFocus(target: View);
+    SetFocus(selector: string);
+    SetFocus(param: any) {
+        if (typeof param == "string") {
+            var temp: View = new View();
+            temp.BindBySelector(param);
+            this.focus = temp;
+        } else if (typeof param == "object") {
+            this.focus = param;
+        }
+    }
+
     Show() {
         this.target.css("display", "block");
+        if (this.focus) {
+            this.focus.Focus();
+        }
     }
 
     Hide() {

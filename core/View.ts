@@ -1,7 +1,7 @@
 /**
  * View 控件基类,所有的控件类继承自View
  */
-export abstract class View {
+export class View {
     private id: string;
     protected target: JQuery;
     protected attributes: { [index: string]: any };
@@ -14,6 +14,13 @@ export abstract class View {
     SetID(id: string) {
         this.attributes = {};
         this.id = id;
+    }
+
+    /**
+     * Focus 获得焦点
+     */
+    Focus() {
+        this.target.focus();
     }
 
     /**

@@ -9,7 +9,7 @@
 
 import {View} from './View';
 
-export class ListView<T> extends View {
+export class ListView<T extends IModel> extends View {
     mData: T[];
 
     protected eventHandler: { selector: string, event?: string, handler: (obj: JQueryEventObject) => void }[];
@@ -150,6 +150,10 @@ export class ListView<T> extends View {
             var predicate = <(p: T) => boolean>param;
             return this.mData.where(predicate).first();
         }
+    }
+
+    GetItemById(id: number): T {
+        return this.mData.where((item) => { return item.Id == id }).first();
     }
 
     /**
