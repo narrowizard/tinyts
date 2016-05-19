@@ -7,10 +7,65 @@
  * GetView:(index:number):string,get the specific data item's html code.
  */
 
- import {View} from './View';
- 
+import {View} from './View';
+
 export class ListView<T> extends View {
     mData: T[];
+
+    protected eventHandler: { selector: string, event?: string, handler: (obj: JQueryEventObject) => void }[];
+
+    /**
+     * RegisterEvents 注册列表子元素的事件
+     */
+    RegisterEvents() {
+        for (var i = 0; i < this.eventHandler.length; i++) {
+            if (this.eventHandler[i].event) {
+                this.target.find(this.eventHandler[i].selector).on(this.eventHandler[i].event, this.eventHandler[i].handler);
+            } else {
+                this.target.find(this.eventHandler[i].selector).click(this.eventHandler[i].handler);
+            }
+        }
+    }
+
+    /**
+     * SetEventHandler 设置事件处理函数
+     * @param selector 选择器
+     * @param handler 事件处理函数
+     * @param event 事件名,默认为click事件
+     */
+    SetEventHandler(selector: string, handler: (obj: JQueryEventObject) => void, event?: string) {
+        if (!this.eventHandler) {
+            this.eventHandler = [];
+        }
+        this.eventHandler.push({ selector: selector, handler: handler, event: event });
+    }
+
+    /**
+     * RemoveEventHandler 移除handler,在下一次刷新数据列表时不再绑定
+     * @param selector 选择器
+     */
+    RemoveEventHandler(selector: string) {
+        var temp = [];
+        for (var i = 0; i < this.eventHandler.length; i++) {
+            if (this.eventHandler[i].selector != selector) {
+                temp.push(this.eventHandler[i]);
+            }
+        }
+        this.eventHandler = temp;
+    }
+
+    /**
+     * UnbindEvents 解除绑定的事件,解除已经绑定的事件
+     * @param selector 选择器
+     * @param event 事件名,若不穿,则解除所有事件
+     */
+    UnbindEvents(selector: string, event?: string) {
+        if (event) {
+            this.target.find(selector).off(event);
+        } else {
+            this.target.find(selector).off();
+        }
+    }
 
 	/**
 	 * 设置数据,并刷新视图
@@ -154,6 +209,8 @@ export class ListView<T> extends View {
         for (var i = 0; i < this.mData.length; i++) {
             this.append(this.GetView(i));
         }
+        //注册item事件
+        this.RegisterEvents();
     }
 
 	/**

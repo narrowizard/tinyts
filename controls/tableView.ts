@@ -106,7 +106,7 @@ export class Table<T extends IModel> extends ListView<T> {
     beforeAppend: (index: number, data: T) => string;
     /**
      * 该回调将会在RefreshView之后被调用
-     * 请在该函数中注册行中元素的事件
+     * 请在该函数中注册行中元素的事件(不推荐使用)
      */
     registerEvents: () => void;
     /**
@@ -116,10 +116,6 @@ export class Table<T extends IModel> extends ListView<T> {
      */
     BeforeAppend(index: number): string {
         return "<td></td>";
-    }
-
-    RegisterEvents() {
-
     }
 
     /**
@@ -260,8 +256,6 @@ export class Table<T extends IModel> extends ListView<T> {
             this.navBar.find(".curPage").text(this.curPage);
             this.navBar.find(".totalPage").text(this.pageCount);
         }
-        //注册item事件
-        this.RegisterEvents();
         if (this.registerEvents != null) {
             this.registerEvents();
         }
