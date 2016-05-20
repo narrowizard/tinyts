@@ -17,6 +17,10 @@ interface CookieOptions {
  */
 class Cookie {
 
+    /**
+     * Get 获取指定键值
+     * @param key 键名
+     */
     Get(key: string): string {
         var cookieValue = null;
         if (document.cookie && document.cookie != '') {
@@ -32,11 +36,20 @@ class Cookie {
         }
         return cookieValue;
     }
-
+    
+    /**
+     * Remove 移除指定键
+     * @param key 键名
+     */
     Remove(key: string) {
         this.Set(key, null);
     }
 
+    /**
+     * Set 设置指定键
+     * @param key 键名
+     * @param value 值
+     */
     Set(key: string, value: string, options?: CookieOptions) {
         options = options || {};
         if (value === null) {

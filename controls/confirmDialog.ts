@@ -17,6 +17,11 @@ export class ConfirmDialog extends EditDialog {
         this.confirmButton.BindBySelector(controlConfig.confirmButton);
     }
 
+    /**
+     * SetConfirmHandler 设置confirm回调
+     * @param context 事件上下文
+     * @param handler 事件处理函数
+     */
     SetConfirmHandler(context, handler: () => void) {
         this.confirmButton.Off("click");
 
@@ -25,6 +30,10 @@ export class ConfirmDialog extends EditDialog {
         });
     }
 
+    /**
+     * Confirm 弹出confirm框
+     * @param msg 提示信息
+     */
     Confirm(msg: string) {
         this.confirmMessage.SetText(msg);
         this.Show();

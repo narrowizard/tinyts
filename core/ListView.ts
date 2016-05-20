@@ -152,6 +152,10 @@ export class ListView<T extends IModel> extends View {
         }
     }
 
+    /**
+     * GetItemById 通过id获取某元素
+     * @param id 元素id
+     */
     GetItemById(id: number): T {
         return this.mData.where((item) => { return item.Id == id }).first();
     }

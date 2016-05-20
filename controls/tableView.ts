@@ -67,13 +67,13 @@ export class Table<T extends IModel> extends ListView<T> {
     protected curPage: number;
 
     /**
-     * 设置总页数
+     * SetPageCount 设置总页数
      */
     SetPageCount(count: number) {
         this.pageCount = count;
     }
     /**
-     * 设置当前页
+     * SetCurPage 设置当前页
      */
     SetCurPage(page: number) {
         if (page < 1 || page > this.pageCount) {
@@ -82,19 +82,22 @@ export class Table<T extends IModel> extends ListView<T> {
         this.curPage = +page;
     }
     /**
-     * 获取当前页码
+     * CurrentPage 获取当前页码
      */
     CurrentPage(): number {
         return this.curPage;
     }
 
     /**
-     * 获取每页条数
+     * GetPageSize 获取每页条数
      */
     GetPageSize(): number {
         return this.navBar.find(".pagesize").val();
     }
-
+    
+    /**
+     * ResetPage 重置当前页
+     */
     ResetPage() {
         this.curPage = 1;
     }
@@ -125,6 +128,10 @@ export class Table<T extends IModel> extends ListView<T> {
         this.target.find("tbody").html("");
     }
 
+    /**
+     * GetItemId 获取指定索引元素的id
+     * @param index 索引
+     */
     GetItemId(index: number) {
         if (index < 0 || index > this.Count()) {
             return 0;

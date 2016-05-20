@@ -79,7 +79,7 @@ export class View {
 
     /**
      * Off 解除绑定事件
-     * @param eventName 事件名称 optional
+     * @param eventName 事件名称
      */
     Off(eventName?: string) {
         if (this.target != null) {
@@ -89,6 +89,7 @@ export class View {
 
     /**
      * OnClick 设置点击事件
+     * @param handler 事件处理器
      */
     OnClick(handler: (eventObject: JQueryEventObject) => void) {
         if (this.target != null) {

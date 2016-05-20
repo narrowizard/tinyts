@@ -37,11 +37,18 @@ export class RadioButton<T extends RadioModel> extends ListView<T>{
         return html;
     }
 
+    /**
+     * Value 获取当前选定值
+     */
     Value() {
         var r = $("input:radio[name=" + this.name + "]").filter(":checked");
         return r.val();
     }
 
+    /**
+     * SetValue 选择指定值的选项
+     * @param value 指定值
+     */
     SetValue(value: any) {
         $("input:radio[name=" + this.name + "]").filter("[value=" + value + "]").prop("checked", true);
     }

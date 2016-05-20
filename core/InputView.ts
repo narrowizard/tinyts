@@ -68,6 +68,10 @@ export abstract class InputView extends TextView {
         this.validators = [];
     }
 
+    /**
+     * GetLastError 获取错误消息
+     * @return 错误信息
+     */
     GetLastError(): string {
         return this.lastError;
     }
@@ -80,6 +84,11 @@ export abstract class InputView extends TextView {
         this.errorHandler = handler;
     }
 
+    /**
+     * Validate 验证控件值
+     * @return true 验证成功
+     * @return false 验证失败
+     */
     Validate(): boolean {
         var value = this.Value();
         for (var i = 0; i < this.validators.length; i++) {
@@ -90,7 +99,10 @@ export abstract class InputView extends TextView {
         }
         return true;
     }
-
+    
+    /**
+     * Value 获取控件值(未验证)
+     */
     abstract Value(): any;
 
     /**

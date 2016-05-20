@@ -37,6 +37,11 @@ export class EditDialog extends View {
         });
     }
 
+    /**
+     * SetFocus 设置默认焦点
+     * @param target 目标View
+     * @param selector 目标选择器
+     */
     SetFocus(target: View);
     SetFocus(selector: string);
     SetFocus(param: any) {
@@ -49,6 +54,9 @@ export class EditDialog extends View {
         }
     }
 
+    /**
+     * Show 显示editdialog
+     */
     Show() {
         this.target.css("display", "block");
         if (this.focus) {
@@ -56,6 +64,9 @@ export class EditDialog extends View {
         }
     }
 
+    /**
+     * Hide 隐藏editdialog
+     */
     Hide() {
         this.target.css("display", "none");
     }

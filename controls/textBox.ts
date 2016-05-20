@@ -2,10 +2,6 @@ import {InputView} from "../core/InputView";
 import {Button} from "./Button";
 
 export class TextBox extends InputView {
-    validationArea: JQuery;
-    minLength: number;
-    maxLength: number;
-    required: boolean;
     acceptBtn: string;
 
     LoadView() {
@@ -20,16 +16,26 @@ export class TextBox extends InputView {
             });
         }
     }
-
+    
+    /**
+     * Clear 清空textbox
+     */
     Clear() {
         this.target.val("");
     }
-
+    
+    /**
+     * Value 获取TextBox的值
+     */
     Value(): string {
         var value = this.target.val();
         return value;
     }
 
+    /**
+     * ReadOnly 设置TextBox的只读属性
+     * @param readonly 是否只读
+     */
     ReadOnly(readonly: boolean) {
         if (readonly) {
             this.target.attr("readonly", "readonly");
@@ -38,6 +44,11 @@ export class TextBox extends InputView {
         }
     }
 
+    /**
+     * SetAcceptButton 设置默认按钮
+     * @param id 默认按钮的id
+     * @param btn 默认按钮(Button对象)
+     */
     SetAcceptButton(id: string);
     SetAcceptButton(btn: Button);
     SetAcceptButton(p: any) {
@@ -53,19 +64,12 @@ export class TextBox extends InputView {
 
     }
 
+    /**
+     * SetValue 设置值
+     * @param value 值
+     */
     SetValue(value: string) {
         this.target.val(value);
     }
 
-    // ColorPicker 将TextBox构造为一个ColorPicker
-    // @param 当选择一个颜色之后的回调函数
-    ColorPicker(handler: (event: JQueryEventObject) => void) {
-        this.target.colorpicker({
-            format: "hex"
-        }).on("changeColor.colorpicker", handler);
-    }
-
-    DatePicker(config?: any) {
-        this.target.datetimepicker(config);
-    }
 }

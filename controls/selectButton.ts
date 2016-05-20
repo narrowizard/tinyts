@@ -20,7 +20,11 @@ export class SelectButton<T extends RadioModel> extends ListView<T>
             this.muiltiSelect = false;
         }
     }
-
+    
+    /**
+     * Add 添加一个元素
+     * @param model 元素对象
+     */
     Add(model: T) {
         var me = this;
         super.Add(model);
@@ -46,7 +50,7 @@ export class SelectButton<T extends RadioModel> extends ListView<T>
     }
 
 	/**
-	 * 选择指定项
+	 * 选择指定索引项
 	 * @param index 选择项的索引
 	 */
     Select(index: number) {
@@ -99,6 +103,10 @@ export class SelectButton<T extends RadioModel> extends ListView<T>
 
     }
 
+    /**
+     * SetItemClass 设置子button的class,多次设置会叠加
+     * @param className 类名
+     */
     SetItemClass(className: string) {
         if (className.trim() == "") {
             return;

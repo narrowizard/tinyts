@@ -19,6 +19,11 @@ class ServicePool {
         this.instances = {};
     }
 
+    /**
+     * GetService 获取某个服务的实例
+     * @param Class 某服务类的构造函数
+     * @return 该服务实例对象
+     */
     GetService<T extends IService>(Class: { new (): T }): T {
         var name = Class.prototype.constructor.name;
         if (!name) {
