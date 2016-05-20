@@ -6,15 +6,15 @@ export class EditDialog extends View {
     masked: boolean;
     closeOnClick: boolean;
     focus: View;
-
-    MoveTo(x: number, y: number) {
-        this.target.css("left", x);
-        this.target.css("top", y);
-    }
+    protected width: number;
+    protected mouseX: number;
+    protected mouseY: number;
+    protected isMoving: boolean;
 
     LoadView() {
         var me = this;
         super.LoadView();
+        var draggable = this.target.attr("data-draggable");
         var masked = this.target.attr("data-mask");
         //焦点元素
         var focus = this.target.attr("data-focus");
@@ -35,6 +35,10 @@ export class EditDialog extends View {
         this.target.find(controlConfig.dialogCloseButtonSelector).click(() => {
             me.Hide();
         });
+        //可拖动
+        if (draggable) {
+            this.initDraggable();
+        }
     }
 
     /**
@@ -59,6 +63,9 @@ export class EditDialog extends View {
      */
     Show() {
         this.target.css("display", "block");
+        if (this.masked) {
+            this.mask.css("display", "block");
+        }
         if (this.focus) {
             this.focus.Focus();
         }
@@ -69,6 +76,9 @@ export class EditDialog extends View {
      */
     Hide() {
         this.target.css("display", "none");
+        if (this.masked) {
+            this.mask.css("display", "none");
+        }
     }
 
     /**
@@ -77,8 +87,8 @@ export class EditDialog extends View {
     protected initMask() {
         var html = `<div class='${controlConfig.dialogMaskClass}'></div>`;
         this.mask = $(html);
-        this.target.append(this.mask);
-
+        // this.target.append(this.mask);
+        this.mask.insertAfter(this.target);
         var me = this;
         if (this.closeOnClick) {
             this.mask.click(() => {
@@ -86,4 +96,36 @@ export class EditDialog extends View {
             });
         }
     }
+
+    protected initDraggable() {
+        var me = this;
+
+        this.target.mousedown((eventObject: JQueryMouseEventObject) => {
+            eventObject = (eventObject || window.event) as JQueryMouseEventObject;
+            pauseEvent(eventObject);
+            me.mouseX = eventObject.pageX - me.target.offset().left;
+            me.mouseY = eventObject.pageY - me.target.offset().top;
+            me.isMoving = true;
+        });
+        $(document).mousemove((eventObject: JQueryMouseEventObject) => {
+            eventObject = (eventObject || window.event) as JQueryMouseEventObject;
+            pauseEvent(eventObject);
+            if (me.isMoving) {
+                me.target.css("top", eventObject.pageY - me.mouseY);
+                me.target.css("left", eventObject.pageX - me.mouseX);
+            }
+        });
+
+        this.target.mouseup(() => {
+            me.isMoving = false;
+        });
+    }
+}
+
+function pauseEvent(e) {
+    if (e.stopPropagation) e.stopPropagation();
+    if (e.preventDefault) e.preventDefault();
+    e.cancelBubble = true;
+    e.returnValue = false;
+    return false;
 }
