@@ -1,6 +1,16 @@
 import {View} from "../core/View";
 import {controlConfig} from '../config/TinytsConfig';
 
+/**
+ * EditDialog 弹窗
+ * options
+ * data-draggable
+ * data-mask
+ * data-focus
+ * data-close-on-click
+ * data-layer
+ * data-mask-layer
+ */
 export class EditDialog extends View {
     mask: JQuery;
     masked: boolean;
@@ -16,15 +26,24 @@ export class EditDialog extends View {
         super.LoadView();
         var draggable = this.target.attr("data-draggable");
         var masked = this.target.attr("data-mask");
-        //焦点元素
         var focus = this.target.attr("data-focus");
+        this.closeOnClick = Boolean(this.target.attr("data-close-on-click"));
+        var layer = this.target.attr("data-layer");
+        var maskLayer = this.target.attr("data-mask-layer");
+        //z-index
+        if (layer) {
+            this.SetStyle("z-index", layer);
+        }
+        if (maskLayer) {
+            this.mask.css("z-index", maskLayer);
+        }
+        //焦点元素
         if (focus) {
             var temp: View = new View();
             temp.SetID(focus);
             temp.LoadView();
             this.focus = temp;
         }
-        this.closeOnClick = Boolean(this.target.attr("data-close-on-click"));
         //遮罩
         if (masked) {
             this.masked = true;
@@ -87,7 +106,6 @@ export class EditDialog extends View {
     protected initMask() {
         var html = `<div class='${controlConfig.dialogMaskClass}'></div>`;
         this.mask = $(html);
-        // this.target.append(this.mask);
         this.mask.insertAfter(this.target);
         var me = this;
         if (this.closeOnClick) {
@@ -101,6 +119,9 @@ export class EditDialog extends View {
         var me = this;
 
         this.target.mousedown((eventObject: JQueryMouseEventObject) => {
+            if (eventObject.target instanceof HTMLInputElement) {
+                return;
+            }
             eventObject = (eventObject || window.event) as JQueryMouseEventObject;
             pauseEvent(eventObject);
             me.mouseX = eventObject.pageX - me.target.offset().left;
@@ -108,6 +129,9 @@ export class EditDialog extends View {
             me.isMoving = true;
         });
         $(document).mousemove((eventObject: JQueryMouseEventObject) => {
+            if (eventObject.target instanceof HTMLInputElement) {
+                return;
+            }
             eventObject = (eventObject || window.event) as JQueryMouseEventObject;
             pauseEvent(eventObject);
             if (me.isMoving) {
