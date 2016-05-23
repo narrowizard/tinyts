@@ -10,21 +10,13 @@ import {controlConfig} from '../config/TinytsConfig';
  * 
  * table options:
  * data-navigation:指示table是否需要分页控件
- * data-select-on-click:指示是否在点击整行的时候选中复选框
  * 
- * td options:
- * data-column:列绑定(绑定到T的某个属性)
- * data-checkbox:指示列是否为checkbox列
- * data-index:指示列是否为index列
  */
 export class Table<T extends IModel> extends ListView<T> {
     columns: TableColumn[];
-    length: number;
 
     navBarId: string;
     navBar: JQuery;
-
-    selectOnClick: boolean;
 
     TurnToPage(handler: (page: number, pagesize: number) => void) {
         var me = this;
@@ -102,25 +94,6 @@ export class Table<T extends IModel> extends ListView<T> {
         this.curPage = 1;
     }
 
-    /* 自定义table row 可以设置该回调,在该回调中处理row的自定义
-    * @param index 列索引
-    * @param data 当前行数据
-    */
-    beforeAppend: (index: number, data: T) => string;
-    /**
-     * 该回调将会在RefreshView之后被调用
-     * 请在该函数中注册行中元素的事件(不推荐使用)
-     */
-    registerEvents: () => void;
-    /**
-     * 自定义table row可以继承该类,在自己的类中实现该方法
-     * 如果采用继承的方法,请不要设置beforeAppend属性
-     * @param index 索引
-     */
-    BeforeAppend(index: number): string {
-        return "<td></td>";
-    }
-
     /**
      * clear 清除列表元素的页面内容
      */
@@ -139,77 +112,8 @@ export class Table<T extends IModel> extends ListView<T> {
         return this.mData[index].Id;
     }
 
-    GetView(index: number): string {
-        if (index < 0 || index > this.mData.length) {
-            return "";
-        }
-        var html: string = "";
-        //增加tr
-        if (this.beforeAppend != null) {
-            var res = this.beforeAppend(-1, this.mData[index]);
-            if (res != "") {
-                html += res;
-            } else {
-                html += "<tr data-id=" + this.GetItemId(index) + " >";
-            }
-        } else {
-            html += "<tr data-id=" + this.GetItemId(index) + " >";
-        }
-        //增加td
-        for (var i = 0; i < this.length; i++) {
-            //首先判断是否是checkbox
-            if (this.columns[i].checkBox) {
-                html += "<td><input type='checkbox' data-id=" + this.mData[index].Id + " data-column-index=" + i + " /></td>";
-                continue;
-            }
-            if (this.columns[i].indexColumn) {
-                html += "<td>" + (index + 1) + "</td>";
-                continue;
-            }
-            if (this.columns[i].dataBind) {
-                var value = this.mData[index][this.columns[i].dataColumn];
-                //data-column数据绑定
-                if (value !== undefined) {
-                    html += "<td>" + value + "</td>";
-                } else {
-                    html += "<td></td>";
-                }
-            } else {
-                if (this.beforeAppend == null) {
-                    html += this.BeforeAppend(index);
-                } else {
-                    html += this.beforeAppend(i, this.mData[index]);
-                }
-            }
-
-        }
-        html += "</tr>";
-        return html;
-    }
-
     LoadView() {
         super.LoadView();
-        this.columns = [];
-        var me = this;
-        //列长度
-        this.length = this.target.find("thead tr").children("th").length;
-        //列绑定
-        this.target.find("tr").eq(0).children("th").each(function (index, element) {
-            var temp = new TableColumn();
-            var c = $(element).attr("data-column");
-            if (c) {
-                temp.dataBind = true;
-                temp.dataColumn = c;
-            }
-            if ($(element).attr("data-checkbox")) {
-                $(element).append("<input type='checkbox' data-column-index='" + index + "' />");
-                temp.checkBox = true;
-            }
-            if ($(element).attr("data-index")) {
-                temp.indexColumn = true;
-            }
-            me.columns[index] = temp;
-        });
         //导航
         var naved = Boolean(this.target.attr("data-navigation"));
         if (naved) {
@@ -221,8 +125,6 @@ export class Table<T extends IModel> extends ListView<T> {
             this.createNavigation();
             this.ResetPage();
         }
-        //点击选中
-        this.selectOnClick = Boolean(this.target.attr("data-select-on-click"));
     }
 
     /**
@@ -241,49 +143,12 @@ export class Table<T extends IModel> extends ListView<T> {
         this.navBar.append(html);
     }
 
-    /**
-     * TraverseSelected 遍历所有选中行的数据
-     * @param handler (index:number,data:T)=>boolean 遍历函数,如果返回false,将终止遍历
-     */
-    TraverseSelected(handler: (index: number, data: T) => boolean) {
-        var me = this;
-        this.target.find("tbody input[type='checkbox']").each((index, elem) => {
-            if ($(elem).prop("checked")) {
-                if (!handler(index, me.mData[index])) {
-                    return false;
-                }
-            }
-        });
-    }
-
     RefreshView() {
         var me = this;
         super.RefreshView();
         if (this.navBar) {
             this.navBar.find(".curPage").text(this.curPage);
             this.navBar.find(".totalPage").text(this.pageCount);
-        }
-        if (this.registerEvents != null) {
-            this.registerEvents();
-        }
-        //注册全选事件
-        this.target.find("thead input[type='checkbox']").click((obj) => {
-            var columnIndex = $(obj.target).attr("data-column-index");
-            var state = $(obj.target).prop("checked");
-
-            me.target.find("tbody input[type='checkbox'][data-column-index=" + columnIndex + "]").prop("checked", state);
-        });
-        //点击选中
-        if (this.selectOnClick) {
-            this.target.find("tbody tr").click((obj) => {
-                $(obj.target).find("input[type='checkbox']").each((index, elem) => {
-                    if ($(elem).prop("checked")) {
-                        $(elem).prop("checked", false);
-                    } else {
-                        $(elem).prop("checked", true);
-                    }
-                });
-            });
         }
     }
 

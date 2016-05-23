@@ -6,6 +6,13 @@ export class View {
     protected target: JQuery;
     protected attributes: { [index: string]: any };
 
+    /**
+     * GetJqueryInstance 返回View的Jquery对象
+     */
+    GetJqueryInstance(): JQuery {
+        return this.target;
+    }
+
 	/**
 	 * SetID 设置元素的id,该方法会在View初始化之后被调用
 	 * 可以重载该方法来实现额外的初始化

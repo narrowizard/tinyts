@@ -129,6 +129,9 @@ export class EditDialog extends View {
             me.isMoving = true;
         });
         $(document).mousemove((eventObject: JQueryMouseEventObject) => {
+            if (!me.isMoving) {
+                return;
+            }
             if (eventObject.target instanceof HTMLInputElement) {
                 return;
             }
@@ -146,7 +149,7 @@ export class EditDialog extends View {
     }
 }
 
-function pauseEvent(e) {
+function pauseEvent(e: JQueryMouseEventObject) {
     if (e.stopPropagation) e.stopPropagation();
     if (e.preventDefault) e.preventDefault();
     e.cancelBubble = true;

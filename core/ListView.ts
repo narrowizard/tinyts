@@ -12,6 +12,14 @@ import {View} from './View';
 export class ListView<T extends IModel> extends View {
     mData: T[];
 
+    /**
+     * getTemplateView 设置列表部分的模板
+     * @param index 索引
+     * @param data 数据
+     */
+    getTemplateView: (index: number, data: T) => string;
+    
+
     protected eventHandler: { selector: string, event?: string, handler: (obj: JQueryEventObject) => void }[];
 
     /**
@@ -203,8 +211,9 @@ export class ListView<T extends IModel> extends View {
 	 * @param index 索引
 	*/
     GetView(index: number): string {
-        return "";
+        return this.getTemplateView(index, this.mData[index]);
     };
+
 
 	/**
 	 * 刷新整个ListView的列表部分
