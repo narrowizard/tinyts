@@ -13,8 +13,6 @@ import {controlConfig} from '../config/TinytsConfig';
  * 
  */
 export class Table<T extends IModel> extends ListView<T> {
-    columns: TableColumn[];
-
     navBarId: string;
     navBar: JQuery;
 
