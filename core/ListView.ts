@@ -18,7 +18,7 @@ export class ListView<T extends IModel> extends View {
      * @param data 数据
      */
     getTemplateView: (index: number, data: T) => string;
-    
+
 
     protected eventHandler: { selector: string, event?: string, handler: (obj: JQueryEventObject) => void }[];
 
@@ -156,7 +156,7 @@ export class ListView<T extends IModel> extends View {
             return this.mData[index];
         } else if (typeof param == "function") {
             var predicate = <(p: T) => boolean>param;
-            return this.mData.where(predicate).first();
+            return Enumerable.from(this.mData).where(predicate).first();
         }
     }
 
@@ -165,7 +165,7 @@ export class ListView<T extends IModel> extends View {
      * @param id 元素id
      */
     GetItemById(id: number): T {
-        return this.mData.where((item) => { return item.Id == id }).first();
+        return Enumerable.from(this.mData).where((item) => { return item.Id == id }).first();
     }
 
     /**
