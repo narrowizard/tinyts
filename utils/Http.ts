@@ -54,19 +54,23 @@ export class HttpUtils {
      * Go 发起http请求
      */
     public static Go(url: string, success, failed, otherSettings) {
-        var exist = Enumerable.from(HttpUtils.RequestPool).where(it => it == url).firstOrDefault();
+        var urlPaser = new UrlPaser();
+        urlPaser.Parse(url);
+        
+        var exist = Enumerable.from(HttpUtils.RequestPool).where(it => it == urlPaser.hostname + urlPaser.pathname).firstOrDefault();
         if (exist) {
             //请求已存在,放弃
             return;
         }
-        this.RequestPool.push(url);
+
+        this.RequestPool.push(urlPaser.hostname + urlPaser.pathname);
         var ajaxSettings = {
             url: url,
             success: function (response) {
                 //移除已存在的请求
                 var urlPaser = new UrlPaser();
                 urlPaser.Parse(this.url);
-                HttpUtils.RequestPool.remove(it => it == urlPaser.pathname);
+                HttpUtils.RequestPool.remove(it => it == urlPaser.hostname + urlPaser.pathname);
 
                 success(response);
             },
@@ -74,7 +78,7 @@ export class HttpUtils {
                 //移除已存在的请求
                 var urlPaser = new UrlPaser();
                 urlPaser.Parse(this.url);
-                HttpUtils.RequestPool.remove(it => it == urlPaser.pathname);
+                HttpUtils.RequestPool.remove(it => it == urlPaser.hostname + urlPaser.pathname);
 
                 failed(response);
             }
