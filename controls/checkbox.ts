@@ -10,6 +10,13 @@ export class CheckBox extends View {
     }
 
     /**
+     * Value 返回checkbox的选择状态
+     */
+    Value(): boolean {
+        return this.target.prop("checked");
+    }
+
+    /**
      * Check 设置checkbox的选择状态
      * @param status 选择状态,若不存在,则为true
      */

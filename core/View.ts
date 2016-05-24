@@ -5,7 +5,21 @@ export class View {
     private id: string;
     protected target: JQuery;
     protected attributes: { [index: string]: any };
+    protected propertyName: string;
 
+    /**
+     * Value 返回控件的值,若不存在,返回null
+     */
+    Value(): any {
+        return null;
+    }
+
+    /**
+     * GetPropertyName 获取属性名
+     */
+    GetPropertyName(): string {
+        return this.propertyName;
+    }
     /**
      * GetJqueryInstance 返回View的Jquery对象
      */
@@ -43,6 +57,7 @@ export class View {
      */
     LoadView() {
         this.target = $("#" + this.id);
+        this.propertyName = this.target.attr("data-property");
     }
 
     /**

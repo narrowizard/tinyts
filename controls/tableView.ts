@@ -1,4 +1,3 @@
-import {TableColumn} from '../models/TableColumn';
 import {ListView} from '../core/ListView';
 import {controlConfig} from '../config/TinytsConfig';
 /**
