@@ -1,4 +1,5 @@
 import {View} from './View';
+import {InputView} from './InputView';
 /**
  * BaseViewModel ViewModel的基类,该类实现了依赖注入
  * 可注入的类型有:
@@ -32,6 +33,8 @@ export abstract class BaseViewModel implements IViewModel {
     }
 
     abstract RegisterEvents();
+
+    abstract OnValidateError(msg: string);
 
     OnLoad() {
 
@@ -74,6 +77,8 @@ export abstract class VirtualView<T> extends View implements IViewModel {
     abstract SetTemplate();
 
     abstract RegisterEvents();
+
+    abstract OnValidateError(msg: string);
 
     OnLoad() { }
 
@@ -137,6 +142,10 @@ function inject(Class: Function, instance: IViewModel) {
                 //如果是View
                 (temp as View).SetID(injectionPoint.propertyName);
                 (temp as View).LoadView();
+                if (temp instanceof InputView) {
+                    //如果是InputView 注入ErrorHandler
+                    (temp as InputView).SetErrorHandler(instance);
+                }
             } else if (temp instanceof ViewGroup) {
                 //如果是ViewGroup
                 temp.SetContext(instance);

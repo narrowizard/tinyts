@@ -10,4 +10,10 @@ interface IViewModel {
 	 * 此函数会在RegisterEvents之后被调用
 	 */
 	OnLoad();
+
+	/**
+	 * OnValidateError 验证失败回调
+	 * @param msg 错误信息
+	 */
+	OnValidateError(msg: string);
 }
