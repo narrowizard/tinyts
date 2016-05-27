@@ -13,5 +13,6 @@ export var controlConfig = {
     tableNavItemClass: "btn btn-xs btn-info",
     // confirm dialog
     confirmDialogMessageSelector: ".confirm-message",
-    confirmButton: ".btn-confirm"
+    confirmButton: ".btn-confirm",
+    defaultPageSize: 10
 };
