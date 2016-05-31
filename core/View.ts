@@ -15,6 +15,21 @@ export class View {
     }
 
     /**
+     * SetValue 设置控件的值
+     * @param value 值
+     */
+    SetValue(value) {
+
+    }
+
+    /**
+     * Clear 清除控件的值(设为默认值)
+     */
+    Clear() {
+
+    }
+
+    /**
      * GetPropertyName 获取属性名
      */
     GetPropertyName(): string {

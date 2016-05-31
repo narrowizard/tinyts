@@ -30,4 +30,16 @@ export class CheckBox extends View {
             this.target.prop("checked", false);
         }
     }
+    
+    /**
+     * SetValue 设置checkbox的选择状态
+     * @param status 选择状态,若不存在,则为true
+     */
+    SetValue(status: boolean) {
+        this.Check(status);
+    }
+    
+    Clear(){
+        this.Check(false);
+    }
 }
