@@ -1,4 +1,4 @@
-import {Table} from "../controls/tableView";
+import {Table} from "../controls/TableView";
 
 /**
  * TableExt Table控件的扩展插件

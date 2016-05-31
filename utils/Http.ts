@@ -5,7 +5,7 @@ Extend();
 /**
  * url parser 解析url地址
  */
-export class UrlPaser {
+export class UrlParser {
     //原始地址
     url: string;
     //解析结果
@@ -54,7 +54,7 @@ export class HttpUtils {
      * Go 发起http请求
      */
     public static Go(url: string, success, failed, otherSettings) {
-        var urlPaser = new UrlPaser();
+        var urlPaser = new UrlParser();
         urlPaser.Parse(url);
         
         var exist = Enumerable.from(HttpUtils.RequestPool).where(it => it == urlPaser.hostname + urlPaser.pathname).firstOrDefault();
@@ -68,7 +68,7 @@ export class HttpUtils {
             url: url,
             success: function (response) {
                 //移除已存在的请求
-                var urlPaser = new UrlPaser();
+                var urlPaser = new UrlParser();
                 urlPaser.Parse(this.url);
                 HttpUtils.RequestPool.remove(it => it == urlPaser.hostname + urlPaser.pathname);
 
@@ -76,7 +76,7 @@ export class HttpUtils {
             },
             error: function (response) {
                 //移除已存在的请求
-                var urlPaser = new UrlPaser();
+                var urlPaser = new UrlParser();
                 urlPaser.Parse(this.url);
                 HttpUtils.RequestPool.remove(it => it == urlPaser.hostname + urlPaser.pathname);
 
