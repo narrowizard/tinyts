@@ -61,6 +61,10 @@ export abstract class VirtualView<T> extends View implements IViewModel {
 
     template: string;
 
+    container: string;
+
+    loading: string;
+
     SetContext(context: T) {
         this.context = context;
     }
