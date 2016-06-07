@@ -41,7 +41,7 @@ export class UrlParser {
         this.hash = parser.hash;
     }
 
-}
+};
 
 /**
  * HttpUtils 该方法封装了一个请求池,保证同一个请求同时只被发送一次
@@ -56,7 +56,7 @@ export class HttpUtils {
     public static Go(url: string, success, failed, otherSettings) {
         var urlPaser = new UrlParser();
         urlPaser.Parse(url);
-        
+
         var exist = Enumerable.from(HttpUtils.RequestPool).where(it => it == urlPaser.hostname + urlPaser.pathname).firstOrDefault();
         if (exist) {
             //请求已存在,放弃
@@ -85,5 +85,107 @@ export class HttpUtils {
         };
         var newSettings = $.extend({}, ajaxSettings, otherSettings);
         $.ajax(newSettings);
+    }
+};
+
+export class Router {
+
+    context: {
+        OnRouteSucc: (html: string) => void,
+        OnRouteError: (error: string) => void
+    };
+
+    /**
+     * SetContext 设置上下文
+     * @param context.OnRouteSucc 路由完成回调
+     * @param context.OnRouteError 路由错误回调
+     */
+    SetContext(context: {
+        OnRouteSucc: (html: string) => void,
+        OnRouteError: (error: string) => void
+    }) {
+        this.context = context;
+    }
+
+    constructor() {
+        var me = this;
+        window.onpopstate = function (event) {
+            var state = event.state;
+            var url = state.url;
+            var data = state.data;
+            me.GetPage(url, data);
+        }
+    }
+
+    /**
+     * GoBack 返回上一页
+     */
+    GoBack() {
+        window.history.back();
+    }
+
+    /**
+     * GoForward 前往下一页 
+     */
+    GoForward() {
+        window.history.forward();
+    }
+
+    /**
+     * GoTo 修改当前url为指定url,并请求该url
+     * @param url 指定url
+     * @param data 可能存在的参数
+     */
+    GoTo(url: string, data) {
+        var me = this;
+        var stateData = { url: url, data: data };
+        window.history.pushState(stateData, "", url);
+        me.GetPage(url, data);
+    }
+
+    /**
+     * GetPage 获取异步页面
+     * @param url 请求地址
+     * @param data 请求参数
+     */
+    GetPage(url: string, data) {
+        if (!me.context) {
+            console.error("router:context not defined!");
+            return;
+        }
+        var me = this;
+        //异步请求页面
+        $.ajax({
+            url: url,
+            type: "GET",
+            data: data,
+            success: (response) => {
+                me.context.OnRouteSucc(response);
+            },
+            error: (err) => {
+                me.context.OnRouteError(err.statusText);
+            }
+        });
+    }
+
+    /**
+     * ReplaceCurrentState 修改当前router的状态(无历史记录),并执行异步请求
+     * @param url 指定的url
+     * @param data 当前router的数据
+     */
+    ReplaceCurrentState(url: string, data) {
+        var me = this;
+        var stateData = { url: url, data: data };
+        window.history.replaceState(stateData, "", url);
+        me.GetPage(url, data);
+    }
+
+    /**
+     * RegisterCurrentState 为当前的url注册router state,并执行异步请求
+     */
+    RegisterCurrentState() {
+        var me = this;
+        var url = window.location.href;
+        me.ReplaceCurrentState(url, null);
     }
 }
