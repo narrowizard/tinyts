@@ -91,8 +91,10 @@ export class HttpUtils {
 export class Router {
 
     context: {
-        OnRouteSucc: (html: string) => void,
-        OnRouteError: (error: string) => void
+        // url 改变
+        OnRouteChange: (url: string, data?: any) => void,
+        // 触发前进、后退事件
+        OnRoutePopState: (state: { url: string, data: any }) => void
     };
 
     /**
@@ -101,8 +103,8 @@ export class Router {
      * @param context.OnRouteError 路由错误回调
      */
     SetContext(context: {
-        OnRouteSucc: (html: string) => void,
-        OnRouteError: (error: string) => void
+        OnRouteChange: (url: string, data?: any) => void,
+        OnRoutePopState: (state: { url: string, data: any }) => void
     }) {
         this.context = context;
     }
@@ -111,9 +113,7 @@ export class Router {
         var me = this;
         window.onpopstate = function (event) {
             var state = event.state;
-            var url = state.url;
-            var data = state.data;
-            me.GetPage(url, data);
+            me.context.OnRoutePopState(state);
         }
     }
 
@@ -132,40 +132,15 @@ export class Router {
     }
 
     /**
-     * GoTo 修改当前url为指定url,并请求该url
+     * GoTo 修改当前url为指定url,并触发context的OnRouteChange事件
      * @param url 指定url
      * @param data 可能存在的参数
      */
-    GoTo(url: string, data) {
+    GoTo(url: string, data?: any) {
         var me = this;
         var stateData = { url: url, data: data };
         window.history.pushState(stateData, "", url);
-        me.GetPage(url, data);
-    }
-
-    /**
-     * GetPage 获取异步页面
-     * @param url 请求地址
-     * @param data 请求参数
-     */
-    GetPage(url: string, data) {
-        if (!me.context) {
-            console.error("router:context not defined!");
-            return;
-        }
-        var me = this;
-        //异步请求页面
-        $.ajax({
-            url: url,
-            type: "GET",
-            data: data,
-            success: (response) => {
-                me.context.OnRouteSucc(response);
-            },
-            error: (err) => {
-                me.context.OnRouteError(err.statusText);
-            }
-        });
+        me.context.OnRouteChange(url, data);
     }
 
     /**
@@ -177,7 +152,7 @@ export class Router {
         var me = this;
         var stateData = { url: url, data: data };
         window.history.replaceState(stateData, "", url);
-        me.GetPage(url, data);
+        me.context.OnRouteChange(url, data);
     }
 
     /**
@@ -185,7 +160,9 @@ export class Router {
      */
     RegisterCurrentState() {
         var me = this;
+        var parser = new UrlParser();
         var url = window.location.href;
-        me.ReplaceCurrentState(url, null);
+        parser.Parse(url);
+        me.ReplaceCurrentState(parser.pathname, null);
     }
 }

@@ -26,6 +26,9 @@ export class ListView<T extends IModel> extends View {
      * RegisterEvents 注册列表子元素的事件
      */
     RegisterEvents() {
+        if (!this.eventHandler) {
+            this.eventHandler = [];
+        }
         for (var i = 0; i < this.eventHandler.length; i++) {
             if (this.eventHandler[i].event) {
                 this.target.find(this.eventHandler[i].selector).on(this.eventHandler[i].event, this.eventHandler[i].handler);
