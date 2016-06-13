@@ -89,6 +89,14 @@ export class View {
         this.target.css(key, value);
     }
 
+    Style(key: string, unit?: boolean): string {
+        if (unit === false) {
+            return this.target.css(key).replace(/[^-\d\.]/g, '');
+        } else {
+            return this.target.css(key);
+        }
+    }
+
     /**
      * SetAttr 设置属性
      */

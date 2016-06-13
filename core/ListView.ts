@@ -9,7 +9,7 @@
 
 import {View} from './View';
 
-export class ListView<T extends IModel> extends View {
+export abstract class ListView<T extends IModel> extends View {
     mData: T[];
 
     /**
@@ -141,6 +141,28 @@ export class ListView<T extends IModel> extends View {
             }
         }
         this.RefreshView();
+    }
+
+    protected abstract GetChildren(): JQuery;
+
+    /**
+     * GetItemView 获取子元素的jquery instance
+     * @param index 指定索引
+     */
+    GetItemView(index: number): JQuery {
+        return this.GetChildren().eq(index);
+    }
+
+    /**
+     * GetItemById 根据id获取子元素的jquery instance
+     */
+    GetItemViewById(id: number): JQuery {
+        for (var i = 0; i < this.mData.length; i++) {
+            if (this.mData[i].Id == id) {
+                return this.GetItemView(i);
+            }
+        }
+        return null;
     }
 
 	/**

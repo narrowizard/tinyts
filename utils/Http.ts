@@ -18,7 +18,7 @@ export class UrlParser {
     searchObject: { [key: string]: string };
     hash: string;
 
-    Parse(url: string) {
+    Parse(url: string): UrlParser {
         this.url = url;
         this.searchObject = {};
         var parser = document.createElement('a'),
@@ -39,6 +39,8 @@ export class UrlParser {
         this.pathname = parser.pathname.indexOf("/") == 0 ? parser.pathname : "/" + parser.pathname;
         this.search = parser.search;
         this.hash = parser.hash;
+        
+        return this;
     }
 
 };
@@ -136,33 +138,22 @@ export class Router {
      * @param url 指定url
      * @param data 可能存在的参数
      */
-    GoTo(url: string, data?: any) {
+    GoTo(url: string, data: any, param?: any) {
         var me = this;
-        var stateData = { url: url, data: data };
+        var stateData = { url: url, data: data, param: param };
         window.history.pushState(stateData, "", url);
         me.context.OnRouteChange(url, data);
     }
 
     /**
-     * ReplaceCurrentState 修改当前router的状态(无历史记录),并执行异步请求
+     * ReplaceCurrentState 修改当前router的状态(无历史记录)
      * @param url 指定的url
      * @param data 当前router的数据
      */
-    ReplaceCurrentState(url: string, data) {
+    ReplaceCurrentState(url: string, data: any, param?: any) {
         var me = this;
-        var stateData = { url: url, data: data };
+        var stateData = { url: url, data: data, param: param };
         window.history.replaceState(stateData, "", url);
         me.context.OnRouteChange(url, data);
-    }
-
-    /**
-     * RegisterCurrentState 为当前的url注册router state,并执行异步请求
-     */
-    RegisterCurrentState() {
-        var me = this;
-        var parser = new UrlParser();
-        var url = window.location.href;
-        parser.Parse(url);
-        me.ReplaceCurrentState(parser.pathname, null);
     }
 }

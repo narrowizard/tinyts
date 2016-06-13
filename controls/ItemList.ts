@@ -4,6 +4,10 @@ import {controlConfig} from '../config/TinytsConfig';
 
 export class ItemList extends ListView<RadioModel>{
 
+    GetChildren(): JQuery {
+        return this.target.find("li");
+    }
+
     onItemClick: (obj: JQueryEventObject) => void;
 
     GetView(index: number): string {

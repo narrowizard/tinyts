@@ -15,6 +15,10 @@ export class Table<T extends IModel> extends ListView<T> {
     navBarId: string;
     navBar: JQuery;
 
+    GetChildren(): JQuery {
+        return this.target.find("tr");
+    }
+
     TurnToPage(handler: (page: number, pagesize: number) => void) {
         var me = this;
         this.navBar.find(".nav-first-page").click(() => {

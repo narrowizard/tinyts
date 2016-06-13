@@ -11,6 +11,10 @@ export class SelectButton<T extends RadioModel> extends ListView<T>
 	 */
     onItemClick: (element: JQuery) => void;
 
+    GetChildren(): JQuery {
+        return this.target.find("button");
+    }
+
     LoadView() {
         super.LoadView();
         var t = Boolean(this.target.attr("data-muilti-select"));

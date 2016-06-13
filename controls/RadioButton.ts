@@ -6,6 +6,10 @@ import {RadioModel} from '../models/RadioModel';
 export class RadioButton<T extends RadioModel> extends ListView<T>{
     name: string;
 
+    GetChildren(): JQuery {
+        return this.target.find("input[type='radio']");
+    }
+
     SetId(id: string) {
         super.SetID(id);
         this.name = controlConfig.radiobuttonPrefix + id;
