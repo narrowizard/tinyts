@@ -211,8 +211,41 @@ Typescript:
 2.	模型注入器
 tinyts实现了一个模型注入器（ModelInjector）。模型注入器可以将视图模型（或子视图）中定义了data-property属性的控件对象的值注入到一个model中。也可以反向解析model，并将对应的值注入到相应的控件对象中。示例如下：
 
+## 装饰器(decorator)
+1. view
+2. partialView
+
 ##	视图模型（viewmodel）
+1. 介绍
+2. 视图模型基类(BaseViewModel)
+3. 绑定
+4. 示例
+
 ##	子视图（view）
+1. 视图容器(ViewGroup)
+2. 虚拟视图(VirtualView)
+
 ##	表单验证（validate）
+1. 示例
+2. 自定义验证器
+
 ##	控件（controls）
+1. 控件基类
+2. View、TextView、InputView与ListView
+3. Button
+4. CheckBox
+5. ConfirmDialog
+6. EditDialog
+7. FileUploader
+8. ImageView
+9. ItemList
+10. RadioButton
+11. SelectButton
+12. TableView
+13. TextBox
+14. UEditor
+15. UlList
+
 ##	控件开发
+1. 扩展控件功能
+2. 开发新控件
