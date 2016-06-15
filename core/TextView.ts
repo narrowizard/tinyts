@@ -7,7 +7,7 @@ export class TextView extends View {
 
     /**
      * SetText 设置控件文本内容
-     * @param 文本内容
+     * @param text 文本内容
      */
     SetText(text: string) {
         this.target.text(text);

@@ -125,7 +125,7 @@ Typescript:
     示例中的service提供了两个数据接口，一个返回静态数据对象{ name: "ali", age: 11 }，另一个则通过ajax请求获取服务端的数据。  
     注意，service层的数据返回都通过回调的方式完成（包括错误处理）。如何在viewmodel中调用service将在viewmodel模块中介绍。
 
-2. 封装ajax请求
+2. 封装ajax请求  
 为了避免重复编写ajax请求部分的代码，可以对这些部分作一个简单的封装。  
 Typescript:
 
@@ -176,7 +176,7 @@ Typescript:
 
     示例的HttpRequest类提供了Post和Get两个方法，并提供了一些逻辑处理的建议。（你也可以根据不同的需求，进行不同程度的封装）。
 
-3. 限制频繁提交
+3. 限制频繁提交  
 在某些项目需求中，我们需要限制一个请求被频繁发送。tinyts的组件中提供了HttpUtils类，该类提供这样的功能：当一个请求被多次发送时，重复发送的请求（第二次及以后）将会被抛弃，除非第一次请求已经返回结果，或者请求的时间间隔超过一个阀值。注意：时间间隔的功能尚未完成。示例如下：  
 Typescript:
 
@@ -205,25 +205,242 @@ Typescript:
 
     示例中用到了HttpUtils.Go方法发送ajax请求，同时提交多次请求将会导致第二次请求被拦截。因此，示例只会向/segment/somedata发送一个请求。注意：请求是根据url唯一标志的，这意味着当你修改了url之后，请求仍然会被发送。本示例默认一次请求的时间大于程序执行的时间。（即当第二次发送请求时，第一次请求尚未返回结果）。
 
-## 模型（model）
-1.	介绍
-数据模型层，在该层定义项目的数据结构。注意：tinyts默认每一个model包含一个Id的属性，该属性将会在很多的控件（controls）中被使用，请保证每个model满足这个条件，并且Id是一个唯一标志列。
-2.	模型注入器
-tinyts实现了一个模型注入器（ModelInjector）。模型注入器可以将视图模型（或子视图）中定义了data-property属性的控件对象的值注入到一个model中。也可以反向解析model，并将对应的值注入到相应的控件对象中。示例如下：
-
-## 装饰器(decorator)
-1. view
-2. partialView
-
 ##	视图模型（viewmodel）
-1. 介绍
-2. 视图模型基类(BaseViewModel)
-3. 绑定
-4. 示例
+1. 介绍  
+视图模型(viewmodel)是tinyts的核心部分，我们所有的代码编写都将围绕着viewmodel展开。在tinyts中，一个viewmodel代表着一个业务逻辑模块，我们将在viewmodel中处理该模块的所有的业务逻辑（包括界面逻辑）。例如，一个登录模块，我们将在viewmodel中获取用户输入（将在model中介绍获取用户输入的方法），验证用户输入（将在验证模块中详细介绍），调用service发送服务端请求，以及处理服务端返回，并做出相应的页面操作。
+2. 视图模型基类(BaseViewModel)  
+在tinyts核心库中，有一个BaseViewModel类，该类实现了控件注入、页面加载提示的功能，并且有OnValidateError和RegisterEvents两个虚方法，其中RegisterEvents方法用于定义viewmodel的事件绑定，OnValidateError则是验证错误（在Validate模块中会详细介绍）的回调。另外，BaseViewModel还包含OnLoad方法，该方法在页面加载注入完成后被调用，请在viewmodel中重写该方法以实现具体的功能。下面定义了一个viewmodel类（不包含任何功能）  
+Typescript：
+
+        import {BaseViewModel} from '../../../tinyts/core/Core';
+        
+        export class DemoModel extends BaseViewModel {
+        
+            RegisterEvents() {
+                //在这里注册控件的事件
+            }
+        
+            OnValidateError(msg: string) {
+                //在这里处理验证错误
+            }
+        }
+
+3. 引用  
+接下来，你需要在html文件中引用该viewmodel，让这个viewmodel能够处理这个html页面的所有业务逻辑。  
+html:
+
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <title>Document</title>
+        </head>
+        <body>
+            <!--注意:这里localhost:8124为本地的nresource服务地址-->
+            <script src="http://localhost:8124/static/js/linq.min.js"></script>
+            <script src="http://localhost:8124/static/js/require.js"></script>
+            <script src="http://localhost:8124/static/js/jquery-1.12.3.min.js"></script>
+            <script src="http://localhost:8124/tinyts/demo/demo.js"></script>
+            <script>
+                require(["project/demo/viewmodels/demo"],function(vm){
+                    var dm = new vm.DemoModel();
+                });
+            </script>
+        </body>
+        </html>
+    不过，现在在这个html页面上没有任何的元素。接下来，让我们在页面上添加一个文本框，一个label标签和一个按钮。  
+    html：
+    
+        <input type="text" id="sInput">
+        <label id="sText"></label>
+        <button type="button" id="btnText">click me!</button>
+        
+    那么，我们要怎么在viewmodel中操作这些html元素呢？像前面提到的一个个元素绑定再操作吗？显然不是。在学习如何操作html元素之前，让我们先学习一个新的概念——装饰器。
+4. 装饰器(decorator)  
+在typescript中，有一个新的特性叫做装饰器，他的用法就是在一个元素（可以是类、类的方法、类的属性、方法的参数等）之前使用@加装饰器名。在tinyts的核心库中，实现了两个装饰器，他们分别是view装饰器和partialView装饰器，这两个装饰器都用于viewmodel类的属性。
+    + view  
+    view装饰器装饰一个控件（control），viewmodel会自动初始化该控件，并根据控件的名字（即viewmodel中的属性名）对html中的元素进行id绑定。关于控件的具体用法，参见控件章节。
+    + partialView  
+    partialView装饰器装饰一个子视图（view），子视图是一种包含了一定业务逻辑的小型视图模型单元，partialView装饰器会根据子视图的定义，对html元素进行相关的绑定，关于子视图的详细用法，参见子视图章节。  
+5. 绑定  
+    接下来，我们将刚才在html中新添加的几个元素绑定到viewmodel中。添加绑定后的viewmodel代码如下：  
+Typescript：
+
+        import {BaseViewModel, view} from '../../../tinyts/core/Core';
+        import {TextBox} from '../../../tinyts/controls/TextBox';
+        import {Button} from '../../../tinyts/controls/Button';
+        import {TextView} from '../../../tinyts/core/TextView';
+        
+        export class DemoModel extends BaseViewModel {
+        
+            @view(TextBox)
+            sInput: TextBox;
+        
+            @view(TextView)
+            sText: TextView;
+        
+            @view(Button)
+            btnSubmit: Button;
+        
+            RegisterEvents() {
+                //在这里注册控件的事件
+            }
+        
+            OnValidateError(msg: string) {
+                //在这里处理验证错误
+            }
+        }
+    在这里，对于不同的html element，我使用了不同的控件（input[type='text']使用了TextBox,label使用了TextView,button使用了Button），这些选择是根据该html element需要的功能来确定的，具体的控件功能参见控件章节。
+6. 处理业务逻辑  
+    接下来，在RegisterEvents中注册按钮的点击事件，使得点击按钮时，将input里的值输出到label中。代码如下：  
+Typescript:
+
+        RegisterEvents() {
+            var me = this;
+            //在这里注册控件的事件
+            me.btnSubmit.OnClick(() => {
+                me.sText.SetText(me.sInput.Value());
+            });
+        }
+    需要注意的是，这里我定义了`var me = this`，这是为了解决编译后的js中this指针的问题。因为在闭包（上述的点击回调）中，this会指向被点击的button。
+7. 使用服务(service)  
+    正如之前介绍的，我们需要在viewmodel中调用服务的接口，以获得服务端返回的数据或者是提交数据到服务端。那么，我们就要在viewmodel中引用服务。按照一般的逻辑，首先，我们需要引用一个服务，`import {SomeService} from '../services/demo'`，并且在viewmodel中定义并初始化一个服务，然后调用服务示例的相关方法来完成对数据的操作。代码如下：  
+Typescript：
+
+        import {BaseViewModel} from '../../../tinyts/core/Core';
+        import {SomeService} from '../services/demo';
+        
+        export class ServiceModel extends BaseViewModel {
+        
+            RegisterEvents() {
+        
+            }
+        
+            OnValidateError(msg: string) {
+                //在这里处理验证错误
+            }
+        
+            OnLoad() {
+                var service = new SomeService();
+                service.GetSomeData({}, this);
+            }
+        
+            LoadData(data) {
+                //在这里处理数据
+            }
+        
+            OnFailed(error) {
+                //在这里处理错误
+            }
+        }
+    此例中，我们重写了BaseViewModel的OnLoad方法，在页面加载完成后，调用service的`GetSomeData`方法。值得注意的是，调用`GetSomeData`方法的第二个参数传递了`this`，回顾service章节中SomeService的定义可以发现，`GetSomeData`的第二个参数是一个context，用来处理请求的返回值。那么现在，我们应该理解service的回调确实应该在viewmodel中处理，这属于业务逻辑的一部分。仔细观察可以发现，此例中，viewmodel多定义了两个方法LoadData和OnFailed，细心的你一定已经知道，这两个方法就是Service中被调用的成功回调以及错误回调。
+8. 使用服务池  
+到此你可能觉得这样处理service并没有多大的问题。确实，这是一种很普通的方式，定义一个对象，调用他的方法。但是，当你需要编写很多模块的时候，你会发现这样的方法非常繁杂，并且大量的service会变得难以维护（例如，两个模块同时会引用一个service，那么该service会被定义两次，造成一定的资源浪费）。为了解决这个问题，tinyts实现了一个服务池。服务池是一个单例，他维护一个服务列表，并且保证服务是唯一的。你只需要调用他的GetService方法，就可以获取一个你需要的服务。示例如下：  
+Typescript：
+
+        import {BaseViewModel} from '../../../tinyts/core/Core';
+        import {ServicePoolInstance} from '../../../tinyts/core/ServicePool';
+        import {SomeService} from '../services/demo';
+        
+        export class ServiceModel extends BaseViewModel {
+        
+            RegisterEvents() {
+        
+            }
+        
+            OnValidateError(msg: string) {
+                //在这里处理验证错误
+            }
+        
+            OnLoad() {
+                ServicePoolInstance.GetService(SomeService).GetSomeData({}, this);
+                // var service = new SomeService();
+                // service.GetSomeData({}, this);
+            }
+        
+            LoadData(data) {
+                //在这里处理数据
+            }
+        
+            OnFailed(error) {
+                //在这里处理错误
+            }
+        }
+
+## 模型（model）
+1.	介绍  
+数据模型层，在该层定义项目的数据结构。注意：tinyts默认每一个model包含一个Id的属性，该属性将会在很多的控件（controls）中被使用，请保证每个model满足这个条件，并且Id是一个唯一标志列。
+2.	模型注入器  
+tinyts实现了一个模型注入器（ModelInjector）。模型注入器可以将视图模型（或子视图）中定义了data-property属性的控件对象的值注入到一个model中。也可以反向解析model，并将对应的值注入到相应的控件对象中。示例如下：  
+    html:
+
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <title>Document</title>
+        </head>
+        <body>
+            <input type="text" id="sName" data-property="Name" >
+            <input type="text" id="sNickName" data-property="NickName" >
+            <button type="button" id="btnSubmit">submit</button>
+        </body>
+        </html>
+    Typescript:
+    
+        import {BaseViewModel, view} from '../../../tinyts/core/Core';
+        import {TextBox} from '../../../tinyts/controls/TextBox';
+        import {Button} from '../../../tinyts/controls/Button';
+        import {ModelInjector} from '../../../tinyts/utils/Model';
+
+        /**
+         * User 模型
+         */
+        class User {
+            Name: string;
+            NickName: string;
+        }
+        
+        export class ModelInjectorDemo extends BaseViewModel {
+        
+            @view(TextBox)
+            sName: TextBox;
+        
+            @view(TextBox)
+            sNickName: TextBox;
+        
+            @view(Button)
+            btnSubmit: Button;
+        
+            InjectModel() {
+                //ModelInjector.InjectModel会将控件的value注入到user中
+                var user: User = ModelInjector.InjectModel(this);
+                user.Name;  //这里得到input#sName的value
+                user.NickName; //这里得到input#sNickName的value
+            }
+        
+            ResolveModel() {
+                var user: User;
+                user.Name = "sari";
+                user.NickName = "sara";
+                //ModelInjector.ResolveModel会将model中的值注入到控件中
+                ModelInjector.ResolveModel(user, this);
+            }
+        
+            OnValidateError() {
+        
+            }
+        
+            RegisterEvents() {
+        
+            }
+        }
 
 ##	子视图（view）
-1. 视图容器(ViewGroup)
-2. 虚拟视图(VirtualView)
+1. 介绍  
+在某种情况下，我们需要对某一部分的逻辑进行封装。例如，某个天气管理系统中，在多个模块都用到了地址选择的功能，并且这些地址选择都是级联的（province-city-district），如果在每个模块的viewmodel中处理这个逻辑，则需要编写很多冗余的代码。这个时候，就可以使用子视图来解决这个问题。子视图相当于一个简单的视图模型，也支持控件的自动注入，可以处理内部逻辑，并且能被多个模块引用。使用子视图还有一个优势，他可以简化viewmodel的逻辑，避免出现一个viewmodel包含上千行代码的情况。
+2. 视图容器(ViewGroup)
+3. 虚拟视图(VirtualView)
 
 ##	表单验证（validate）
 1. 示例
