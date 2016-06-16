@@ -439,8 +439,208 @@ tinyts实现了一个模型注入器（ModelInjector）。模型注入器可以�
 ##	子视图（view）
 1. 介绍  
 在某种情况下，我们需要对某一部分的逻辑进行封装。例如，某个天气管理系统中，在多个模块都用到了地址选择的功能，并且这些地址选择都是级联的（province-city-district），如果在每个模块的viewmodel中处理这个逻辑，则需要编写很多冗余的代码。这个时候，就可以使用子视图来解决这个问题。子视图相当于一个简单的视图模型，也支持控件的自动注入，可以处理内部逻辑，并且能被多个模块引用。使用子视图还有一个优势，他可以简化viewmodel的逻辑，避免出现一个viewmodel包含上千行代码的情况。
-2. 视图容器(ViewGroup)
-3. 虚拟视图(VirtualView)
+2. 视图容器(ViewGroup)  
+使用子视图需要继承自类ViewGroup，也可以说ViewGroup是子视图的基类。具体用法示例如下:  
+html:  
+
+        <!DOCTYPE html>
+        <html lang="en">
+        
+        <head>
+            <meta charset="UTF-8">
+            <title>Document</title>
+        </head>
+        
+        <body>
+            <!--这部分控件存在于viewmodel-->
+            <input type="text" id="sInput">
+            <label id="sText"></label>
+            <button type="button" id="btnText">click me!</button>
+            
+            <!--div中的控件存在于view-->
+            <div>
+                <input type="text" id="sChildInput">
+                <label id="sChildText"></label>
+                <button type="button" id="btnChildText">click me!</button>
+            </div>
+        
+            <!--注意:这里localhost:8124为本地的nresource服务地址-->
+            <script src="http://localhost:8124/static/js/linq.min.js"></script>
+            <script src="http://localhost:8124/static/js/require.js"></script>
+            <script src="http://localhost:8124/static/js/jquery-1.12.3.min.js"></script>
+            <script src="http://localhost:8124/tinyts/demo/viewTestModel.js"></script>
+            <script>
+                require(["project/demo/viewmodels/demo"],function(vm){
+                    var dm = new vm.ViewTestModel();
+                });
+            </script>
+        </body>
+        
+        </html>
+    我们在之前的viewmodel示例的基础上添加了一个div，接下来，我们将该div中的html element托管于view中。  
+Typescript:
+        
+        //viewTestModel.ts
+        import {BaseViewModel, view, partialView} from '../../../tinyts/core/Core';
+        import {TextBox} from '../../../tinyts/controls/TextBox';
+        import {Button} from '../../../tinyts/controls/Button';
+        import {TextView} from '../../../tinyts/core/TextView';
+        import {DemoView} from '../views/demoView';
+        
+        export class ViewTestModel extends BaseViewModel {
+        
+            @view(TextBox)
+            sInput: TextBox;
+        
+            @view(TextView)
+            sText: TextView;
+        
+            @view(Button)
+            btnSubmit: Button;
+        
+            // 在这里使用partialView引用了DemoView
+            @partialView(DemoView)
+            demoView: DemoView;
+        
+            RegisterEvents() {
+                var me = this;
+                //在这里注册控件的事件
+                me.btnSubmit.OnClick(() => {
+                    me.sText.SetText(me.sInput.Value());
+                });
+            }
+        
+            OnValidateError(msg: string) {
+                //在这里处理验证错误
+            }
+        
+        }
+        
+        //demoView.ts
+        import {ViewGroup, view} from '../../../tinyts/core/Core';
+        import {ViewTestModel} from '../viewmodels/viewTestModel';
+        import {TextBox} from '../../../tinyts/controls/TextBox';
+        import {Button} from '../../../tinyts/controls/Button';
+        import {TextView} from '../../../tinyts/core/TextView';
+        
+        export class DemoView extends ViewGroup<ViewTestModel>{
+        
+            @view(TextBox)
+            sChildInput: TextBox;
+        
+            @view(TextView)
+            sChildText: TextView;
+        
+            @view(Button)
+            btnChildSubmit: Button;
+        
+            OnValidateError() {
+        
+            }
+        
+            RegisterEvents() {
+                var me = this;
+                //在这里注册控件的事件
+                me.btnChildSubmit.OnClick(() => {
+                    me.sChildText.SetText(me.sChildInput.Value());
+                });
+            }
+        }
+    可以看到的是，我们在viewmodel中通过partialView装饰器注入了DemoView的一个实例。而view层的开发，在很大程度上与viewmodel是相仿的。示例中，viewmodel和view各自维护各自的逻辑，两者不存在交互（例如：要在DemoView中获取到sInput的值，或者在ViewTestModel中需要改变sChildText的值）。接下来，我们将解决这两个问题。  
+    首先，在ViewTestModel中需要改变sChildText的值，这其实是相对较为容易的，我们在ViewTestModel中存在着对DemoView的引用。只需要直接访问view的属性即可：`this.demoView.sChildText.SetText("I can reach view's property!")`。  
+    那么，如何在view中访问viewmodel的属性呢？不知道你有没有发现，我们在实现DemoView继承ViewGroup的时候，有一个泛型参数`ViewGroup<ViewTestModel>`，并且参数就是引用他的ViewModel类。没错，这就是为了解决这个问题而实现的。  
+    在此之前，我要介绍一下ViewGroup类的实现，ViewGroup继承自BaseViewModel，因此他具有BaseViewModel的所有功能。另外，他有一个context属性，context指向引用他的上一级视图（可以是viewmodel，也可以是其他的view，以后将统称为视图。也就是viewgroup是支持嵌套引用的）。这个引用关系，在注入子视图属性的时候自动完成。  
+    回到刚才的问题，那么我们在view层中就可以通过这个context来引用viewmodel的属性了：`var value = this.context.sInput.Value();`。
+3. 视图重用  
+正如上文中提到的，子视图除了封装逻辑功能之外，还有一个非常实用的特点在于，他可以被重用。但是根据上文介绍的使用方法，一个View似乎只能被一种固定的视图所引用。不过，使用接口（interface）就可以轻易地打破这个限制。  
+Typescript：
+
+        import {ViewGroup, view} from '../../../tinyts/core/Core';
+        import {ViewTestModel} from '../viewmodels/viewTestModel';
+        import {TextBox} from '../../../tinyts/controls/TextBox';
+        import {Button} from '../../../tinyts/controls/Button';
+        import {TextView} from '../../../tinyts/core/TextView';
+        
+        interface DemoViewModel {
+            sInput: TextBox;
+            //some other property or method
+            LoadData: (data) => void;
+        }
+        
+        export class DemoView extends ViewGroup<DemoViewModel>{
+        
+            @view(TextBox)
+            sChildInput: TextBox;
+        
+            @view(TextView)
+            sChildText: TextView;
+        
+            @view(Button)
+            btnChildSubmit: Button;
+        
+            OnValidateError() {
+        
+            }
+        
+            RegisterEvents() {
+                var me = this;
+                //在这里注册控件的事件
+                me.btnChildSubmit.OnClick(() => {
+                    me.sChildText.SetText(me.sChildInput.Value());
+                });
+            }
+        
+            OnLoad() {
+                var value = this.context.sInput.Value();
+            }
+        }
+    在这里，我们将ViewGroup的泛型参数从一个具体的类ViewTestModel修改成了一个接口DemoViewModel，因此，只要满足接口条件的所有视图都可以作为这个子视图的父视图。
+4. 虚拟视图(VirtualView)  
+增加了视图重用之后，我们又会发现，每次使用一个子视图都需要重复编写一份相同的html代码供子视图引用，这不但降低了开发效率，也不利于后期维护。在这里，我将介绍tinyts核心库中最后一个类——虚拟视图（VirtualView）。  
+顾名思义，虚拟视图是指：在viewmodel创建时，该视图在html document中尚未存在的视图。虚拟视图将会在注入到其他视图时被创建并添加到文档（document）中去。  
+VirtualView有一个 template属性，该属性指示了该视图的html结构。除了OnValidateError和RegisterEvents方法外，VirtualView还有一个SetTemplate虚方法，我们需要在该方法中设置template属性。  
+Typescript：
+
+        import {VirtualView, view} from '../../../tinyts/core/Core';
+        import {TextBox} from '../../../tinyts/controls/TextBox';
+        import {Button} from '../../../tinyts/controls/Button';
+        import {TextView} from '../../../tinyts/core/TextView';
+        
+        interface DemoViewModel {
+            sInput: TextBox;
+            //some other property or method
+            LoadData: (data) => void;
+        }
+        
+        class VirtualViewDemo extends VirtualView<DemoViewModel>{
+        
+            @view(TextBox)
+            sChildInput: TextBox;
+        
+            @view(TextView)
+            sChildText: TextView;
+        
+            @view(Button)
+            btnChildSubmit: Button;
+        
+            OnValidateError() {
+        
+            }
+        
+            RegisterEvents() {
+        
+            }
+        
+            SetTemplate() {
+                this.template = `<input type="text" id="sChildInput">
+                                <label id="sChildText"></label>
+                                <button type="button" id="btnChildText">click me!</button>`;
+            }
+        }
+    在viewmodel中，也是通过paritialView来引用VirtualView的。与ViewGroup不同的是，VirtualView被引用的时候也需要通过id绑定。html代码中应该存在如下代码：`<div id="mVirtualView"></div>`，而父视图在引用虚拟视图时的代码为：  
+    
+        @partialView(VirtualViewDemo)
+        mVirtualView: VirtualViewDemo;
 
 ##	表单验证（validate）
 1. 示例
