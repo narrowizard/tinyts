@@ -643,8 +643,189 @@ Typescript：
         mVirtualView: VirtualViewDemo;
 
 ##	表单验证（validate）
-1. 示例
-2. 自定义验证器
+1. 示例  
+tinyts中实现了一个表单验证器。现在假设我们要验证一个登录表单。示例如下：  
+html：  
+
+        <form action="/user/login">
+            <div>username:<input type="text" id="sUserName"></div>
+            <div>password:<input type="password" id="sPassword"></div>
+            <div><button type="button" id="btnSubmit">提交</button></div>
+        </form>
+
+    Typescript:  
+
+        import {BaseViewModel, view} from '../../../tinyts/core/Core';
+        import {TextBox} from '../../../tinyts/controls/TextBox';
+        import {Button} from '../../../tinyts/controls/Button';
+        
+        export class ValidateModel extends BaseViewModel {
+        
+            @view(TextBox)
+            sUserName: TextBox;
+        
+            @view(TextBox)
+            sPassword: TextBox;
+        
+            @view(Button)
+            btnSubmit: Button;
+        
+            OnValidateError() {
+        
+            }
+        
+            RegisterEvents() {
+                var me = this;
+                this.btnSubmit.OnClick(() => {
+                    var username = me.sUserName.Value();
+                    var password = me.sPassword.Value();
+                    //在这里验证用户输入
+                    
+                });
+        
+            }
+        }
+        
+    上述示例是没有使用验证器的情况，我们需要在获取控件数据后进行手动验证。这种方法比较繁杂低效，也影响到代码的可读性。接下来我将介绍如何使用验证器。  
+    假设我们的密码必须是6-20位，用户名不能为空。我们在tinyts中已经预定义了几个验证器，现在可以直接使用。首先，我们需要在html中定义验证规则（实际上是指定了使用哪些验证器，将会在自定义验证器节中详细说明），代码如下：  
+    html:  
+    
+        <!DOCTYPE html>
+        <html lang="en">
+        
+        <head>
+            <meta charset="UTF-8">
+            <title>Document</title>
+        </head>
+        
+        <body>
+            <form action="/user/login">
+                <div>username:<input type="text" id="sUserName" data-validate-required="true" data-tag="用户名"></div>
+                <div>password:<input type="password" id="sPassword" data-validate-min-length=6 data-validate-max-length=20 data-tag="密码"></div>
+                <div><button type="button" id="btnSubmit">提交</button></div>
+            </form>
+        </body>
+        
+        </html>
+    注意，我们在sUserName上定义了data-validate-required属性，在sPassword上定义了data-validate-min-length和data-validate-max-length属性，这分别对应了是VRequired验证器、VMinLength验证器和VMaxLength验证器。细心地你可以发现，我们在上述两个input上都添加了data-tag属性，这个属性是用于提供错误提示的。接下来，查看我们的viewmodel代码有什么变化。  
+    Typescript：  
+    
+        import {BaseViewModel, view} from '../../../tinyts/core/Core';
+        import {TextBox} from '../../../tinyts/controls/TextBox';
+        import {Button} from '../../../tinyts/controls/Button';
+        
+        export class ValidateModel extends BaseViewModel {
+        
+            @view(TextBox)
+            sUserName: TextBox;
+        
+            @view(TextBox)
+            sPassword: TextBox;
+        
+            @view(Button)
+            btnSubmit: Button;
+        
+            OnValidateError(msg: string) {
+                //验证错误会调用此方法
+                alert(msg);
+            }
+        
+            RegisterEvents() {
+                var me = this;
+                this.btnSubmit.OnClick(() => {
+                    var username = me.sUserName.ValidatedValue();
+                    var password = me.sPassword.ValidatedValue();
+                    //在这里已经确认得到的值是经过验证的
+                });
+        
+            }
+        }
+    这里唯一的变化就是，原本获取TextBox值调用的Value方法变成了ValidatedValue，这样可以保证获取到的值是经过验证的。若验证失败，则会调用context（这里是viewmodel）的OnValidateError方法。
+    
+2. 使用ModelInjector  
+    你是否还记得，我们在model章节中提到的ModelInjector，可以用于注入控件的值到相应的model。结合这里的验证器，ModelInjector提供了一个`InjectModelDistrict`方法，该方法在注入数据之前，会先对数据进行验证。在这里就不具体举例了。
+3. 自定义验证器  
+    考虑到tinyts只提供了极其有限的验证器，你必须掌握编写自定义验证器的方法。我们首先来看一下示例验证器是如何实现的：  
+Typescript：  
+
+        import {validator, IValidator} from './IValidator';
+        
+        @validator
+        export class VMaxLength implements IValidator<string>{
+        
+            constructor(private tag: string, private maxLength: number) {
+            }
+        
+            GetMessage() {
+                return `${this.tag}不能超过${this.maxLength}个字符.`;
+            }
+        
+            Validate(input: string): boolean {
+                return input.length <= this.maxLength;
+            }
+        }
+        
+        @validator
+        export class VMinLength implements IValidator<string>{
+        
+            constructor(private tag: string, private minLength: number) {
+        
+            }
+        
+            GetMessage() {
+                return `${this.tag}至少${this.minLength}个字符.`;
+            }
+        
+            Validate(input: string): boolean {
+                return input.length >= this.minLength;
+            }
+        
+        }
+        
+        @validator
+        export class VRequired implements IValidator<string>{
+        
+            constructor(private tag: string) {
+        
+            }
+        
+            GetMessage() {
+                return `${this.tag}不能为空.`;
+            }
+        
+            Validate(input: string): boolean {
+                return input != "";
+            }
+        }
+        
+        export function Register() {
+        
+        };
+    在tinyts中，验证器定义在一个数据类型上（上述提供的示例验证器都是定义在string上的，他可以验证一个string）。验证器实现一个IValidator接口。该接口的定义如下：  
+    Typescript：  
+
+        /**
+         * IValidator 验证器接口
+         * T: 验证的类型
+         */
+        export interface IValidator<T> {
+            /**
+             * Validate 验证方法,返回是否验证成功
+             */
+            Validate(input: T): boolean;
+            /**
+             * GetMessage 获取验证的错误信息
+             */
+            GetMessage(): string;
+        }
+    这意味着你必须在验证器中实现Validate方法和GetMessage方法，这两个方法的详细注释都已经在代码中呈现。实现完一个验证器之后，你要做的事情就是在该验证器类上加上一个装饰器@validator来告诉tinyts这是一个验证器即可。  
+    最后要说明的是验证器和html属性的对应关系。验证器的类名为V加上验证器名，例如VMaxLength，对应的html属性为data-validate-max-length。而该html属性的值将会在调用验证器的构造函数时被传递（第一个参数为data-tag的值，第二个为对应验证器属性的值）。
+
+## 工具（utils）
+1. cookie
+2. router
+3. urlparser
+4. 分页
 
 ##	控件（controls）
 1. 控件基类
