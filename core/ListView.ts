@@ -68,7 +68,7 @@ export abstract class ListView<T extends IModel> extends View {
     /**
      * UnbindEvents 解除绑定的事件,解除已经绑定的事件
      * @param selector 选择器
-     * @param event 事件名,若不穿,则解除所有事件
+     * @param event 事件名,若不传,则解除所有事件
      */
     UnbindEvents(selector: string, event?: string) {
         if (event) {

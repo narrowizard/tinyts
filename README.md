@@ -828,8 +828,43 @@ Typescript：
 4. 分页
 
 ##	控件（controls）
-1. 控件基类
+1. 控件基类  
+    我们在tinyts中定义了一组控件基类，分别实现不同的功能。几个核心类之间的继承关系大致如下：  
+    View<-TextView<-InputView  
+    View<-ListView  
+    目前已实现的具体控件类的继承关系如下:  
+    View<-CheckBox  
+    View<-UEditor  
+    View<-ImageView  
+    View<-EditDialog<-ConfirmDialog  
+    TextView<-FileUploader  
+    TextView<-Button  
+    InputView<-TextBox  
+    ListView<-ItemList  
+    ListView<-RadioButton  
+    ListView<-SelectButton  
+    ListView<-TableView  
+    ListView<-UlList  
+    关于View、TextView、InputView和ListView的具体实现将会在下一节详细介绍。
 2. View、TextView、InputView与ListView
+    + View  
+        View是所有控件的基类，View在tinyts中代表一个控件视图。一般情况下，View绑定到一个html element。View实现了一个基础控件所具有的所有功能。View的功能接口请查阅文件注释，下面介绍与框架相关的接口：  
+        + SetID方法。设置View的唯一标志ID，一般情况下，该ID与html element的id保持一致。
+        + LoadView方法。该方法将会根据View的ID查找html document中的元素，并进行绑定。  
+        + Attr方法与SetAttr方法。我们为tinyts中的每个View实现了一个键值对属性。可以通过SetAttr方法设置这些属性，用Attr获取这些属性。
+    + TextView    
+        TextView代表具备文字展示功能的View。
+    + InputView  
+        InputView表示具备数据验证功能的View，是一个抽象基类，必须实现Value方法。该控件需要配合验证器（Validator）使用。具体使用方式参见验证器章节。
+        + Value方法返回该控件的值（未经验证的值，原始值）。
+    + ListView  
+        ListView表示一个列表控件。ListView有一个泛型参数T，T表示该列表控件的元数据。  
+        + getTemplateView方法。该方法将在渲染ListView的时候被调用，用于生成列表项的视图。
+        + RegisterEvents方法。该方法将在渲染ListView完成后被调用，用于绑定列表项事件。
+        + append方法。该方法将在渲染ListView的时候被调用，向列表视图的末尾添加一项。
+        + RefreshView方法。该方法将在ListView的Data改变时被调用，刷新列表视图，也可以手动调用该方法来刷新整个列表视图。
+3. 控件注入过程  
+    在这里介绍一下tinyts注入控件的具体过程。
 3. Button
 4. CheckBox
 5. ConfirmDialog
