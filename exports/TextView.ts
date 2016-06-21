@@ -1,0 +1,1 @@
+export {TextView} from '../../../tinyts/core/TextView';

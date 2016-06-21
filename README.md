@@ -12,16 +12,16 @@
 1. 配置[nodejs](http://nodejs.org/)环境(5.x)
 2. 配置运行[nresource](http://github.com/narrowizard/nresource)项目(nodejs)
 3. 在nresource根目录下创建content目录，结构如下：
-```
-|-content
-    |-tinyts
-    |-project
-      |-demo
-        |-models
-        |-services
-        |-viewmodels
-        |-views
-```
+    ```
+    |-content
+        |-tinyts
+        |-project
+          |-demo
+            |-models
+            |-services
+            |-viewmodels
+            |-views
+    ```
 + 其中tinyts文件夹为tinyts项目源码
 + project文件夹为tinyts项目目录
 + 每个tinyts项目下有以下文件夹，并可添加自定义文件夹
@@ -822,10 +822,18 @@ Typescript：
     最后要说明的是验证器和html属性的对应关系。验证器的类名为V加上验证器名，例如VMaxLength，对应的html属性为data-validate-max-length。而该html属性的值将会在调用验证器的构造函数时被传递（第一个参数为data-tag的值，第二个为对应验证器属性的值）。
 
 ## 工具（utils）
-1. cookie
-2. router
-3. urlparser
-4. 分页
+1. cookie类。参见源代码及其注释。
+2. router  
+    在tinyts的Http工具包中，提供了一个Router类，该类主要提供html5 router的功能。在使用这个类的时候，你需要先通过调用SetContext方法设置上下文。Router类有以下方法：  
+    + GoTo方法。该方法首先更新当前url并将目标url的State记录到history中，然后触发Context的OnRouteChange事件。
+    + ReplaceCurrentState方法。该方法更新当前url并替换当前history的State为目标url，然后触发Context的OnRouteChange事件。
+    + Context的OnRoutePopState方法将在触发浏览器的back方法或forward方法时被调用，参数为目标url的State。
+3. urlparser类。参见源代码及其注释。
+4. 分页  
+    在tinyts中，分页被集成在某些具体的控件类中（TableView）。经过仔细的斟酌考虑，我们把分页作为ListView的一个插件，实现为PageManager类。  
+    PageManager类有一个泛型参数T，表示他要托管数据的元数据。在使用PageManager之前，你需要先初始化一个PageManager的实例，并将被托管的ListView对象作为PageManager构造函数的参数传递进去，要求ListView和PageManager的泛型参数是同一个类型。PageManager支持两种分页模式，同步分页和异步分页，你可以通过SetPageMode来设置不同的分页模式。下面将介绍每种分页模式的使用方法。  
+    同步分页是一种较为简单的分页模式，你需要调用PageManager的SetData方法，将被托管的数据交给PagaManager。接下来只需要调用PageManager的调页函数（FirstPage、PrevPage、NextPage、LastPage、TurnToPage）就可以完成分页控制了。  
+    异步分页需要每次从服务端获取数据，比同步分页更为复杂。使用异步分页之前，你需要通过SetContext方法设置Context，Context必须包含一个GetData方法，用于获取服务端的数据。在每次服务端返回数据的时候，你需要手动调用SetRecordCount或者SetPageCount（两者选其一）来设置总页数。设置完成后，同样只需要调用PageManager的调页函数来完成分页控制。另外，你还可以调用PageManager的SetPageSize来设置每页条数。
 
 ##	控件（controls）
 1. 控件基类  

@@ -1,0 +1,1 @@
+export {InputView} from '../../../tinyts/core/InputView';

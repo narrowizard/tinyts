@@ -1,0 +1,1 @@
+export {ModelInjector} from '../../../tinyts/utils/Model';

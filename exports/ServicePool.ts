@@ -1,0 +1,1 @@
+export {ServicePoolInstance} from '../../../tinyts/core/ServicePool';

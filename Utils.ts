@@ -1,1 +1,0 @@
-export {CookieInstance} from './utils/Cookie';

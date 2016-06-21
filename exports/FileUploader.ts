@@ -1,0 +1,1 @@
+export {FileUploader} from '../../../tinyts/controls/FileUploader';

@@ -1,0 +1,1 @@
+export {UEditor} from '../../../tinyts/controls/UEditor';
