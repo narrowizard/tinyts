@@ -872,7 +872,8 @@ Typescript：
         + append方法。该方法将在渲染ListView的时候被调用，向列表视图的末尾添加一项。
         + RefreshView方法。该方法将在ListView的Data改变时被调用，刷新列表视图，也可以手动调用该方法来刷新整个列表视图。
 3. 控件注入过程  
-    在这里介绍一下tinyts注入控件的具体过程。
+    在这里介绍一下tinyts注入控件的具体过程。  
+    页面加载完成后，tinyts将viewmodel中装饰了view或partialView装饰器的属性（属性名和属性类型）注入到viewmodel中。viewmodel初始化的时候，会逐个初始化这些属性（控件），然后调用View的SetID方法，将这些View的ID设置为属性名，接着调用LoadView方法，绑定View与Html element之间的绑定关系。等这些操作全部完成之后，tinyts调用viewmodel的RegisterEvents方法注册事件与OnLoad方法。到此为止，viewmodel初始化完成。
 3. Button
 4. CheckBox
 5. ConfirmDialog
