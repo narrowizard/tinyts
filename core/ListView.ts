@@ -30,10 +30,15 @@ export abstract class ListView<T extends IModel> extends View {
             this.eventHandler = [];
         }
         for (var i = 0; i < this.eventHandler.length; i++) {
+            var targetView = this.target.find(this.eventHandler[i].selector);
             if (this.eventHandler[i].event) {
-                this.target.find(this.eventHandler[i].selector).on(this.eventHandler[i].event, this.eventHandler[i].handler);
+                //先解除相应的事件,避免重复绑定
+                targetView.off(this.eventHandler[i].event);
+                targetView.on(this.eventHandler[i].event, this.eventHandler[i].handler);
             } else {
-                this.target.find(this.eventHandler[i].selector).click(this.eventHandler[i].handler);
+                //先解除相应的事件,避免重复绑定
+                targetView.off("click");
+                targetView.click(this.eventHandler[i].handler);
             }
         }
     }
@@ -93,10 +98,18 @@ export abstract class ListView<T extends IModel> extends View {
 	/**
 	 * 添加数据,并刷新视图
 	 * @param T 数据元素
+     * @param reloadView 是否重新加载视图(重新加载指刷新整个列表,否则添加元素到列表末尾)
 	*/
-    Add(model: T) {
+    Add(model: T, reloadView?: boolean) {
         this.mData.push(model);
-        this.append(this.GetView(this.mData.length - 1));
+        if (reloadView) {
+            this.RefreshView();
+            return;
+        } else {
+            this.append(this.GetView(this.mData.length - 1));
+            this.RegisterEvents();
+            return;
+        }
     }
 
     LoadView() {
@@ -143,6 +156,9 @@ export abstract class ListView<T extends IModel> extends View {
         this.RefreshView();
     }
 
+    /**
+     * GetChildren 获取子元素集合的jquery引用,请在子类中实现
+     */
     protected abstract GetChildren(): JQuery;
 
     /**
