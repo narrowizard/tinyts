@@ -72,6 +72,10 @@ export class View {
      */
     LoadView() {
         this.target = $("#" + this.id);
+        //绑定错误提示
+        if (this.target.length == 0) {
+            console.error(`${this.id} bind null html element!`);
+        }
         this.propertyName = this.target.attr("data-property");
     }
 

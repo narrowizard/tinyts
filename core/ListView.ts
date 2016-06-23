@@ -29,15 +29,16 @@ export abstract class ListView<T extends IModel> extends View {
         if (!this.eventHandler) {
             this.eventHandler = [];
         }
+        //解绑事件
+        for (var i = 0; i < this.eventHandler.length; i++) {
+            this.UnbindEvents(this.eventHandler[i].selector);
+        }
+        //绑定事件
         for (var i = 0; i < this.eventHandler.length; i++) {
             var targetView = this.target.find(this.eventHandler[i].selector);
             if (this.eventHandler[i].event) {
-                //先解除相应的事件,避免重复绑定
-                targetView.off(this.eventHandler[i].event);
                 targetView.on(this.eventHandler[i].event, this.eventHandler[i].handler);
             } else {
-                //先解除相应的事件,避免重复绑定
-                targetView.off("click");
                 targetView.click(this.eventHandler[i].handler);
             }
         }
