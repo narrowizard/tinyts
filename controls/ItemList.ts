@@ -15,8 +15,8 @@ export class ItemList extends ListView<RadioModel>{
             return "";
         }
         var html = "";
-        html += "<li data-value='" + this.mData[index].value + "'>";
-        html += this.mData[index].text;
+        html += "<li data-value='" + this.mData[index].Value + "'>";
+        html += this.mData[index].Text;
         html += "</li>";
         return html;
     }
