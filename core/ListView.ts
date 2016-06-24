@@ -420,6 +420,13 @@ class PageManager<T extends IModel> {
     }
 
     /**
+     * ResetCurPage 重置当前页为第一页
+     */
+    ResetCurPage() {
+        this.curPage = 1;
+    }
+
+    /**
      * GetCurPage 获取当前页的数据
      */
     GetCurPage() {
@@ -486,6 +493,9 @@ class PageManager<T extends IModel> {
      * LastPage 末页
      */
     LastPage() {
+        if (this.pageCount < 1) {
+            return;
+        }
         this.curPage = this.pageCount;
         this.GetCurPage();
     }
