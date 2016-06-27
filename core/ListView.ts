@@ -269,6 +269,9 @@ export abstract class ListView<T extends IModel> extends View {
 	 * @param index 索引
 	*/
     GetView(index: number): string {
+        if (!this.getTemplateView) {
+            console.error(this.ViewId() + "未定义getTemplateView方法");
+        }
         return this.getTemplateView(index, this.mData[index]);
     };
 
