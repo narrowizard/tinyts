@@ -1,1 +1,0 @@
-export {EditDialog} from '../../../tinyts/controls/EditDialog';

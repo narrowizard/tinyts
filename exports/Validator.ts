@@ -1,1 +1,0 @@
-export {validator, ValidatePool, IValidator} from '../../../tinyts/validators/IValidator';

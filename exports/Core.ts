@@ -1,1 +1,0 @@
-export {BaseViewModel, view, partialView, ViewGroup, VirtualView} from '../../../tinyts/core/Core';

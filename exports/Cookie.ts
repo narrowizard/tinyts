@@ -1,1 +1,0 @@
-export {CookieInstance} from '../../../tinyts/utils/Cookie';

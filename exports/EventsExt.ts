@@ -1,1 +1,0 @@
-export {TableExt} from '../../../tinyts/utils/EventsExt';

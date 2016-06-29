@@ -2,6 +2,10 @@ import {View} from "../core/View";
 
 export class ImageView extends View {
 
+    SetValue(value: string) {
+        this.SetUrl(value);
+    }
+
     SetUrl(url: string) {
         this.target.attr("src", url);
     }
