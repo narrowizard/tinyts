@@ -1,5 +1,6 @@
 import {View} from './View';
 import {InputView} from './InputView';
+import {IViewModel} from '../interfaces/IViewModel';
 /**
  * BaseViewModel ViewModel的基类,该类实现了依赖注入
  * 可注入的类型有:

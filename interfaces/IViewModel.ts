@@ -1,4 +1,4 @@
-interface IViewModel {
+export interface IViewModel {
 	/**
 	 * RegisterEvents 在此事件中注册viewmodel属性的事件
 	 * 此函数会在注入完成后被调用
