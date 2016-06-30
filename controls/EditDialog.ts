@@ -10,12 +10,14 @@ import {controlConfig} from '../config/TinytsConfig';
  * data-close-on-click
  * data-layer
  * data-mask-layer
+ * data-auto-close
  */
 export class EditDialog extends View {
     mask: JQuery;
     masked: boolean;
     closeOnClick: boolean;
     focus: View;
+    protected autoclose: number;
     protected width: number;
     protected mouseX: number;
     protected mouseY: number;
@@ -30,6 +32,7 @@ export class EditDialog extends View {
         this.closeOnClick = Boolean(this.target.attr("data-close-on-click"));
         var layer = this.target.attr("data-layer");
         var maskLayer = this.target.attr("data-mask-layer");
+        this.autoclose = +this.target.attr('data-auto-close');
         //z-index
         if (layer) {
             this.SetStyle("z-index", layer);
@@ -81,12 +84,18 @@ export class EditDialog extends View {
      * Show 显示editdialog
      */
     Show() {
+        var me = this;
         this.target.css("display", "block");
         if (this.masked) {
             this.mask.css("display", "block");
         }
         if (this.focus) {
             this.focus.Focus();
+        }
+        if (this.autoclose) {
+            setTimeout(function () {
+                me.Hide();
+            }, this.autoclose);
         }
     }
 
