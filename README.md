@@ -4,6 +4,7 @@
 +	本项目完全使用TypeScript开发。
 +	本项目使用requirejs组织模块。
 +	推荐使用nresource项目编译生成本项目。
++   不兼容IE8的部分:router、FileUploader
 
 ## 项目目标
 + 为了解决javascript弱类型语言的特性引起的开发效率低下、js DOM操作的繁杂等问题，开发此框架。

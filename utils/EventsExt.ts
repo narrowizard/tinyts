@@ -1,5 +1,6 @@
 import {Table} from "../controls/TableView";
 
+
 /**
  * TableExt Table控件的扩展插件
  */
@@ -65,6 +66,45 @@ export class TableExt<T extends IModel> {
                 }
             }
         });
+    }
+
+    /**
+     * Sortable 将table设置为可拖动排序
+     * 请为tr定义唯一data-id属性,否则将造成数据与页面不统一
+     * @param config 排序参数
+     */
+    Sortable(onMove?: () => void) {
+        if (!$.fn.sortable) {
+            console.error("sortable undefined, http://jqueryui.com");
+            return;
+        }
+        var config: ISortableConfig = {
+            containerSelector: "table",
+            itemPath: "> tbody",
+            itemSelector: "tr",
+            placeholder: "<tr class='placeholder' />",
+            stop: (event: Event, ui: { item: JQuery, sender: JQuery }) => {
+                //调整table中的mData的order
+                var tbody = this.tableInstance.GetJqueryInstance().find("tbody");
+                var ids = [];
+                tbody.children("tr").each((index, elem) => {
+                    ids[index] = $(elem).attr("data-id");
+                });
+                var temp: T[] = [];
+                for (var i = 0; i < ids.length; i++) {
+                    temp[i] = Enumerable.from(this.tableInstance.mData).where((p: T) => { return p.Id == ids[i] }).firstOrDefault();
+                    if (temp[i] == null) {
+                        console.error("请为tr定义唯一data-id属性,否则将造成数据与页面不统一");
+                        return;
+                    }
+                }
+                this.tableInstance.mData = temp;
+                if (onMove) {
+                    onMove();
+                }
+            }
+        };
+        this.tableInstance.GetJqueryInstance().children("tbody").sortable(config);
     }
 
 }
