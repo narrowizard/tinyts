@@ -87,19 +87,24 @@ export class CountDown {
      * SetTime 设置倒计时时间
      * @param
      */
-    SetTime(s: number, m?: number, h?: number, d?: number, M?: number, y?: number) {
+    SetTime(s: number, m?: number, h?: number, d?: number) {
         var t: Time = new Time();
-        for (var i = 0; i < arguments.length; i++) {
-            if (arguments[i] == null) {
-                arguments[i] = 0;
-            }
+        if (!m) {
+            m = 0;
         }
-        this._seconds = t.SetDay(d).SetHour(h).SetMinute(M).SetSecond(s).GetSeconds();
+        if (!h) {
+            h = 0;
+        }
+        if (!d) {
+            d = 0;
+        }
+        this._seconds = t.SetDay(d).SetHour(h).SetMinute(m).SetSecond(s).GetSeconds() + 1;
     }
 
     protected setInterval() {
         var me = this;
         this._running = true;
+        me.tick();
         this._interval = setInterval(() => {
             me.tick();
         }, 1000);
@@ -121,12 +126,13 @@ export class CountDown {
             return;
         }
         //倒计时处理函数
+        me._cur--;
         if (me._cur == 0) {
             if (me.onFinished) {
                 me.onFinished(0);
+                me.clearInterval();
             }
         } else {
-            me._cur--;
             if (me.onTick) {
                 var t = new Time();
                 t.SetSecond(me._cur);
