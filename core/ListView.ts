@@ -313,6 +313,13 @@ export abstract class ListView<T extends IModel> extends View {
     }
 
     /**
+     * SetPageSize 设置每页条数,显示到页面上
+     */
+    SetPageSize(pagesize: number) {
+
+    }
+
+    /**
      * SetCurPage 设置当前页(用于展示)
      */
     SetCurPage(page: number) {
@@ -388,6 +395,15 @@ class PageManager<T extends IModel> {
     }
 
     protected curPage: number;
+
+    /**
+     * SetCurPage 强行设置当前页,不跳转
+     * 注意,调用此函数会引起分页器的奔溃,请谨慎使用
+     * @param index 页码
+     */
+    ForceSetCurPage(index: number) {
+        this.curPage = index;
+    }
 
     protected pageSize: number;
 

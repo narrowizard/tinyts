@@ -33,7 +33,7 @@ export class UrlParser {
         for (i = 0; i < queries.length; i++) {
             split = queries[i].split('=');
             if (split[0] != "" && split[1]) {
-                this.searchObject[split[0]] = split[1];
+                this.searchObject[split[0]] = decodeURIComponent(split[1]);
             }
         }
 
@@ -185,8 +185,9 @@ class Router {
         xx.Parse(url);
         xx.searchObject = $.extend(xx.searchObject, data);
         var url2 = xx.Generate();
-        window.history.replaceState({}, "", url2);
-        me.context.OnRouteChange(url2, {});
+        var stateData = { url: url, data: {} };
+        window.history.replaceState(stateData, "", url2);
+        me.context.OnRouteChange(url2, stateData);
     }
 }
 
