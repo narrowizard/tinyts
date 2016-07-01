@@ -178,7 +178,7 @@ class Router {
     /**
      * ReplaceCurrentStateWithParam 修改当前router的状态,并将data存储在url中
      */
-    ReplaceCurrentStateWithParam(url: string, data: any) {
+    ReplaceCurrentStateWithParam(url: string, data: any, changeRoute?: boolean) {
         var me = this;
         // 将data添加到url中
         var xx = new UrlParser();
@@ -187,7 +187,9 @@ class Router {
         var url2 = xx.Generate();
         var stateData = { url: url, data: {} };
         window.history.replaceState(stateData, "", url2);
-        me.context.OnRouteChange(url2, stateData);
+        if (changeRoute) {
+            me.context.OnRouteChange(url2, stateData);
+        }
     }
 }
 
