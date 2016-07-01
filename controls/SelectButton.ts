@@ -76,6 +76,17 @@ export class SelectButton<T extends SelectButtonModel> extends ListView<T>
     }
 
     /**
+     * SelectById 根据Id选择项,单选时如果存在多个相同id的值,将会选中第一个
+     */
+    SelectById(id: number) {
+        for (var i = this.mData.length - 1; i > -1; i--) {
+            if (this.mData[i].Id == id) {
+                this.Select(i);
+            }
+        }
+    }
+
+    /**
      * GetSelectedItem 获取选中项,单选
      */
     GetSelectedItem(): T {
