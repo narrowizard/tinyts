@@ -32,7 +32,9 @@ export class UrlParser {
         queries = parser.search.replace(/^\?/, '').split('&');
         for (i = 0; i < queries.length; i++) {
             split = queries[i].split('=');
-            this.searchObject[split[0]] = split[1];
+            if (split[0] != "" && split[1]) {
+                this.searchObject[split[0]] = split[1];
+            }
         }
 
         this.protocol = parser.protocol;
