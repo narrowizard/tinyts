@@ -18,6 +18,9 @@ export class UrlParser {
     searchObject: { [key: string]: string };
     hash: string;
 
+    /**
+     * Parse 解析url
+     */
     Parse(url: string): UrlParser {
         this.url = url;
         this.searchObject = {};
@@ -39,14 +42,27 @@ export class UrlParser {
         this.pathname = parser.pathname.indexOf("/") == 0 ? parser.pathname : "/" + parser.pathname;
         this.search = parser.search;
         this.hash = parser.hash;
-        
+
         return this;
+    }
+
+    /**
+     * 生成url
+     */
+    Generate(): string {
+        this.search = "?";
+        for (var temp in this.searchObject) {
+            this.search += `${temp}=${this.searchObject[temp]}&`;
+        }
+        this.search = this.search.substr(0, this.search.length - 1);
+        this.url = this.protocol + "//" + this.host + this.pathname + this.search + this.hash;
+        return this.url;
     }
 
 };
 
 /**
- * HttpUtils 该方法封装了一个请求池,保证同一个请求同时只被发送一次
+ * HttpUtils 该类封装了一个请求池,保证同一个请求同时只被发送一次
  */
 export class HttpUtils {
 
@@ -155,6 +171,20 @@ class Router {
         var stateData = { url: url, data: data, param: param };
         window.history.replaceState(stateData, "", url);
         me.context.OnRouteChange(url, data);
+    }
+
+    /**
+     * ReplaceCurrentStateWithParam 修改当前router的状态,并将data存储在url中
+     */
+    ReplaceCurrentStateWithParam(url: string, data: any) {
+        var me = this;
+        // 将data添加到url中
+        var xx = new UrlParser();
+        xx.Parse(url);
+        xx.searchObject = $.extend(xx.searchObject, data);
+        var url2 = xx.Generate();
+        window.history.replaceState({}, "", url2);
+        me.context.OnRouteChange(url2, {});
     }
 }
 
