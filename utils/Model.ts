@@ -77,6 +77,26 @@ export class ModelInjector {
     }
 
     /**
+     * InjectValidatedModel 注入带验证装饰器的Model
+     * @param context 从context中查找定义了data-property属性的控件,并将值注入到Model中
+     */
+    static InjectValidatedModel(TClass: { new (...args: any[]): IModel }, context) {
+        var temp = new TClass();
+        for (var property in context) {
+            var target = context[property];
+            if (target instanceof View) {
+                var propName = (target as View).GetPropertyName();
+                if (propName) {
+                    var value = (target as View).Value();
+                    if (value != null && TClass.prototype.hasOwnProperty(propName)) {
+                        temp[propName] = value;
+                    }
+                }
+            }
+        }
+    }
+
+    /**
      * ClearView 清除context中所有View的值
      * @param context 上下文
      */
