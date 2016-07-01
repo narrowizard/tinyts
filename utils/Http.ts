@@ -90,7 +90,7 @@ export class HttpUtils {
     }
 };
 
-export class Router {
+class Router {
 
     context: {
         // url 改变
@@ -157,3 +157,5 @@ export class Router {
         me.context.OnRouteChange(url, data);
     }
 }
+
+export var routerInstance = new Router();
