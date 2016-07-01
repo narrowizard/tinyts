@@ -82,6 +82,7 @@ export class ModelInjector {
      */
     static InjectValidatedModel<T extends IModel>(TClass: { new (...args: any[]): T }, context): T {
         var temp = new TClass();
+        var model = {};
         for (var property in context) {
             var target = context[property];
             if (target instanceof View) {
@@ -89,12 +90,12 @@ export class ModelInjector {
                 if (propName) {
                     var value = (target as View).Value();
                     if (value != null && TClass.prototype.hasOwnProperty(propName)) {
-                        temp[propName] = value;
+                        model[propName] = value;
                     }
                 }
             }
         }
-        return <T>temp;
+        return <T>model;
     }
 
     /**

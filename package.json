@@ -1,0 +1,26 @@
+{
+  "name": "tinyts",
+  "version": "0.18.8",
+  "description": "a mvvm web framework based on typescript",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/narrowizard/tinyts.git"
+  },
+  "keywords": [
+    "typescript",
+    "ts",
+    "mvvm",
+    "web",
+    "tinyts"
+  ],
+  "author": "narro",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/narrowizard/tinyts/issues"
+  },
+  "homepage": "https://github.com/narrowizard/tinyts#readme"
+}

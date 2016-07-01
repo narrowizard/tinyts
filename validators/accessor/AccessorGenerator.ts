@@ -5,7 +5,7 @@ export function GenerateSetAccessor<T>(validator: (...args: T[]) => boolean, get
             descriptor.set = function (...args: T[]) {
                 if (validator(...args)) {
                     //验证成功
-                    originalSet.call(this, args);
+                    originalSet.call(this, ...args);
                 } else {
                     if (!target["__tag__"]) {
                         target["__tag__"] = {};
