@@ -80,7 +80,7 @@ export class ModelInjector {
      * InjectValidatedModel 注入带验证装饰器的Model
      * @param context 从context中查找定义了data-property属性的控件,并将值注入到Model中
      */
-    static InjectValidatedModel(TClass: { new (...args: any[]): IModel }, context) {
+    static InjectValidatedModel<T extends IModel>(TClass: { new (...args: any[]): IModel }, context): T {
         var temp = new TClass();
         for (var property in context) {
             var target = context[property];
@@ -94,6 +94,7 @@ export class ModelInjector {
                 }
             }
         }
+        return <T>temp;
     }
 
     /**
