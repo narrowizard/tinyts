@@ -1,5 +1,6 @@
 import {View} from '../core/View';
 import {InputView} from '../core/InputView';
+import {ListView} from '../core/ListView';
 
 /**
  * ModelParser 模型注入器
@@ -14,16 +15,16 @@ export class ModelInjector {
     static InjectModelDistrict(context): any {
         var temp = {};
         for (var property in context) {
-            var target = context[property];
+            var target: Object = context[property];
             if (target instanceof View) {
-                var propName = (target as View).GetPropertyName();
+                var propName = target.GetPropertyName();
                 if (propName) {
                     var value;
                     if (target instanceof InputView) {
                         //如果是InputView则增加验证
-                        value = (target as InputView).ValidatedValue();
+                        value = target.ValidatedValue();
                     } else {
-                        value = (target as View).Value();
+                        value = target.Value();
                     }
                     if (value != null) {
                         temp[propName] = value;
@@ -42,11 +43,11 @@ export class ModelInjector {
     static InjectModel(context): any {
         var temp = {};
         for (var property in context) {
-            var target = context[property];
+            var target: Object = context[property];
             if (target instanceof View) {
-                var propName = (target as View).GetPropertyName();
+                var propName = target.GetPropertyName();
                 if (propName) {
-                    var value = (target as View).Value();
+                    var value = target.Value();
                     if (value != null) {
                         temp[propName] = value;
                     }
@@ -63,13 +64,18 @@ export class ModelInjector {
      */
     static ResolveModel(model, context) {
         for (var property in context) {
-            var target = context[property];
+            var target: Object = context[property];
             if (target instanceof View) {
-                var propName = (target as View).GetPropertyName();
+                var propName = target.GetPropertyName();
                 if (propName) {
                     var value = model[propName];
                     if (value != null) {
-                        (target as View).SetValue(value);
+                        if (target instanceof ListView) {
+                            //如果是列表控件,调用SetData方法
+                            target.SetData(value);
+                        } else {
+                            target.SetValue(value);
+                        }
                     }
                 }
             }
@@ -84,11 +90,11 @@ export class ModelInjector {
         var temp = new TClass();
         var model = {};
         for (var property in context) {
-            var target = context[property];
+            var target: Object = context[property];
             if (target instanceof View) {
-                var propName = (target as View).GetPropertyName();
+                var propName = target.GetPropertyName();
                 if (propName) {
-                    var value = (target as View).Value();
+                    var value = target.Value();
                     if (value != null && TClass.prototype.hasOwnProperty(propName)) {
                         model[propName] = value;
                     }
@@ -104,9 +110,9 @@ export class ModelInjector {
      */
     static ClearView(context) {
         for (var property in context) {
-            var target = context[property];
+            var target: Object = context[property];
             if (target instanceof View) {
-                (target as View).Clear();
+                target.Clear();
             }
         }
     }
