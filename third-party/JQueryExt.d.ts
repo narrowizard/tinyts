@@ -9,4 +9,5 @@ interface ISortableConfig {
 
 interface JQuery {
     sortable(config?: ISortableConfig);
+    attr(): any;
 }
