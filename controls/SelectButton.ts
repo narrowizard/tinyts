@@ -87,6 +87,14 @@ export class SelectButton<T extends SelectButtonModel> extends ListView<T>
     }
 
     /**
+     * SetValue 同SelectById
+     * @value 值
+     */
+    SetValue(value: number) {
+        this.SelectById(value);
+    }
+
+    /**
      * GetSelectedItem 获取选中项,单选
      */
     GetSelectedItem(): T {
