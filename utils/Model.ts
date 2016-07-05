@@ -96,6 +96,7 @@ export class ModelInjector {
                 if (propName) {
                     var value = target.Value();
                     if (value != null && TClass.prototype.hasOwnProperty(propName)) {
+                        temp[propName] = value;
                         model[propName] = value;
                     }
                 }
