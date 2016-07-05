@@ -146,6 +146,7 @@ export abstract class ListView<T extends IModel> extends View {
 	 */
     Remove(index: number);
     Remove(obj: T);
+    Remove(predicate: (p: T) => boolean);
     Remove(p: any) {
         if (typeof p == "number") {
             var index = <number>p;
@@ -156,6 +157,20 @@ export abstract class ListView<T extends IModel> extends View {
                 this.mData[i] = this.mData[i + 1];
             }
             this.mData.pop();
+        } else if (typeof p == "function") {
+            var index = -1;
+            for (var i = 0; i < this.mData.length; i++) {
+                if (p(i)) {
+                    index = i;
+                    break;
+                }
+            }
+            if (index == -1) {
+                //未找到目标
+                console.error("no item satisficate!");
+            } else {
+                this.Remove(index);
+            }
         } else {
             var obj = <T>p;
             for (var j = 0; j < this.mData.length; j++) {
