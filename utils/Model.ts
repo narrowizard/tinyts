@@ -70,8 +70,8 @@ export class ModelInjector {
                 if (propName) {
                     var value = model[propName];
                     if (value != null) {
-                        if (target instanceof ListView) {
-                            //如果是列表控件,调用SetData方法
+                        if (target instanceof ListView && typeof value == "array") {
+                            //如果是列表控件并且值是数组,调用SetData方法
                             target.SetData(value);
                         } else {
                             target.SetValue(value);
