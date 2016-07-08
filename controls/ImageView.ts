@@ -10,6 +10,10 @@ export class ImageView extends View {
         this.target.attr("src", url);
     }
 
+    Url(): string {
+        return this.target.attr("src");
+    }
+
     SetSize(height: number, width: number) {
         if (height > 0) {
             this.target.css("height", height);
