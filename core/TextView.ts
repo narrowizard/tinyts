@@ -13,6 +13,14 @@ export class TextView extends View {
         this.target.text(text);
     }
 
+    SetValue(value: string) {
+        this.SetText(value);
+    }
+
+    Value(): string {
+        return this.GetText();
+    }
+
     /**
      * GetText 获取控件文本内容
      */
