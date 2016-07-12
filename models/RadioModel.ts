@@ -1,7 +1,7 @@
 export class RadioModel implements IModel {
 	Value: any;
 	Text: string;
-	Id: number;
+	Id: any;
 
 	constructor(value: any, text: string) {
 		this.Value = value;
@@ -10,7 +10,7 @@ export class RadioModel implements IModel {
 }
 
 export class SelectButtonModel implements IModel {
-	Id: number;
+	Id: any;
 	Text: string;
 	Status: boolean;
 }
