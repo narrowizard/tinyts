@@ -5,10 +5,21 @@ import {controlConfig} from '../config/TinytsConfig';
 /**
  * SelectButton 多选(单选)按钮组
  * 请使用button元素,而不要使用input[type="button"]
+ * property
+ * data-muilti-select
+ * data-text 文本键
+ * data-value 值键
+ * data-status 状态键
  */
-export class SelectButton<T extends SelectButtonModel> extends ListView<T>
+export class SelectButton<T extends IModel> extends ListView<T>
 {
     muiltiSelect: boolean;
+
+    protected textKey: string;
+
+    protected valueKey: string;
+
+    protected statusKey: string;
 
     GetChildren(): JQuery {
         return this.target.find("button");
@@ -42,16 +53,16 @@ export class SelectButton<T extends SelectButtonModel> extends ListView<T>
             //注册选择事件
             if (me.muiltiSelect) {
                 //多选
-                if (item.Status) {
-                    item.Status = false;
+                if (item[me.statusKey]) {
+                    item[me.statusKey] = false;
                     $(p.target).removeClass(controlConfig.selectbuttonActiveClass);
                 } else {
-                    item.Status = true;
+                    item[me.statusKey] = true;
                     $(p.target).addClass(controlConfig.selectbuttonActiveClass);
                 }
             } else {
                 me.resetStatus();
-                item.Status = true;
+                item[me.statusKey] = true;
                 //单选
                 me.GetChildren().removeClass(controlConfig.selectbuttonActiveClass);
                 $(p.target).addClass(controlConfig.selectbuttonActiveClass);
@@ -66,19 +77,27 @@ export class SelectButton<T extends SelectButtonModel> extends ListView<T>
      */
     protected resetStatus() {
         for (var i = 0; i < this.mData.length; i++) {
-            this.mData[i].Status = false;
+            this.mData[i][this.statusKey] = false;
         }
     }
 
     LoadView() {
         var me = this;
         super.LoadView();
-        var t = Boolean(this.target.attr("data-muilti-select"));
+        //单选 or 多选
+        var t = Boolean(me.target.attr("data-muilti-select"));
         if (t) {
-            this.muiltiSelect = true;
+            me.muiltiSelect = true;
         } else {
-            this.muiltiSelect = false;
+            me.muiltiSelect = false;
         }
+        //属性值
+        me.textKey = me.target.attr("data-text");
+        me.valueKey = me.target.attr("data-value");
+        me.statusKey = me.target.attr("data-status");
+        me.textKey == null ? "Text" : me.textKey;
+        me.valueKey == null ? "Id" : me.valueKey;
+        me.statusKey == null ? "Status" : me.statusKey;
     }
 
 	/**
@@ -112,17 +131,19 @@ export class SelectButton<T extends SelectButtonModel> extends ListView<T>
      * GetSelectedItem 获取选中项,单选
      */
     GetSelectedItem(): T {
-        return Enumerable.from(this.mData).where(it => it.Status).firstOrDefault();
+        var me = this;
+        return Enumerable.from(me.mData).where(it => it[me.statusKey]).firstOrDefault();
     }
 
 	/**
 	 * 获取选择项的id,仅单选时有效
 	 */
     GetSelectedItemId(): number {
-        if (this.muiltiSelect) {
+        var me = this;
+        if (me.muiltiSelect) {
             return 0;
         } else {
-            var item = Enumerable.from(this.mData).where(it => it.Status).firstOrDefault();
+            var item = Enumerable.from(me.mData).where(it => it[me.statusKey]).firstOrDefault();
             return item ? item.Id : 0;
         }
     }
@@ -131,11 +152,12 @@ export class SelectButton<T extends SelectButtonModel> extends ListView<T>
 	 * 获取选择项的文本内容,仅单选时有效
 	 */
     GetSelectedItemText(): string {
+        var me = this;
         if (this.muiltiSelect) {
             return "";
         } else {
-            var item = Enumerable.from(this.mData).where(it => it.Status).firstOrDefault();
-            return item ? item.Text : "";
+            var item = Enumerable.from(me.mData).where(it => it[me.statusKey]).firstOrDefault();
+            return item ? item[me.textKey] : "";
         }
     }
 
@@ -143,21 +165,24 @@ export class SelectButton<T extends SelectButtonModel> extends ListView<T>
      * GetSelectedItem 获取选中项,多选
      */
     GetSelectedItems(): T[] {
-        return Enumerable.from(this.mData).where(it => it.Status).toArray();
+        var me = this;
+        return Enumerable.from(me.mData).where(it => it[me.statusKey]).toArray();
     }
 
     /**
      * GetSelectedItemIds 获取选择项的编号,多选时使用
      */
     GetSelectedItemIds(): number[] {
-        return Enumerable.from(this.mData).where(it => it.Status).select(it => it.Id).toArray();
+        var me = this;
+        return Enumerable.from(me.mData).where(it => it[me.statusKey]).select(it => it.Id).toArray();
     }
 
     /**
      * GetSelectedItemTexts 获取选择项的文本,多选时使用
      */
     GetSelectedItemTexts(): string[] {
-        return Enumerable.from(this.mData).where(it => it.Status).select(it => it.Text).toArray();
+        var me = this;
+        return Enumerable.from(me.mData).where(it => it[me.statusKey]).select(it => it[me.textKey]).toArray();
     }
 
     /**
@@ -165,7 +190,8 @@ export class SelectButton<T extends SelectButtonModel> extends ListView<T>
      * @param handler 遍历处理器
      */
     TraverseSelected(handler: (item: T, index: number) => void) {
-        Enumerable.from(this.mData).where(it => it.Status).forEach(handler);
+        var me = this;
+        Enumerable.from(me.mData).where(it => it[me.statusKey]).forEach(handler);
     }
 
 }
