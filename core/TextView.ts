@@ -5,6 +5,10 @@ import {View} from './View';
 
 export class TextView extends View {
 
+    Clear(){
+        this.SetText("");
+    }
+
     /**
      * SetText 设置控件文本内容
      * @param text 文本内容
