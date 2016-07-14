@@ -15,6 +15,20 @@ export class SelectButton<T extends SelectButtonModel> extends ListView<T>
     }
 
     /**
+     * Disable 禁用SelectButton
+     */
+    Disable() {
+        this.GetChildren().attr("disabled", "true");
+    }
+
+    /**
+     * Enable 启动SelectButton
+     */
+    Enable() {
+        this.GetChildren().removeAttr("disabled");
+    }
+
+    /**
      * SetEventHandler 设置SelectButton的点击事件
      * @param selector 无效参数
      * @param handler 点击事件处理器
