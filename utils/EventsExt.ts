@@ -50,6 +50,42 @@ export class TableExt<T extends IModel> {
     }
 
     /**
+     * Check 选中指定复选框
+     * @param index 指定索引
+     * @param column 复选框所属列
+     */
+    Check(index: number, column?: number) {
+        if (!column) {
+            column = 0;
+        }
+        this.tableInstance.GetJqueryInstance().find("tbody tr").eq(index).find(`input[type='checkbox'][data-column-index=${column}]`).prop("checked", "checked");
+    }
+
+    /**
+     * UnCheck 取消选择指定复选框
+     * @param index 指定索引
+     * @param column 复选框所属列
+     */
+    UnCheck(index: number, column?: number) {
+        if (!column) {
+            column = 0;
+        }
+        this.tableInstance.GetJqueryInstance().find("tbody tr").eq(index).find(`input[type='checkbox'][data-column-index=${column}]`).removeProp("checked");
+    }
+
+    /**
+     * ClearCheckStatus 清除所有的复选框状态
+     * @param column 所属列,若不指定,则清除所有的复选框
+     */
+    ClearCheckStatus(column?: number) {
+        var selector = "input[type='checkbox']";
+        if (column) {
+            selector += "[data-column-index=" + column + "]";
+        }
+        this.tableInstance.GetJqueryInstance().find(selector).removeProp("checked");
+    }
+
+    /**
      * TraverseSelected 遍历选中的行
      * @param columnIndex 列索引
      * @param handler (index:number,data:T)=>boolean 遍历函数,如果返回false,将终止遍历

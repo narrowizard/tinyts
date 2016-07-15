@@ -35,7 +35,9 @@ export abstract class BaseViewModel implements IViewModel {
 
     abstract RegisterEvents();
 
-    abstract OnValidateError(msg: string);
+    OnValidateError(msg: string) {
+        //控件验证的错误处理,请重载该函数
+    }
 
     OnLoad() {
 
