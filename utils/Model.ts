@@ -116,7 +116,7 @@ export class ModelInjector {
     static ClearView(context) {
         for (var property in context) {
             var target: Object = context[property];
-            if (target instanceof View) {
+            if (target instanceof View && target.GetPropertyName()) {
                 target.Clear();
             }
         }
