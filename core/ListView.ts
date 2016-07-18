@@ -211,6 +211,18 @@ export abstract class ListView<T extends IModel> extends View {
         return null;
     }
 
+    /**
+     * TraverseListView 遍历列表
+     * @param handler 遍历函数
+     */
+    TraverseListView(handler: (index: number, elem: Element) => boolean) {
+        this.GetChildren().each((index, elem) => {
+            if (!handler(index, elem)) {
+                return false;
+            };
+        });
+    }
+
 	/**
 	 * 获取某个指定的元素
 	 * @param index 指定索引
@@ -241,10 +253,14 @@ export abstract class ListView<T extends IModel> extends View {
 
     /**
      * SetItem 设置(替换)数据数组中的某个元素
+     * @param predicate 目标元素条件函数,返回true表示满足条件
+     * @param item 更换后的元素
+     * @param index 目标元素索引
+     * @param refresh 是否需要刷新列表,默认刷新
      */
-    SetItem(predicate: (p: T) => boolean, item: T);
-    SetItem(index: number, item: T);
-    SetItem(param: any, item: T) {
+    SetItem(predicate: (p: T) => boolean, item: T, refresh?: boolean);
+    SetItem(index: number, item: T, refresh?: boolean);
+    SetItem(param: any, item: T, refresh?: boolean) {
         if (typeof param == "number") {
             if (param < 0 || param >= this.Count()) {
                 return;
@@ -259,7 +275,12 @@ export abstract class ListView<T extends IModel> extends View {
                 }
             }
         }
-        this.RefreshView();
+        if (refresh == null) {
+            refresh = true;
+        }
+        if (refresh) {
+            this.RefreshView();
+        }
     }
 
 	/**
