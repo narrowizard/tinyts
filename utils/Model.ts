@@ -117,7 +117,12 @@ export class ModelInjector {
         for (var property in context) {
             var target: Object = context[property];
             if (target instanceof View && target.GetPropertyName()) {
-                target.Clear();
+                //列表控件
+                if (target instanceof ListView) {
+                    target.SetData(null);
+                } else {
+                    target.Clear();
+                }
             }
         }
     }
