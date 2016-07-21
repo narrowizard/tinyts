@@ -290,6 +290,17 @@ export abstract class ListView<T extends IModel> extends View {
         return this.mData.length;
     }
 
+    /**
+     * GetItemIndex 获取指定Item在列表中的索引
+     */
+    GetItemIndex(predicate: (p: T) => boolean): number {
+        for (var i = 0; i < this.Count(); i++) {
+            if (predicate(this.mData[i])) {
+                return i;
+            }
+        }
+    }
+
 	/**
 	 * 获取指定索引元素的Id(唯一编号)
 	 * @param index 索引
