@@ -202,7 +202,7 @@ export abstract class ListView<T extends IModel> extends View {
     /**
      * GetItemById 根据id获取子元素的jquery instance
      */
-    GetItemViewById(id: number): JQuery {
+    GetItemViewById(id: any): JQuery {
         for (var i = 0; i < this.mData.length; i++) {
             if (this.mData[i].Id == id) {
                 return this.GetItemView(i);
@@ -247,7 +247,7 @@ export abstract class ListView<T extends IModel> extends View {
      * GetItemById 通过id获取某元素
      * @param id 元素id
      */
-    GetItemById(id: number): T {
+    GetItemById(id: any): T {
         return Enumerable.from(this.mData).where((item) => { return item.Id == id }).first();
     }
 
