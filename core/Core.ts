@@ -85,7 +85,9 @@ export abstract class VirtualView<T> extends View implements IViewModel {
 
     abstract RegisterEvents();
 
-    abstract OnValidateError(msg: string);
+    OnValidateError(msg: string) {
+
+    }
 
     OnLoad() { }
 
