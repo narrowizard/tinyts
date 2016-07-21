@@ -160,7 +160,7 @@ export abstract class ListView<T extends IModel> extends View {
         } else if (typeof p == "function") {
             var index = -1;
             for (var i = 0; i < this.mData.length; i++) {
-                if (p(i)) {
+                if (p(this.mData[i])) {
                     index = i;
                     break;
                 }
