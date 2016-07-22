@@ -128,6 +128,7 @@ export class SelectButton<T extends IModel> extends ListInputView<T>
 
 	/**
 	 * 获取选择项的id,仅单选时有效
+     * 若id未定义,则返回value值
 	 */
     GetSelectedItemId(): number {
         var me = this;
@@ -135,7 +136,7 @@ export class SelectButton<T extends IModel> extends ListInputView<T>
             return 0;
         } else {
             var item = Enumerable.from(me.mData).where(it => it[me.statusKey]).firstOrDefault();
-            return item ? item.Id : 0;
+            return item ? item.Id ? item.Id : item[me.valueKey] : 0;
         }
     }
 
