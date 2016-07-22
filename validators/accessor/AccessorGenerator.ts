@@ -1,8 +1,8 @@
-export function GenerateSetAccessor<T>(validator: (...args: T[]) => boolean, getErr: (tagName: string) => string): (target: any, propertyName: string, descriptor: TypedPropertyDescriptor<T>) => void {
-    return (target: IModel, propertyName: string, descriptor: TypedPropertyDescriptor<T>) => {
+export function GenerateSetAccessor(validator: (...args: string[]) => boolean, getErr: (tagName: string) => string): (target: any, propertyName: string, descriptor: TypedPropertyDescriptor<string>) => void {
+    return (target: IModel, propertyName: string, descriptor: TypedPropertyDescriptor<any>) => {
         var originalSet = descriptor.set;
         if (descriptor.set != null) {
-            descriptor.set = function (...args: T[]) {
+            descriptor.set = function (...args: string[]) {
                 if (validator(...args)) {
                     //验证成功
                     originalSet.call(this, ...args);
