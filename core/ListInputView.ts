@@ -16,9 +16,9 @@ export abstract class ListInputView<T extends IModel> extends ListView<T>{
         me.textKey = me.target.attr("data-text");
         me.valueKey = me.target.attr("data-value");
         me.statusKey = me.target.attr("data-status");
-        me.textKey == null ? "Text" : me.textKey;
-        me.valueKey == null ? "Id" : me.valueKey;
-        me.statusKey == null ? "Status" : me.statusKey;
+        me.textKey = me.textKey == null ? "Text" : me.textKey;
+        me.valueKey = me.valueKey == null ? "Id" : me.valueKey;
+        me.statusKey = me.statusKey == null ? "Status" : me.statusKey;
     }
 
     abstract Clear();
