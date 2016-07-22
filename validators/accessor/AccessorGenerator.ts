@@ -1,4 +1,4 @@
-export function GenerateSetAccessor(validator: (...args: string[]) => boolean, getErr: (tagName: string) => string): (target: any, propertyName: string, descriptor: TypedPropertyDescriptor<string>) => void {
+export function GenerateSetAccessor(validator: (...args: string[]) => boolean, getErr: (tagName: string) => string): (target: any, propertyName: string, descriptor: TypedPropertyDescriptor<any>) => void {
     return (target: IModel, propertyName: string, descriptor: TypedPropertyDescriptor<any>) => {
         var originalSet = descriptor.set;
         if (descriptor.set != null) {
