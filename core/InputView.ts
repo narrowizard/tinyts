@@ -1,4 +1,4 @@
-import {TextView} from './TextView';
+import {View} from './View';
 import {IValidator, ValidatePool} from '../validators/IValidator';
 /**
  * jquery ext: overload $.attr()
@@ -36,7 +36,7 @@ import {IValidator, ValidatePool} from '../validators/IValidator';
  * 2.实现该验证器,加上@validator注解
  * 3.调用Input的Validate方法,得到验证结果
  */
-export abstract class InputView extends TextView {
+export abstract class InputView extends View {
 
     validators: IValidator<any>[];
 

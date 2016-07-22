@@ -1,10 +1,10 @@
-import {TextView} from '../core/TextView';
+import {TextBox} from './TextBox';
 
 /**
  * FileUploader 文件上传
  * 此控件不支持ie8
  */
-export class FileUploader extends TextView {
+export class FileUploader extends TextBox {
 
     GetFile(): any {
         var files = this.target.prop("files");

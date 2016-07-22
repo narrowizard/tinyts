@@ -303,19 +303,30 @@ export abstract class ListView<T extends IModel> extends View {
     /**
      * GetItemIndex 获取指定Item在列表中的索引
      */
-    GetItemIndex(predicate: (p: T) => boolean): number {
-        for (var i = 0; i < this.Count(); i++) {
-            if (predicate(this.mData[i])) {
-                return i;
+    GetItemIndex(obj: T): number;
+    GetItemIndex(predicate: (p: T) => boolean): number;
+    GetItemIndex(p: any): number {
+        if (typeof p == "function") {
+            for (var i = 0; i < this.Count(); i++) {
+                if (p(this.mData[i])) {
+                    return i;
+                }
+            }
+        } else {
+            for (var i = 0; i < this.Count(); i++) {
+                if (this.mData[i] == p) {
+                    return i;
+                }
             }
         }
+        return -1;
     }
 
 	/**
 	 * 获取指定索引元素的Id(唯一编号)
 	 * @param index 索引
 	 */
-    GetItemId(index: number): number {
+    GetItemId(index: number): any {
         if (index < 0 || index > this.Count()) {
             return 0;
         }

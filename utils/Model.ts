@@ -1,6 +1,7 @@
 import {View} from '../core/View';
 import {InputView} from '../core/InputView';
 import {ListView} from '../core/ListView';
+import {ListInputView} from '../core/ListInputView';
 
 /**
  * ModelParser 模型注入器
@@ -119,7 +120,11 @@ export class ModelInjector {
             if (target instanceof View && target.GetPropertyName()) {
                 //列表控件
                 if (target instanceof ListView) {
-                    target.SetData(null);
+                    if (target instanceof ListInputView) {
+                        target.Clear();
+                    } else {
+                        target.SetData(null);
+                    }
                 } else {
                     target.Clear();
                 }

@@ -1,4 +1,4 @@
-import {ListView} from '../core/ListView';
+import {ListInputView} from '../core/ListInputView';
 import {SelectButtonModel} from '../models/RadioModel';
 import {controlConfig} from '../config/TinytsConfig';
 
@@ -11,15 +11,9 @@ import {controlConfig} from '../config/TinytsConfig';
  * data-value 值键
  * data-status 状态键
  */
-export class SelectButton<T extends IModel> extends ListView<T>
+export class SelectButton<T extends IModel> extends ListInputView<T>
 {
     muiltiSelect: boolean;
-
-    protected textKey: string;
-
-    protected valueKey: string;
-
-    protected statusKey: string;
 
     GetChildren(): JQuery {
         return this.target.find("button");
@@ -72,6 +66,10 @@ export class SelectButton<T extends IModel> extends ListView<T>
         });
     }
 
+    Clear() {
+        this.resetStatus();
+    }
+
     /**
      * resetStatus 重置所有的状态为未选中
      */
@@ -91,13 +89,6 @@ export class SelectButton<T extends IModel> extends ListView<T>
         } else {
             me.muiltiSelect = false;
         }
-        //属性值
-        me.textKey = me.target.attr("data-text");
-        me.valueKey = me.target.attr("data-value");
-        me.statusKey = me.target.attr("data-status");
-        me.textKey == null ? "Text" : me.textKey;
-        me.valueKey == null ? "Id" : me.valueKey;
-        me.statusKey == null ? "Status" : me.statusKey;
     }
 
 	/**
@@ -111,7 +102,7 @@ export class SelectButton<T extends IModel> extends ListView<T>
     /**
      * SelectById 根据Id选择项,单选时如果存在多个相同id的值,将会选中第一个
      */
-    SelectById(id: number) {
+    SelectById(id: any) {
         for (var i = this.mData.length - 1; i > -1; i--) {
             if (this.mData[i].Id == id) {
                 this.Select(i);

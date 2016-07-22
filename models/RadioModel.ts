@@ -1,3 +1,6 @@
+/**
+ * 该类将在接下来的版本被废弃掉
+ */
 export class RadioModel implements IModel {
 	Value: any;
 	Text: string;
@@ -8,7 +11,9 @@ export class RadioModel implements IModel {
 		this.Text = text;
 	}
 }
-
+/**
+ * 该类将在接下来的版本被废弃掉
+ */
 export class SelectButtonModel implements IModel {
 	Id: any;
 	Text: string;
