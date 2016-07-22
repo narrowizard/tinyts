@@ -227,10 +227,11 @@ export abstract class ListView<T extends IModel> extends View {
 	 * 获取某个指定的元素
 	 * @param index 指定索引
 	 * @param predicate 指定条件,返回true表示满足条件
+     * @param ignoreErr 忽略错误(若未找到,不产生程序错误)
 	 */
-    GetItem(predicate: (p: T) => boolean): T;
-    GetItem(index: number): T;
-    GetItem(param: any) {
+    GetItem(predicate: (p: T) => boolean, ignoreErr?: boolean): T;
+    GetItem(index: number, ignoreErr?: boolean): T;
+    GetItem(param: any, ignoreErr?: boolean) {
         if (typeof param == "number") {
             var index = <number>param;
             if (index < 0 || index > this.mData.length) {
@@ -239,16 +240,25 @@ export abstract class ListView<T extends IModel> extends View {
             return this.mData[index];
         } else if (typeof param == "function") {
             var predicate = <(p: T) => boolean>param;
-            return Enumerable.from(this.mData).where(predicate).first();
+            if (ignoreErr) {
+                return Enumerable.from(this.mData).where(predicate).firstOrDefault();
+            } else {
+                return Enumerable.from(this.mData).where(predicate).first();
+            }
         }
     }
 
     /**
      * GetItemById 通过id获取某元素
      * @param id 元素id
+     * @param ignoreErr 忽略错误(若未找到,不产生程序错误)
      */
-    GetItemById(id: any): T {
-        return Enumerable.from(this.mData).where((item) => { return item.Id == id }).first();
+    GetItemById(id: any, ignoreErr?: boolean): T {
+        if (ignoreErr) {
+            return Enumerable.from(this.mData).where((item) => { return item.Id == id }).firstOrDefault();
+        } else {
+            return Enumerable.from(this.mData).where((item) => { return item.Id == id }).first();
+        }
     }
 
     /**
