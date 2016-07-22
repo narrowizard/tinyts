@@ -18,7 +18,7 @@ export function MinLength(minLength: number) {
 
 export function Required() {
     return GenerateSetAccessor((value) => {
-        return value != "";
+        return value && value != "";
     }, (tagName) => {
         return `${tagName}不能为空`;
     });

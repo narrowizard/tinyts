@@ -88,6 +88,7 @@ export class ModelInjector {
      * @param context 从context中查找定义了data-property属性的控件,并将值注入到Model中
      */
     static InjectValidatedModel<T extends IModel>(TClass: { new (...args: any[]): T }, context): T {
+        // temp 用于验证
         var temp = new TClass();
         var model = {};
         for (var property in context) {
@@ -96,13 +97,13 @@ export class ModelInjector {
                 var propName = target.GetPropertyName();
                 if (propName) {
                     var value = target.Value();
-                    if (value != null) {
-                        if (TClass.prototype.hasOwnProperty(propName)) {
-                            temp[propName] = value;
-                            model[propName] = value;
-                        } else {
-                            model[propName] = value;
-                        }
+                    //如果model中存在,优先注入
+                    if (TClass.prototype.hasOwnProperty(propName)) {
+                        temp[propName] = value;
+                        model[propName] = value;
+                    } else if (value != null) {
+                        //注入model中不存在,但是value不为null的值
+                        model[propName] = value;
                     }
                 }
             }
