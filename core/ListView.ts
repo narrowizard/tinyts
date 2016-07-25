@@ -116,6 +116,31 @@ export abstract class ListView<T extends IModel> extends View {
         }
     }
 
+    /**
+     * Insert 插入数据,并刷新试图
+     * @param model 数据
+     * @param index 插入位置
+     * @param reloadview 是否重新加载视图(重新加载指刷新整个列表,否则添加元素到列表指定索引)
+     */
+    Insert(model: T, index: number, reloadView?: boolean) {
+        var length = this.mData.length == 0 ? 0 : this.mData.length - 1;
+        if (index < 0 || index > this.mData.length - 1) {
+            console.error("index error!");
+            return;
+        }
+        this.mData.push(model);
+        for (var i = this.mData.length - 1; i > index; i--) {
+            this.mData[i] = this.mData[i - 1];
+        }
+        this.mData[index] = model;
+        if (reloadView) {
+            this.RefreshView();
+        } else {
+            var html = this.GetView(index);
+            $(html).insertBefore(this.GetChildren().eq(index));
+        }
+    }
+
     LoadView() {
         super.LoadView();
         this.mData = [];
