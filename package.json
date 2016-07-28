@@ -1,6 +1,6 @@
 {
   "name": "tinyts",
-  "version": "0.22.15",
+  "version": "0.33.19",
   "description": "a mvvm web framework based on typescript",
   "main": "index.js",
   "scripts": {
