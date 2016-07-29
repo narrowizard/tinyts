@@ -2,6 +2,14 @@ import {Extend} from './Array';
 
 Extend();
 
+class UrlComparison {
+    Host: boolean;
+    Path: boolean;
+    Search: boolean;
+    Hash: boolean;
+    Complete: boolean;
+}
+
 /**
  * url parser 解析url地址
  */
@@ -61,6 +69,26 @@ export class UrlParser {
         return this.url;
     }
 
+    /**
+     * CompareUrls 比较url,返回信息
+     */
+    static CompareUrls(url1: string, url2: string): UrlComparison {
+        var temp: UrlComparison = new UrlComparison();
+        var u1 = new UrlParser();
+        var u2 = new UrlParser();
+        u1.Parse(url1);
+        u2.Parse(url2);
+        temp.Path = u1.pathname.toLowerCase() == u2.pathname.toLocaleLowerCase();
+        temp.Search = u1.search.toLowerCase() == u2.search.toLowerCase();
+        temp.Hash = u1.hash.toLowerCase() == u2.hash.toLowerCase();
+        temp.Host = u1.host.toLowerCase() == u2.host.toLowerCase();
+        if (temp.Hash && temp.Host && temp.Path && temp.Search) {
+            temp.Complete = true;
+        } else {
+            temp.Complete = false;
+        }
+        return temp;
+    }
 };
 
 /**
@@ -157,6 +185,11 @@ class Router {
      * @param data 可能存在的参数
      */
     GoTo(url: string, data: any, param?: any) {
+        //首先判断路由是否有变化,如果没有变化,则不作跳转
+        var res = UrlParser.CompareUrls(window.location.href, url);
+        if (res.Complete) {
+            return;
+        }
         var me = this;
         var stateData = { url: url, data: data, param: param };
         window.history.pushState(stateData, "", url);
