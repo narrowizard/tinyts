@@ -28,6 +28,10 @@ export class DropDownList<T extends IModel> extends ListInputView<T>{
         this.target.children("option").eq(target).prop("selected", true);
     }
 
+    /**
+     * SelectByText 根据文本内容选择项
+     * @param text 文本内容
+     */
     SelectByText(text: string) {
         var me = this;
         var target = 0;
@@ -45,6 +49,9 @@ export class DropDownList<T extends IModel> extends ListInputView<T>{
         return this.mData[index][this.valueKey];
     }
 
+    /**
+     * SelectedText 获取选中的文本内容
+     */
     SelectedText() {
         var index = this.target.find("option:selected").index();
         return this.mData[index][this.textKey];

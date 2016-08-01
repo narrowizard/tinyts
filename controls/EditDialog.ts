@@ -128,7 +128,7 @@ export class EditDialog extends View {
         var me = this;
 
         this.target.mousedown((eventObject: JQueryMouseEventObject) => {
-            if (eventObject.target instanceof HTMLInputElement || eventObject.target instanceof HTMLTextAreaElement) {
+            if (eventObject.target instanceof HTMLInputElement || eventObject.target instanceof HTMLTextAreaElement || eventObject.target instanceof HTMLSelectElement) {
                 return;
             }
             eventObject = (eventObject || window.event) as JQueryMouseEventObject;
@@ -141,7 +141,7 @@ export class EditDialog extends View {
             if (!me.isMoving) {
                 return;
             }
-            if (eventObject.target instanceof HTMLInputElement || eventObject.target instanceof HTMLTextAreaElement) {
+            if (eventObject.target instanceof HTMLInputElement || eventObject.target instanceof HTMLTextAreaElement || eventObject.target instanceof HTMLSelectElement) {
                 return;
             }
             eventObject = (eventObject || window.event) as JQueryMouseEventObject;
