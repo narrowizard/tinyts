@@ -45,15 +45,3 @@
     1. single flow data binding
     1. double flow data binding
 1. template syntax
-
-## dependency
-1. [requirejs](http://requirejs.org/)
-1. [jquery](https://jquery.com/)
-1. linqjs(https://github.com/mihaifm/linq)
-
-## support 
-### you need add the reference of [es5 shim](https://github.com/es-shims/es5-shim) in the older browser.
-
-### the following features are only supported in modern browser(IE9+, chrome, firefox)
-1. router
-2. file uploader
