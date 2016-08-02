@@ -28,3 +28,4 @@
 ### the following features are only supported in modern browser(IE9+, chrome, firefox)
 1. router
 2. file uploader
+3. promise

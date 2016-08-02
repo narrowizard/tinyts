@@ -45,3 +45,7 @@
     1. single flow data binding
     1. double flow data binding
 1. template syntax
+
+## version 2.0
+1. target es6
+1. async await
