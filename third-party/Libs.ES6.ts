@@ -1,3 +1,134 @@
+declare type PropertyKey = string | number | symbol;
+
+interface Symbol {
+    /** Returns a string representation of an object. */
+    toString(): string;
+
+    /** Returns the primitive value of the specified object. */
+    valueOf(): Object;
+
+    [Symbol.toStringTag]: "Symbol";
+}
+
+interface SymbolConstructor {
+    /**
+      * A reference to the prototype.
+      */
+    prototype: Symbol;
+
+    /**
+      * Returns a new unique Symbol value.
+      * @param  description Description of the new Symbol object.
+      */
+    (description?: string|number): symbol;
+
+    /**
+      * Returns a Symbol object from the global symbol registry matching the given key if found.
+      * Otherwise, returns a new symbol with this key.
+      * @param key key to search for.
+      */
+    for(key: string): symbol;
+
+    /**
+      * Returns a key from the global symbol registry matching the given Symbol if found.
+      * Otherwise, returns a undefined.
+      * @param sym Symbol to find the key for.
+      */
+    keyFor(sym: symbol): string;
+
+    // Well-known Symbols
+
+    /**
+      * A method that determines if a constructor object recognizes an object as one of the
+      * constructor’s instances. Called by the semantics of the instanceof operator.
+      */
+    hasInstance: symbol;
+
+    /**
+      * A Boolean value that if true indicates that an object should flatten to its array elements
+      * by Array.prototype.concat.
+      */
+    isConcatSpreadable: symbol;
+
+    /**
+      * A method that returns the default iterator for an object. Called by the semantics of the
+      * for-of statement.
+      */
+    iterator: symbol;
+
+    /**
+      * A regular expression method that matches the regular expression against a string. Called
+      * by the String.prototype.match method.
+      */
+    match: symbol;
+
+    /**
+      * A regular expression method that replaces matched substrings of a string. Called by the
+      * String.prototype.replace method.
+      */
+    replace: symbol;
+
+    /**
+      * A regular expression method that returns the index within a string that matches the
+      * regular expression. Called by the String.prototype.search method.
+      */
+    search: symbol;
+
+    /**
+      * A function valued property that is the constructor function that is used to create
+      * derived objects.
+      */
+    species: symbol;
+
+    /**
+      * A regular expression method that splits a string at the indices that match the regular
+      * expression. Called by the String.prototype.split method.
+      */
+    split: symbol;
+
+    /**
+      * A method that converts an object to a corresponding primitive value.
+      * Called by the ToPrimitive abstract operation.
+      */
+    toPrimitive: symbol;
+
+    /**
+      * A String value that is used in the creation of the default string description of an object.
+      * Called by the built-in method Object.prototype.toString.
+      */
+    toStringTag: symbol;
+
+    /**
+      * An Object whose own property names are property names that are excluded from the 'with'
+      * environment bindings of the associated objects.
+      */
+    unscopables: symbol;
+}
+declare var Symbol: SymbolConstructor;
+
+interface ProxyHandler<T> {
+    getPrototypeOf? (target: T): any;
+    setPrototypeOf? (target: T, v: any): boolean;
+    isExtensible? (target: T): boolean;
+    preventExtensions? (target: T): boolean;
+    getOwnPropertyDescriptor? (target: T, p: PropertyKey): PropertyDescriptor;
+    has? (target: T, p: PropertyKey): boolean;
+    get? (target: T, p: PropertyKey, receiver: any): any;
+    set? (target: T, p: PropertyKey, value: any, receiver: any): boolean;
+    deleteProperty? (target: T, p: PropertyKey): boolean;
+    defineProperty? (target: T, p: PropertyKey, attributes: PropertyDescriptor): boolean;
+    enumerate? (target: T): PropertyKey[];
+    ownKeys? (target: T): PropertyKey[];
+    apply? (target: T, thisArg: any, argArray?: any): any;
+    construct? (target: T, thisArg: any, argArray?: any): any;
+}
+
+interface ProxyConstructor {
+    revocable<T>(target: T, handler: ProxyHandler<T>): { proxy: T; revoke: () => void; };
+    new <T>(target: T, handler: ProxyHandler<T>): T
+}
+declare var Proxy: ProxyConstructor;
+
 /**
  * Represents the completion of an asynchronous operation
  */
@@ -19,6 +150,7 @@ interface Promise<T> {
     catch(onrejected?: (reason: any) => T | PromiseLike<T>): Promise<T>;
     catch(onrejected?: (reason: any) => void): Promise<T>;
 
+    [Symbol.toStringTag]: "Promise";
 }
 
 interface PromiseConstructor {
@@ -50,6 +182,15 @@ interface PromiseConstructor {
     all<T1, T2, T3, T4>(values: [T1 | PromiseLike<T1>, T2 | PromiseLike<T2>, T3 | PromiseLike<T3>, T4 | PromiseLike <T4>]): Promise<[T1, T2, T3, T4]>;
     all<T1, T2, T3>(values: [T1 | PromiseLike<T1>, T2 | PromiseLike<T2>, T3 | PromiseLike<T3>]): Promise<[T1, T2, T3]>;
     all<T1, T2>(values: [T1 | PromiseLike<T1>, T2 | PromiseLike<T2>]): Promise<[T1, T2]>;
+    all<TAll>(values: Iterable<TAll | PromiseLike<TAll>>): Promise<TAll[]>;
+
+    /**
+     * Creates a Promise that is resolved or rejected when any of the provided Promises are resolved
+     * or rejected.
+     * @param values An array of Promises.
+     * @returns A new Promise.
+     */
+    race<T>(values: Iterable<T | PromiseLike<T>>): Promise<T>;
 
     /**
      * Creates a new rejected promise for the provided reason.
@@ -78,6 +219,7 @@ interface PromiseConstructor {
      */
     resolve(): Promise<void>;
 
+    [Symbol.species]: Function;
 }
 
 declare var Promise: PromiseConstructor;
