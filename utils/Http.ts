@@ -65,7 +65,11 @@ export class UrlParser {
             this.search += `${temp}=${this.searchObject[temp]}&`;
         }
         this.search = this.search.substr(0, this.search.length - 1);
-        this.url = this.protocol + "//" + this.host + this.pathname + this.search + this.hash;
+        this.url = "";
+        if (this.protocol) {
+            this.url += this.protocol + "//";
+        }
+        this.url += this.host + this.pathname + this.search + this.hash;
         return this.url;
     }
 
