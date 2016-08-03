@@ -15,7 +15,7 @@ export class RadioButton<T extends IModel> extends ListInputView<T>{
      * Value 获取当前选定值
      */
     Value() {
-        var index = this.target.find("input:radio").filter(":checked").index("input:radio");
+        var index = this.target.find("input:radio").index(this.target.find("input:radio").filter(":checked"));
         if (index < 0) {
             //不存在
             return null;
