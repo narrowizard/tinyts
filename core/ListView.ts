@@ -501,6 +501,13 @@ class PageManager<T extends IModel> {
     protected pageSize: number;
 
     /**
+     * CurPage 获取当前页码
+     */
+    CurPage() {
+        return this.curPage;
+    }
+
+    /**
      * SetPageSize 设置每页条数
      * @param pagesize 每页条数
      */
