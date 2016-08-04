@@ -37,15 +37,18 @@
     1. table extension
 
 ## version 1.1
-1. es6 promise
-1. es6 proxy
+1. es6 promise interface
 
-## version 1.2
-1. data binding
-    1. single flow data binding
-    1. double flow data binding
-1. template syntax
+## version 2.0 (with es6 polyfill)
+1. Features
+    1. promise
+    1. proxy
+1. Service
+    1. local storage
+    1. data pool
+1. View
+    1. data binding
+    1. template syntax
 
-## version 2.0
-1. target es6
+## version 3.0 (target es6)
 1. async await
