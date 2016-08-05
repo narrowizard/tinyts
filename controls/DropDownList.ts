@@ -5,6 +5,10 @@ import {ListInputView} from '../core/ListInputView';
  */
 export class DropDownList<T extends IModel> extends ListInputView<T>{
 
+    protected clear() {
+        this.target.append("<option value='empty'></option>").val("empty").empty();
+    }
+
     Clear() {
         this.SetValue(null);
     }
