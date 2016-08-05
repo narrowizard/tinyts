@@ -5,6 +5,10 @@ import {ListInputView} from '../core/ListInputView';
  */
 export class DropDownList<T extends IModel> extends ListInputView<T>{
 
+    protected clear() {
+        this.target.append("<option value='empty'></option>").val("empty").empty();
+    }
+
     Clear() {
         this.SetValue(null);
     }
@@ -46,6 +50,9 @@ export class DropDownList<T extends IModel> extends ListInputView<T>{
 
     Value() {
         var index = this.target.find("option:selected").index();
+        if (index < 0) {
+            return null;
+        }
         return this.mData[index][this.valueKey];
     }
 
