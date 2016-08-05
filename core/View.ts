@@ -127,6 +127,14 @@ export class View {
     }
 
     /**
+     * Trigger 触发指定的事件
+     * @param eventName 事件名称
+     */
+    Trigger(eventName: string) {
+        this.target.trigger(eventName);
+    }
+
+    /**
      * Off 解除绑定事件
      * @param eventName 事件名称
      */
