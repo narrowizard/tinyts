@@ -46,6 +46,9 @@ export class DropDownList<T extends IModel> extends ListInputView<T>{
 
     Value() {
         var index = this.target.find("option:selected").index();
+        if (index < 0) {
+            return null;
+        }
         return this.mData[index][this.valueKey];
     }
 
