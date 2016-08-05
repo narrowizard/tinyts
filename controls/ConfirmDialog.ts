@@ -13,8 +13,8 @@ export class ConfirmDialog extends EditDialog {
         super.LoadView();
         this.confirmMessage = new TextView();
         this.confirmButton = new Button();
-        this.confirmMessage.BindBySelector(controlConfig.confirmDialogMessageSelector);
-        this.confirmButton.BindBySelector(controlConfig.confirmButton);
+        this.confirmMessage.BindBySelector(`#${this.ViewId()} ${controlConfig.confirmDialogMessageSelector}`);
+        this.confirmButton.BindBySelector(`#${this.ViewId()} ${controlConfig.confirmButton}`);
     }
 
     /**
