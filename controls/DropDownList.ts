@@ -2,11 +2,38 @@ import {ListInputView} from '../core/ListInputView';
 
 /**
  * DropDownList 下拉列表,请使用select元素
+ * 此列表控件不需要定义getTemplateView方法
+ * property:
+ * data-text
+ * data-value
+ * data-status
  */
 export class DropDownList<T extends IModel> extends ListInputView<T>{
 
+    /**
+     * SetChangeHandler 设置change事件
+     */
+    SetChangeHandler(onChange: (ev: Event) => void) {
+        this.target.on("change", onchange);
+    }
+
     protected clear() {
         this.target.append("<option value='empty'></option>").val("empty").empty();
+    }
+
+    LoadView() {
+        var me = this;
+        super.LoadView();
+
+        this.getTemplateView = (index, data) => {
+            var html = "";
+            if (data[me.statusKey]) {
+                html = `<option selected value=${data[me.valueKey]}>${data[me.textKey]}</option>`;
+            } else {
+                html = `<option value=${data[me.valueKey]}>${data[me.textKey]}</option>`;
+            }
+            return html;
+        };
     }
 
     Clear() {
@@ -21,15 +48,9 @@ export class DropDownList<T extends IModel> extends ListInputView<T>{
      * SetValue 设置select的Value
      */
     SetValue(value: any) {
-        var me = this;
-        var target = 0;
-        for (var i = 0; i < this.mData.length; i++) {
-            if (this.mData[i][me.valueKey] == value) {
-                target = i;
-                break;
-            }
-        }
-        this.target.children("option").eq(target).prop("selected", true);
+        this.target.val(value);
+        // 设置值后手动触发change事件
+        this.Trigger("change");
     }
 
     /**
@@ -38,30 +59,28 @@ export class DropDownList<T extends IModel> extends ListInputView<T>{
      */
     SelectByText(text: string) {
         var me = this;
-        var target = 0;
-        for (var i = 0; i < this.mData.length; i++) {
-            if (this.mData[i][me.textKey] == text) {
-                target = i;
-                break;
-            }
+        var item = Enumerable.from(this.mData).where(it => it[me.textKey] == text).firstOrDefault();
+        if (item) {
+            var value = item[me.valueKey];
+            this.SetValue(value);
         }
-        this.target.children("option").eq(target).prop("selected", true);
     }
 
     Value() {
-        var index = this.target.find("option:selected").index();
-        if (index < 0) {
-            return null;
-        }
-        return this.mData[index][this.valueKey];
+        return this.target.val();
     }
 
     /**
      * SelectedText 获取选中的文本内容
      */
     SelectedText() {
-        var index = this.target.find("option:selected").index();
-        return this.mData[index][this.textKey];
+        var me = this;
+        var value = this.Value();
+        var item = Enumerable.from(this.mData).where(it => it[me.valueKey] == value).firstOrDefault();
+        if (item) {
+            return item[me.textKey];
+        }
+        return null;
     }
 
 }

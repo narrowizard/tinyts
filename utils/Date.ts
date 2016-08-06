@@ -1,7 +1,12 @@
 export class TsDate {
     date: Date;
 
-    constructor(dateString: string) {
+    constructor(dateString?: string) {
+        if (!dateString) {
+            // 获取当前时间
+            this.date = new Date();
+            return this;
+        }
         var D = new Date('2011-06-02T09:34:29+02:00');
         if (!D || +D !== 1307000069000) {
             //不支持ISO格式的js引擎
@@ -34,9 +39,14 @@ export class TsDate {
     /**
      * fromISO 由ISO对象生成一个TsDate对象
      * @param s ISO格式的Date字符串
+     * @return 若参数为空,返回null
      */
     static fromISO(s: string): TsDate {
-        return new TsDate(s);
+        var temp = new TsDate(s);
+        if (!s) {
+            temp.date = null;
+        }
+        return temp;
     }
 
     /**
