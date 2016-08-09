@@ -154,6 +154,8 @@ class DataPool {
     /**
      * read 从Local Storage中读取data到data pool中
      * 在读取之后需要使用JSON.parse
+     * 该方法在构造函数中被调用,并会创建一个监视内存池的线程
+     * 如非必要,请不要调用该方法
      */
     protected read() {
         var me = this;
