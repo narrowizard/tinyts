@@ -1,3 +1,11 @@
+import {dataPoolReleaseRate} from '../config/TinytsConfig';
+
+interface dataPoolPoint {
+    deadLine: Date;
+    data: any;
+    heat: number;
+}
+
 /**
  * DataPool 数据池,配合单页面应用效果更好哟
  * 对于一些较为稳定的数据,使用Data Pool能节约较多的网络请求,从而提高应用的效率
@@ -14,7 +22,7 @@ class DataPool {
     /**
      * dataPool 内存池
      */
-    protected dataPool: { [key: string]: { [paramkey: string]: { deadLine: Date, data: any } } };
+    protected dataPool: { [key: string]: { [paramkey: string]: dataPoolPoint } };
 
     /**
      * dataGetter 数据获取器
@@ -45,6 +53,7 @@ class DataPool {
             // dataPool中不存在或已过期,请求数据
             this.requestData(dataKey, param, paramKey, callback);
         } else {
+            this.dataPool[dataKey][paramKey].heat++;
             callback(this.dataPool[dataKey][paramKey].data);
         }
     }
@@ -97,14 +106,20 @@ class DataPool {
         var expire = this.dataHandler[dataKey].expire;
 
         this.dataHandler[dataKey].getData(param).then((data) => {
-            me.dataPool[dataKey] = {};
-            me.dataPool[dataKey][paramkey] = { deadLine: null, data: null };
+            if (!me.dataPool[dataKey]) {
+                me.dataPool[dataKey] = {};
+            }
+            if (!me.dataPool[dataKey][paramkey]) {
+                me.dataPool[dataKey][paramkey] = { deadLine: null, data: null, heat: 1 };
+            }
             // 请求数据成功
             if (expire > 0) {
                 // 计算有效期
                 var now = new Date();
                 var deadLine = new Date(now.getTime() + expire);
                 me.dataPool[dataKey][paramkey].deadLine = deadLine;
+            } else {
+                me.dataPool[dataKey][paramkey].deadLine = null;
             }
             me.dataPool[dataKey][paramkey].data = data;
             callback(me.dataPool[dataKey][paramkey].data);
@@ -159,8 +174,12 @@ class DataPool {
 
     /**
      * releaseData 清理内存,清除不常用的数据
+     * @param rate 释放的数据比例 0 < rate < 1
      */
-    protected releaseData() {
+    protected releaseData(rate: number) {
+        if (rate < 0 || rate > 1) {
+            return;
+        }
 
     }
 }
