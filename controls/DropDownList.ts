@@ -83,4 +83,16 @@ export class DropDownList<T extends IModel> extends ListInputView<T>{
         return null;
     }
 
+    /**
+     * SelectByIndex 通过索引选择
+     * @param index 索引
+     */
+    SelectByIndex(index: number) {
+        if (index < 0 || index > this.Count() - 1) {
+            return;
+        }
+        var value = this.mData[index][this.valueKey];
+        this.SetValue(value);
+    }
+
 }
