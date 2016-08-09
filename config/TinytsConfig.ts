@@ -21,3 +21,13 @@ export var controlConfig = {
  * dataPoolReleaseRate 每次释放data pool时的比例
  */
 export var dataPoolReleaseRate = 0.2;
+
+/**
+ * dirtyNeedRefreshData 需要刷新到local storage的最小dirty数
+ */
+export var dirtyNeedRefreshData = 10;
+
+/**
+ * writeInterval 脏检查时间间隔(秒)
+ */
+export var writeInterval = 5;

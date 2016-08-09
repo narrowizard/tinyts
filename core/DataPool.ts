@@ -1,4 +1,4 @@
-import {dataPoolReleaseRate} from '../config/TinytsConfig';
+import {dataPoolReleaseRate, dirtyNeedRefreshData, writeInterval} from '../config/TinytsConfig';
 
 interface dataPoolPoint {
     deadLine: Date;
@@ -15,9 +15,12 @@ class DataPool {
     constructor() {
         this.dataPool = {};
         this.dataHandler = {};
+        this.dirty = 0;
         // 在构造函数里读取localStorage
         this.read();
     }
+
+    protected dirty: number;
 
     /**
      * dataPool 内存池
@@ -56,6 +59,7 @@ class DataPool {
             this.dataPool[dataKey][paramKey].heat++;
             callback(this.dataPool[dataKey][paramKey].data);
         }
+        this.dirty++;
     }
 
     /**
@@ -69,6 +73,7 @@ class DataPool {
             paramKey = "tinyts";
         }
         this.requestData(dataKey, param, paramKey, callback);
+        this.dirty++;
     }
 
     /**
@@ -110,8 +115,9 @@ class DataPool {
                 me.dataPool[dataKey] = {};
             }
             if (!me.dataPool[dataKey][paramkey]) {
-                me.dataPool[dataKey][paramkey] = { deadLine: null, data: null, heat: 1 };
+                me.dataPool[dataKey][paramkey] = { deadLine: null, data: null, heat: 0 };
             }
+            me.dataPool[dataKey][paramkey].heat++;
             // 请求数据成功
             if (expire > 0) {
                 // 计算有效期
@@ -136,8 +142,12 @@ class DataPool {
         this.removeOverdue();
         try {
             localStorage.setItem("tinytsDataPool", JSON.stringify(this.dataPool));
+            this.dirty = 0;
         } catch (e) {
             this.releaseData(dataPoolReleaseRate);
+            // 清理内存后再一次尝试存储
+            localStorage.setItem("tinytsDataPool", JSON.stringify(this.dataPool));
+            this.dirty = 0;
         }
     }
 
@@ -146,6 +156,7 @@ class DataPool {
      * 在读取之后需要使用JSON.parse
      */
     protected read() {
+        var me = this;
         var data = localStorage.getItem("tinytsDataPool");
         if (!data) {
             return;
@@ -154,6 +165,12 @@ class DataPool {
         this.dataPool = temp;
         // 释放已过期的数据
         this.removeOverdue();
+        // 开启一个线程监视当前内存池的变更
+        setInterval(() => {
+            if (me.dirty >= dirtyNeedRefreshData) {
+                me.write();
+            }
+        }, writeInterval * 1000);
     }
 
     /**
