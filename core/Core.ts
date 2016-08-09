@@ -97,19 +97,36 @@ export abstract class VirtualView<T> extends View implements IViewModel {
 //自动初始化,绑定页面上的id
 //并注入到ViewModel中
 
+// 注入数据
+// var data = {
+//     __inject__: {
+//         vmName: {
+//             propertyName: Class,
+//             constructor:Constructor
+//         }
+//     }
+// }
+
 /**
  * 用于某个控件
  */
 export function view(Class: { new (...args: any[]): View }) {
     return function inject(target: IViewModel, decoratedPropertyName: string): void {
         const targetType: { __inject__?: Object } = target.constructor;
+        // 目标viewmodel的名称
+        var name = target.constructor.toString().match(/^function\s*([^\s(]+)/)[1];
 
-        if (!targetType.hasOwnProperty('__inject__')) {
-            targetType.__inject__ = {};
+        if (!targetType.hasOwnProperty(`__inject__`)) {
+            targetType[`__inject__`] = {};
         }
-        // var temp = new Class();
-        // temp.SetID(decoratedPropertyName);
-        targetType.__inject__[decoratedPropertyName] = Class;
+
+        if (!targetType["__inject__"][name]) {
+            targetType["__inject__"][name] = {
+                constructor: target.constructor
+            };
+        }
+
+        targetType[`__inject__`][name][decoratedPropertyName] = Class;
     }
 }
 
@@ -120,11 +137,19 @@ export function partialView<T>(Class: { new (...args: any[]): ViewGroup<T> }) {
     return function inject(target: T, decoratedPropertyName: string): void {
         const targetType: { __inject__?: Object } = target.constructor;
 
-        if (!targetType.hasOwnProperty('__inject__')) {
-            targetType.__inject__ = {};
+        var name = target.constructor.toString().match(/^function\s*([^\s(]+)/)[1];
+
+        if (!targetType.hasOwnProperty(`__inject__`)) {
+            targetType[`__inject__`] = {};
         }
-        // var temp = new Class();
-        targetType.__inject__[decoratedPropertyName] = Class;
+
+        if (!targetType["__inject__"][name]) {
+            targetType["__inject__"][name] = {
+                constructor: target.constructor
+            };
+        }
+
+        targetType[`__inject__`][name][decoratedPropertyName] = Class;
     }
 }
 
@@ -135,14 +160,30 @@ export function partialView<T>(Class: { new (...args: any[]): ViewGroup<T> }) {
  */
 function inject(Class: Function, instance: IViewModel) {
     if (Class["__inject__"]) {
-        var result = Object.keys(Class["__inject__"])
+        var properties = {};
+
+        Object.keys(Class["__inject__"]).map((vmName: string) => {
+            var c = Class["__inject__"][vmName]["constructor"];
+            if (instance instanceof c) {
+                // 注入
+                properties = $.extend({}, properties, Class["__inject__"][vmName]);
+            }
+        });
+
+        var result = Object.keys(properties)
             .map((propertyName: string) => {
+                if (propertyName == "constructor") {
+                    return null;
+                }
                 var temp: InjectionPoint = { propertyName: "", constructor: null };
                 temp.propertyName = propertyName;
-                temp.constructor = Class["__inject__"][propertyName];
+                temp.constructor = properties[propertyName];
                 return temp;
             });
         for (let injectionPoint of result) {
+            if (!injectionPoint) {
+                continue;
+            }
             var temp = new injectionPoint.constructor();
             if (temp instanceof VirtualView) {
                 temp.SetContext(instance);
@@ -163,6 +204,7 @@ function inject(Class: Function, instance: IViewModel) {
             instance[injectionPoint.propertyName] = temp;
         }
     }
+
     instance.RegisterEvents();
     instance.OnLoad();
 }
