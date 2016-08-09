@@ -134,7 +134,11 @@ class DataPool {
     protected write() {
         // 首先释放已过期的数据
         this.removeOverdue();
-        localStorage.setItem("tinytsDataPool", JSON.stringify(this.dataPool));
+        try {
+            localStorage.setItem("tinytsDataPool", JSON.stringify(this.dataPool));
+        } catch (e) {
+            this.releaseData(dataPoolReleaseRate);
+        }
     }
 
     /**
@@ -180,7 +184,17 @@ class DataPool {
         if (rate < 0 || rate > 1) {
             return;
         }
-
+        var length = Object.keys(this.dataPool).length;
+        var removeLength = Math.round(length * rate);
+        var data = Enumerable.from(this.dataPool).select(it => {
+            return {
+                key: it.key,
+                sum: Enumerable.from(it.value).sum(it => it.value.heat)
+            }
+        }).orderBy(it => it.sum).toArray();
+        for (var i = 0; i < removeLength; i++) {
+            delete this.dataPool[data[i].key];
+        }
     }
 }
 
