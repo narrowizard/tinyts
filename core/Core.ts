@@ -154,6 +154,13 @@ export function partialView<T>(Class: { new (...args: any[]): ViewGroup<T> }) {
 }
 
 /**
+ * auto 指示该方法适用于data pool
+ */
+export function auto(dataName: string) {
+
+}
+
+/**
  * 注入
  * @param Class ViewModel's constructor
  * @param instance ViewModel instance
@@ -213,3 +220,4 @@ interface InjectionPoint {
     propertyName: string;
     constructor: { new (...args: any[]): any };
 }
+

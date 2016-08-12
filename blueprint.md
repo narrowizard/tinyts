@@ -38,6 +38,7 @@
 
 ## version 1.1
 1. es6 promise interface
+1. data pool
 
 ## version 2.0 (with es6 polyfill)
 1. Features

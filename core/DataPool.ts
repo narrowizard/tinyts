@@ -28,7 +28,7 @@ class DataPool {
     protected dataPool: { [key: string]: { [paramkey: string]: dataPoolPoint } };
 
     /**
-     * dataGetter 数据获取器
+     * dataHandler 数据获取器
      */
     protected dataHandler: { [key: string]: { expire: number, getData: (param: any) => Promise<any> } };
 
