@@ -9,21 +9,27 @@ export class TextBox extends InputView {
 
         this.acceptBtn = this.target.attr("data-accept-button");
         if (this.acceptBtn) {
+            this.Off("keydown");
             this.On("keypress", (args) => {
                 if (args.which == 13) {
-                    $("#" + this.acceptBtn).click();
+                    var targetBtn = $("#" + this.acceptBtn);
+                    if (targetBtn.prop("disabled")) {
+
+                    } else {
+                        $("#" + this.acceptBtn).click();
+                    }
                 }
             });
         }
     }
-    
+
     /**
      * Clear 清空textbox
      */
     Clear() {
         this.target.val("");
     }
-    
+
     /**
      * Value 获取TextBox的值
      */
@@ -52,12 +58,19 @@ export class TextBox extends InputView {
     SetAcceptButton(id: string);
     SetAcceptButton(btn: Button);
     SetAcceptButton(p: any) {
+        this.target.off("keydown");
         this.target.keydown((event) => {
             if (event.keyCode == 13) {
+                var targetBtn: JQuery;
                 if (typeof p == "string") {
-                    $("#" + p).click();
+                    targetBtn = $("#" + p);
                 } else if (typeof p == "object") {
-                    (p as Button).PerformClick();
+                    targetBtn = (p as Button).GetJqueryInstance();
+                }
+                if (targetBtn.prop("disabled")) {
+
+                } else {
+                    $("#" + this.acceptBtn).click();
                 }
             }
         });
