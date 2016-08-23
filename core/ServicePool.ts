@@ -165,7 +165,7 @@ class DemoService {
 
 // 下面使用该service
 
-ServicePoolInstance.GetService(DemoService).GetData({ Param1: "我是第一个参数", Param2: 1 }).then((data) => {
-    // 输出返回值
-    console.log(data.join(","));
-});
+// ServicePoolInstance.GetService(DemoService).GetData({ Param1: "我是第一个参数", Param2: 1 }).then((data) => {
+//     // 输出返回值
+//     console.log(data.join(","));
+// });
