@@ -1,12 +1,11 @@
 import {View} from './view';
-import * as $ from 'jquery';
-import * as linq from 'linqjs';
+import {Promise} from 'promise';
 
 export class VmTc {
     constructor() {
-        var v = new View();
-        $.ajax({});
-        linq.from([1, 2, 3]).where(it => it == 1).firstOrDefault();
+        var aa = new Promise<string>((resolve, reject) => {
+
+        });
     }
 }
 
