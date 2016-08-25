@@ -1,7 +1,7 @@
 import {View} from './view';
 
-export class VmTc {
-    
+export class BaseVM {
+
     constructor() {
 
     }
