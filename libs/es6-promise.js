@@ -945,7 +945,7 @@
 
   /* global define:true module:true window: true */
   if (typeof define === 'function' && define['amd']) {
-    define('promise', [], function () { return lib$es6$promise$promise$$default; });
+    define('es6-promise', [], function () { return lib$es6$promise$promise$$default; });
   } else if (typeof module !== 'undefined' && module['exports']) {
     module['exports'] = lib$es6$promise$promise$$default;
   } else if (typeof this !== 'undefined') {

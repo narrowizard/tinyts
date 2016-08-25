@@ -7,22 +7,10 @@ export class VmTc {
 }
 
 export function v() {
-
+    mx([1, 2, 3]).where(it => it < 3).firstOrDefault();
+    console.log("aaa");
 }
 
 export function p() {
 
 }
-
-function observe(o, fn) {
-    return new Proxy(o, {
-        set(target, property, value) {
-            fn(property, value);
-            target[property] = value;
-        },
-    })
-}
-
-let x = { name: 'BB-8' };
-let p1 = observe(x, function (property, value) { console.info(property, value) });
-p1.name = 'BB-9';

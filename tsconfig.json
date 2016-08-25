@@ -3,7 +3,6 @@
         "moduleResolution": "node",
         "target": "es5",
         "module": "amd",
-        "noEmitOnError": true,
-        "outFile": "js/core.js"
+        "outDir": "dist/js/"
     }
 }
