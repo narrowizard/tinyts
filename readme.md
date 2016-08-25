@@ -1,4 +1,9 @@
-target es5
-ie9+
-promise polyfill
-proxy polyfill
+# tinyts2
+## target
+es5
+
+## libs
+jquery  
+multiplex(linq)  
+es6 promise  
+es6 proxy  
