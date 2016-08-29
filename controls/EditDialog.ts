@@ -147,7 +147,8 @@ export class EditDialog extends View {
             eventObject = (eventObject || window.event) as JQueryMouseEventObject;
             pauseEvent(eventObject);
             if (me.isMoving) {
-                me.target.css("top", eventObject.pageY - me.mouseY);
+                var scroll = $(window).scrollTop();
+                me.target.css("top", eventObject.pageY - scroll - me.mouseY);
                 me.target.css("left", eventObject.pageX - me.mouseX);
             }
         });
