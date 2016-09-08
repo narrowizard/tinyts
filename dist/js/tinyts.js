@@ -3,7 +3,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-define("controls/view", ["require", "exports"], function (require, exports) {
+define("control/view", ["require", "exports"], function (require, exports) {
     "use strict";
     /**
      * View 控件基类
@@ -156,11 +156,70 @@ define("controls/view", ["require", "exports"], function (require, exports) {
                 return this.target.css(key);
             }
         };
+        /**
+         * Disable 设置控件为不可用(仅支持disabled属性的元素有效)
+         */
+        View.prototype.Disable = function () {
+            this.target.attr("disabled", "true");
+        };
+        /**
+         * Enable 设置控件为可用(仅支持disabled属性的元素有效)
+         */
+        View.prototype.Enable = function () {
+            this.target.removeAttr("disabled");
+        };
         return View;
     }());
     exports.View = View;
 });
-define("controls/input", ["require", "exports", "controls/view"], function (require, exports, view_1) {
+define("control/text", ["require", "exports", "control/view"], function (require, exports, view_1) {
+    "use strict";
+    /**
+     * TextView 用于文本显示的控件
+     * 这里的文本指<tag>文本内容</tag>中的文本内容
+     * 所以button也继承自该类
+     */
+    var TextView = (function (_super) {
+        __extends(TextView, _super);
+        function TextView() {
+            _super.apply(this, arguments);
+        }
+        TextView.prototype.Text = function () {
+            return this.target.text();
+        };
+        TextView.prototype.SetText = function (v) {
+            this.target.text(v);
+        };
+        return TextView;
+    }(view_1.View));
+    exports.TextView = TextView;
+});
+define("control/button", ["require", "exports", "control/text"], function (require, exports, text_1) {
+    "use strict";
+    var Button = (function (_super) {
+        __extends(Button, _super);
+        function Button() {
+            _super.apply(this, arguments);
+        }
+        /**
+         * OnClick 注册点击事件
+         */
+        Button.prototype.OnClick = function (handler) {
+            this.target.click(handler);
+        };
+        /**
+         * PerformClick 触发button的点击事件
+         */
+        Button.prototype.PerformClick = function () {
+            if (this.target != null) {
+                this.target.click();
+            }
+        };
+        return Button;
+    }(text_1.TextView));
+    exports.Button = Button;
+});
+define("control/input", ["require", "exports", "control/view"], function (require, exports, view_2) {
     "use strict";
     /**
      * InputView 文本输入控件,作为输入框的基类
@@ -202,30 +261,22 @@ define("controls/input", ["require", "exports", "controls/view"], function (requ
             this.target.val("");
         };
         return InputView;
-    }(view_1.View));
+    }(view_2.View));
     exports.InputView = InputView;
 });
-define("controls/list", ["require", "exports", "controls/view"], function (require, exports, view_2) {
+define("control/list", ["require", "exports", "control/view"], function (require, exports, view_3) {
     "use strict";
     var ListView = (function (_super) {
         __extends(ListView, _super);
         function ListView() {
             _super.apply(this, arguments);
         }
+        ListView.prototype.SetData = function (data) {
+            this.mData = data;
+        };
         return ListView;
-    }(view_2.View));
-    exports.ListView = ListView;
-});
-define("controls/text", ["require", "exports", "controls/view"], function (require, exports, view_3) {
-    "use strict";
-    var TextView = (function (_super) {
-        __extends(TextView, _super);
-        function TextView() {
-            _super.apply(this, arguments);
-        }
-        return TextView;
     }(view_3.View));
-    exports.TextView = TextView;
+    exports.ListView = ListView;
 });
 define("core/tinyts", ["require", "exports"], function (require, exports) {
     "use strict";
@@ -241,4 +292,10 @@ define("core/tinyts", ["require", "exports"], function (require, exports) {
     function p() {
     }
     exports.p = p;
+});
+define("model/injector", ["require", "exports"], function (require, exports) {
+    "use strict";
+    function Injector(model) {
+    }
+    exports.Injector = Injector;
 });

@@ -8,6 +8,18 @@ export class View {
     // 该属性用于解决虚拟视图被多次引用时产生的id冲突问题
     protected selector: string;
 
+    /**
+     * propertyName 属性名(用于注入)
+     */
+    protected propertyName: string;
+
+    /**
+         * PropertyName 获取属性名
+         */
+    PropertyName(): string {
+        return this.propertyName;
+    }
+
     protected target: JQuery;
 
     /**
@@ -63,6 +75,8 @@ export class View {
             console.error(`neither selector nor id is set!`);
         }
         if (this.target.length > 0) {
+            // 绑定成功
+            this.propertyName = this.target.attr("data-property");
             return true;
         } else {
             return false;
