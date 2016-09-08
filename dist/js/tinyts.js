@@ -12,6 +12,12 @@ define("control/view", ["require", "exports"], function (require, exports) {
         function View() {
         }
         /**
+             * PropertyName 获取属性名
+             */
+        View.prototype.PropertyName = function () {
+            return this.propertyName;
+        };
+        /**
          * SetAttr 设置属性,该属性与DOM元素无关
          * @param attrName 属性名
          * @param value 属性值
@@ -64,6 +70,8 @@ define("control/view", ["require", "exports"], function (require, exports) {
                 console.error("neither selector nor id is set!");
             }
             if (this.target.length > 0) {
+                // 绑定成功
+                this.propertyName = this.target.attr("data-property");
                 return true;
             }
             else {
@@ -219,7 +227,21 @@ define("control/button", ["require", "exports", "control/text"], function (requi
     }(text_1.TextView));
     exports.Button = Button;
 });
-define("control/input", ["require", "exports", "control/view"], function (require, exports, view_2) {
+define("control/list", ["require", "exports", "control/view"], function (require, exports, view_2) {
+    "use strict";
+    var ListView = (function (_super) {
+        __extends(ListView, _super);
+        function ListView() {
+            _super.apply(this, arguments);
+        }
+        ListView.prototype.SetData = function (data) {
+            this.mData = data;
+        };
+        return ListView;
+    }(view_2.View));
+    exports.ListView = ListView;
+});
+define("control/input", ["require", "exports", "control/view"], function (require, exports, view_3) {
     "use strict";
     /**
      * InputView 文本输入控件,作为输入框的基类
@@ -229,19 +251,6 @@ define("control/input", ["require", "exports", "control/view"], function (requir
         function InputView() {
             _super.apply(this, arguments);
         }
-        /**
-         * PropertyName 获取属性名
-         */
-        InputView.prototype.PropertyName = function () {
-            return this.propertyName;
-        };
-        InputView.prototype.LoadView = function (parent) {
-            var succ = _super.prototype.LoadView.call(this);
-            if (succ) {
-                this.propertyName = this.target.attr("data-property");
-            }
-            return succ;
-        };
         /**
          * Value 取值
          */
@@ -261,22 +270,19 @@ define("control/input", ["require", "exports", "control/view"], function (requir
             this.target.val("");
         };
         return InputView;
-    }(view_2.View));
+    }(view_3.View));
     exports.InputView = InputView;
 });
-define("control/list", ["require", "exports", "control/view"], function (require, exports, view_3) {
+define("control/choice", ["require", "exports", "control/list"], function (require, exports, list_1) {
     "use strict";
-    var ListView = (function (_super) {
-        __extends(ListView, _super);
-        function ListView() {
+    var ChoiceView = (function (_super) {
+        __extends(ChoiceView, _super);
+        function ChoiceView() {
             _super.apply(this, arguments);
         }
-        ListView.prototype.SetData = function (data) {
-            this.mData = data;
-        };
-        return ListView;
-    }(view_3.View));
-    exports.ListView = ListView;
+        return ChoiceView;
+    }(list_1.ListView));
+    exports.ChoiceView = ChoiceView;
 });
 define("core/tinyts", ["require", "exports"], function (require, exports) {
     "use strict";
@@ -293,9 +299,52 @@ define("core/tinyts", ["require", "exports"], function (require, exports) {
     }
     exports.p = p;
 });
-define("model/injector", ["require", "exports"], function (require, exports) {
+define("model/injector", ["require", "exports", "control/view", "control/input", "control/choice", "control/text", "control/list"], function (require, exports, view_4, input_1, choice_1, text_2, list_2) {
     "use strict";
-    function Injector(model) {
+    /**
+     * Resolve 将model中的数据注入到context中
+     */
+    function Resolve(model, context) {
+        if (model == null) {
+            // 清空context
+            return;
+        }
+        for (var prop in context) {
+            var target = context[prop];
+            if (target instanceof view_4.View) {
+                var propName = target.PropertyName();
+                if (propName) {
+                    var value = model[propName];
+                    if (value) {
+                        // 注入
+                        if (target instanceof input_1.InputView) {
+                            target.SetValue(value);
+                        }
+                        else if (target instanceof choice_1.ChoiceView) {
+                            target.SetValue(value);
+                        }
+                        else if (target instanceof text_2.TextView) {
+                            target.SetText(value);
+                        }
+                        else if (target instanceof list_2.ListView && $.isArray(value)) {
+                            target.SetData(value);
+                        }
+                        else {
+                            console.warn(propName + " resolve failed, control type is mismatching!");
+                        }
+                    }
+                    else {
+                        console.warn(propName + " resolve failed, value invalid!");
+                    }
+                }
+            }
+        }
     }
-    exports.Injector = Injector;
+    exports.Resolve = Resolve;
+    /**
+     * Inject 将context中的control的值注入到model中
+     */
+    function Inject(context) {
+    }
+    exports.Inject = Inject;
 });
