@@ -1,5 +1,3 @@
-import {View} from './view';
-
 export class BaseVM {
 
     constructor() {
