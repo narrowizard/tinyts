@@ -1,4 +1,4 @@
-import {View} from "../core/View";
+import { View } from "../core/View";
 
 export class UEditor extends View {
     editor: UE;
@@ -9,12 +9,15 @@ export class UEditor extends View {
         this.editor = UE.getEditor(this.ViewId(), {
             initialFrameHeight: $(window).height() - 340
         });
-        //多个参数以|分割
-        var ps = param.split("|");
-        for (var i = 0; i < ps.length; i++) {
-            var temp = ps[i].split(":");
-            this.SetImageUploadParam(temp[0], temp[1]);
+        if (param) {
+            //多个参数以|分割
+            var ps = param.split("|");
+            for (var i = 0; i < ps.length; i++) {
+                var temp = ps[i].split(":");
+                this.SetImageUploadParam(temp[0], temp[1]);
+            }
         }
+
     }
 
     SetImageUploadParam(key: string, value: any) {
