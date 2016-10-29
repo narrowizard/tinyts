@@ -13,7 +13,7 @@ export class DropDownList<T extends IModel> extends ListInputView<T>{
     /**
      * SetChangeHandler 设置change事件
      */
-    SetChangeHandler(onChange: (ev: Event) => void) {
+    SetChangeHandler(onchange: (ev: Event) => void) {
         this.target.on("change", onchange);
     }
 
