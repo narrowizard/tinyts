@@ -1,4 +1,4 @@
-import {ListInputView} from '../core/ListInputView';
+import { ListInputView } from '../core/ListInputView';
 
 /**
  * DropDownList 下拉列表,请使用select元素
@@ -48,6 +48,11 @@ export class DropDownList<T extends IModel> extends ListInputView<T>{
      * SetValue 设置select的Value
      */
     SetValue(value: any) {
+        var me = this;
+        var c = Enumerable.from(this.mData).where(it => it[me.valueKey] == value).count();
+        if (c == 0) {
+            return;
+        }
         this.target.val(value);
         // 设置值后手动触发change事件
         this.Trigger("change");
