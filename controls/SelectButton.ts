@@ -58,7 +58,6 @@ export class SelectButton<T extends IModel> extends ListInputView<T>
                 me.resetStatus();
                 item[me.statusKey] = true;
                 //单选
-                me.GetChildren().removeClass(controlConfig.selectbuttonActiveClass);
                 $(p.target).addClass(controlConfig.selectbuttonActiveClass);
             }
             //注册用户自定义事件
@@ -77,6 +76,7 @@ export class SelectButton<T extends IModel> extends ListInputView<T>
         for (var i = 0; i < this.mData.length; i++) {
             this.mData[i][this.statusKey] = false;
         }
+        this.GetChildren().removeClass(controlConfig.selectbuttonActiveClass);
     }
 
     LoadView() {
