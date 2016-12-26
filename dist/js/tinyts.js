@@ -3,7 +3,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-define("control/view", ["require", "exports"], function (require, exports) {
+define("tinyts2/control/view", ["require", "exports"], function (require, exports) {
     "use strict";
     /**
      * View 控件基类
@@ -180,7 +180,7 @@ define("control/view", ["require", "exports"], function (require, exports) {
     }());
     exports.View = View;
 });
-define("control/text", ["require", "exports", "control/view"], function (require, exports, view_1) {
+define("tinyts2/control/text", ["require", "exports", "tinyts2/control/view"], function (require, exports, view_1) {
     "use strict";
     /**
      * TextView 用于文本显示的控件
@@ -190,7 +190,7 @@ define("control/text", ["require", "exports", "control/view"], function (require
     var TextView = (function (_super) {
         __extends(TextView, _super);
         function TextView() {
-            _super.apply(this, arguments);
+            return _super.apply(this, arguments) || this;
         }
         TextView.prototype.Text = function () {
             return this.target.text();
@@ -202,12 +202,12 @@ define("control/text", ["require", "exports", "control/view"], function (require
     }(view_1.View));
     exports.TextView = TextView;
 });
-define("control/button", ["require", "exports", "control/text"], function (require, exports, text_1) {
+define("tinyts2/control/button", ["require", "exports", "tinyts2/control/text"], function (require, exports, text_1) {
     "use strict";
     var Button = (function (_super) {
         __extends(Button, _super);
         function Button() {
-            _super.apply(this, arguments);
+            return _super.apply(this, arguments) || this;
         }
         /**
          * OnClick 注册点击事件
@@ -227,21 +227,151 @@ define("control/button", ["require", "exports", "control/text"], function (requi
     }(text_1.TextView));
     exports.Button = Button;
 });
-define("control/list", ["require", "exports", "control/view"], function (require, exports, view_2) {
+define("tinyts2/control/list", ["require", "exports", "tinyts2/control/view"], function (require, exports, view_2) {
     "use strict";
     var ListView = (function (_super) {
         __extends(ListView, _super);
         function ListView() {
-            _super.apply(this, arguments);
+            return _super.apply(this, arguments) || this;
         }
+        /**
+         * SetEventHandler 设置事件处理函数
+         * @param selector 选择器
+         * @param handler 事件处理函数
+         * @param event 事件名,默认为click事件
+         */
+        ListView.prototype.SetEventHandler = function (selector, handler, event) {
+            if (!this.eventHandler) {
+                this.eventHandler = [];
+            }
+            this.eventHandler.push({ selector: selector, handler: handler, event: event });
+        };
+        /**
+         * RemoveEventHandler 移除handler,在下一次刷新数据列表时不再绑定
+         * @param selector 选择器
+         */
+        ListView.prototype.RemoveEventHandler = function (selector) {
+            var temp = [];
+            for (var i = 0; i < this.eventHandler.length; i++) {
+                if (this.eventHandler[i].selector != selector) {
+                    temp.push(this.eventHandler[i]);
+                }
+            }
+            this.eventHandler = temp;
+        };
+        /**
+         * UnbindEvents 解除绑定的事件,解除已经绑定的事件
+         * 注意，使用该方法解除事件后，若刷新数据，事件依然会重新绑定
+         * @param selector 选择器
+         * @param event 事件名,若不传,则解除所有事件
+         */
+        ListView.prototype.UnbindEvents = function (selector, event) {
+            if (event) {
+                this.target.find(selector).off(event);
+            }
+            else {
+                this.target.find(selector).off();
+            }
+        };
+        /**
+         * SetData 设置数据
+         * @param data 数据
+         */
         ListView.prototype.SetData = function (data) {
+            if (!data) {
+                data = [];
+            }
             this.mData = data;
+            this.RefreshView();
+        };
+        /**
+         * RefreshView 刷新列表部分视图
+         */
+        ListView.prototype.RefreshView = function () {
+            this.ClearView();
+            if (!this.mData) {
+                return;
+            }
+            for (var i = 0; i < this.Count(); i++) {
+                this.append(this.GetView(i));
+            }
+            this.RegisterEvents();
+        };
+        /**
+         * 获取列表中某一个元素的html代码
+         * @param index 索引
+        */
+        ListView.prototype.GetView = function (index) {
+            if (!this.getTemplateView) {
+                console.error(this.id + "未定义getTemplateView方法");
+                return "";
+            }
+            return this.getTemplateView(index, this.mData[index]);
+        };
+        ;
+        /**
+         * 在列表的最后插入元素,请在子类中实现该方法
+         * @param viewString 元素的html字符串
+         */
+        ListView.prototype.append = function (viewString) {
+            this.target.append(viewString);
+        };
+        /**
+         * ClearView 清空列表部分视图
+         */
+        ListView.prototype.ClearView = function () {
+            this.target.html("");
+        };
+        /**
+         * RegisterEvents 注册列表子元素的事件
+         * 注意，手动调用该方法会在注册事件之前先解除列表原有的所有事件
+         */
+        ListView.prototype.RegisterEvents = function () {
+            if (!this.eventHandler) {
+                this.eventHandler = [];
+            }
+            //解绑事件
+            for (var i = 0; i < this.eventHandler.length; i++) {
+                this.UnbindEvents(this.eventHandler[i].selector);
+            }
+            //绑定事件
+            for (var i = 0; i < this.eventHandler.length; i++) {
+                var targetView = this.target.find(this.eventHandler[i].selector);
+                if (this.eventHandler[i].event) {
+                    targetView.on(this.eventHandler[i].event, this.eventHandler[i].handler);
+                }
+                else {
+                    targetView.click(this.eventHandler[i].handler);
+                }
+            }
+        };
+        /**
+         * Count 获取列表长度
+         */
+        ListView.prototype.Count = function () {
+            return this.mData.length;
+        };
+        /**
+         * Add 添加数据，该方法不会刷新整个列表
+         * @param model 待添加的数据
+         */
+        ListView.prototype.Add = function () {
+            var model = [];
+            for (var _i = 0; _i < arguments.length; _i++) {
+                model[_i] = arguments[_i];
+            }
+            (_a = this.mData).push.apply(_a, model);
+            var c = model.length;
+            for (var i = 0; i < c; i++) {
+                this.append(this.GetView(this.Count() - c + i));
+            }
+            var _a;
         };
         return ListView;
     }(view_2.View));
     exports.ListView = ListView;
 });
-define("control/input", ["require", "exports", "control/view"], function (require, exports, view_3) {
+define("tinyts2/control/input", ["require", "exports", "tinyts2/control/view"], function (require, exports, view_3) {
     "use strict";
     /**
      * InputView 文本输入控件,作为输入框的基类
@@ -249,7 +379,7 @@ define("control/input", ["require", "exports", "control/view"], function (requir
     var InputView = (function (_super) {
         __extends(InputView, _super);
         function InputView() {
-            _super.apply(this, arguments);
+            return _super.apply(this, arguments) || this;
         }
         /**
          * Value 取值
@@ -273,18 +403,29 @@ define("control/input", ["require", "exports", "control/view"], function (requir
     }(view_3.View));
     exports.InputView = InputView;
 });
-define("control/choice", ["require", "exports", "control/list"], function (require, exports, list_1) {
+define("tinyts2/control/choice", ["require", "exports", "tinyts2/control/list"], function (require, exports, list_1) {
     "use strict";
     var ChoiceView = (function (_super) {
         __extends(ChoiceView, _super);
         function ChoiceView() {
-            _super.apply(this, arguments);
+            return _super.apply(this, arguments) || this;
         }
         return ChoiceView;
     }(list_1.ListView));
     exports.ChoiceView = ChoiceView;
 });
-define("core/tinyts", ["require", "exports"], function (require, exports) {
+define("tinyts2/control/table", ["require", "exports", "tinyts2/control/list"], function (require, exports, list_2) {
+    "use strict";
+    var Table = (function (_super) {
+        __extends(Table, _super);
+        function Table() {
+            return _super.apply(this, arguments) || this;
+        }
+        return Table;
+    }(list_2.ListView));
+    exports.Table = Table;
+});
+define("tinyts2/core/tinyts", ["require", "exports"], function (require, exports) {
     "use strict";
     var BaseVM = (function () {
         function BaseVM() {
@@ -299,14 +440,36 @@ define("core/tinyts", ["require", "exports"], function (require, exports) {
     }
     exports.p = p;
 });
-define("model/injector", ["require", "exports", "control/view", "control/input", "control/choice", "control/text", "control/list"], function (require, exports, view_4, input_1, choice_1, text_2, list_2) {
+define("tinyts2/model/injector", ["require", "exports", "tinyts2/control/view", "tinyts2/control/input", "tinyts2/control/choice", "tinyts2/control/text", "tinyts2/control/list"], function (require, exports, view_4, input_1, choice_1, text_2, list_3) {
     "use strict";
     /**
      * Resolve 将model中的数据注入到context中
+     * @param context 控件上下文
+     * @param model 注入模型,若为null,则清空context中的控件
      */
-    function Resolve(model, context) {
+    function Resolve(context, model) {
         if (model == null) {
             // 清空context
+            for (var prop in context) {
+                var target = context[prop];
+                if (target instanceof view_4.View) {
+                    var propName = target.PropertyName();
+                    if (propName) {
+                        if (target instanceof input_1.InputView || target instanceof choice_1.ChoiceView) {
+                            target.Clear();
+                        }
+                        else if (target instanceof text_2.TextView) {
+                            target.SetText("");
+                        }
+                        else if (target instanceof list_3.ListView) {
+                            target.SetData([]);
+                        }
+                        else {
+                            console.warn(propName + " clear failed, missing clear method!");
+                        }
+                    }
+                }
+            }
             return;
         }
         for (var prop in context) {
@@ -317,16 +480,13 @@ define("model/injector", ["require", "exports", "control/view", "control/input",
                     var value = model[propName];
                     if (value) {
                         // 注入
-                        if (target instanceof input_1.InputView) {
-                            target.SetValue(value);
-                        }
-                        else if (target instanceof choice_1.ChoiceView) {
+                        if (target instanceof input_1.InputView || target instanceof choice_1.ChoiceView) {
                             target.SetValue(value);
                         }
                         else if (target instanceof text_2.TextView) {
                             target.SetText(value);
                         }
-                        else if (target instanceof list_2.ListView && $.isArray(value)) {
+                        else if (target instanceof list_3.ListView && $.isArray(value)) {
                             target.SetData(value);
                         }
                         else {

@@ -5,6 +5,7 @@
         "moduleResolution": "node",
         "target": "es5",
         "module": "amd",
-        "outFile": "dist/js/tinyts.js"
+        "outFile": "dist/js/tinyts.js",
+        "rootDir": ".."
     }
 }
