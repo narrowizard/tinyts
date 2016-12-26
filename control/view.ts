@@ -8,6 +8,9 @@ export class View {
     // 该属性用于解决虚拟视图被多次引用时产生的id冲突问题
     protected selector: string;
 
+    // 该属性标志了当前的view是否绑定了多个元素,默认false
+    protected multipart: boolean;
+
     /**
      * propertyName 属性名(用于注入)
      */
@@ -74,9 +77,23 @@ export class View {
         } else {
             console.error(`neither selector nor id is set!`);
         }
-        if (this.target.length > 0) {
+        var matchedElementLength = this.target.length;
+        if (matchedElementLength > 0) {
             // 绑定成功
             this.propertyName = this.target.attr("data-property");
+            if (matchedElementLength > 1) {
+                // 绑定了多个元素
+                this.multipart = true;
+                // 检测每个元素的propertyName是否一致
+                for (var i = 1; i < matchedElementLength; i++) {
+                    if (this.propertyName != this.target.eq(i).attr("data-property")) {
+                        console.warn(`${this.propertyName} mismatched the ${i} element. you cannot use injector with this view any more.`);
+                        // 不一致,忽略
+                        this.propertyName = null;
+                        break;
+                    }
+                }
+            }
             return true;
         } else {
             return false;
@@ -112,9 +129,21 @@ export class View {
     /**
      * Trigger 触发指定的事件
      * @param eventName 事件名称
+     * @param index optional 当view处于多个dom绑定模式时,指定触发哪个元素的事件,不传则默认触发第一个元素的事件,传-1则触发所有元素的事件.
      */
-    Trigger(eventName: string) {
-        this.target.trigger(eventName);
+    Trigger(eventName: string, index?: number) {
+        if (this.multipart) {
+            if (index == -1) {
+                this.target.trigger(eventName);
+                return;
+            }
+            if (index == null) {
+                index = 0;
+            }
+            this.target.eq(index).trigger(eventName);
+        } else {
+            this.target.trigger(eventName);
+        }
     }
 
     /**
@@ -141,7 +170,7 @@ export class View {
     }
 
     /**
-     * SetClass 移除class
+     * RemoveClass 移除class
      * @param className
      * @param selector:该View的子元素选择器
      */
