@@ -5,18 +5,26 @@ import { Inject } from '../model/injector';
  */
 export abstract class B {
 
+    // hooks
+    BeforeInject() { }
+
+    AfterInject() { }
+
     constructor() {
+        this.BeforeInject();
         i(this.constructor, this);
+        this.AfterInject();
     }
 
-    abstract RegisterEvents();
+
 }
 
 /**
  * v decorator 用于标记一个通过ID绑定的View
  * @param c View的构造函数
+ * @param selector 选择器
  */
-export function v(c: { new (...args: any[]): View }) {
+export function v(c: { new (...args: any[]): View }, selector?: string) {
     /**
      * 该函数运行在ViewModel上
      * @param target ViewModel实例
@@ -36,10 +44,19 @@ export function v(c: { new (...args: any[]): View }) {
                 constructor: target.constructor
             };
         }
+        if (!targetType[`__inject__`][name]["views"]) {
+            targetType[`__inject__`][name]["views"] = [];
+        }
 
-        targetType[`__inject__`][name][decoratedPropertyName] = c;
+        var temp = new injectModel();
+        temp.creator = c;
+        temp.propertyName = decoratedPropertyName;
+        temp.selector = selector == null ? `#${decoratedPropertyName}` : selector;
+
+        targetType[`__inject__`][name]["views"].push(temp);
     };
 }
+
 
 /**
  * decorator 用于标记一个通过ID绑定的ViewGroup
@@ -60,20 +77,31 @@ function i(c: Function, instance: B) {
             // 查找构造函数
             var temp = injector[i];
             if (instance instanceof temp["constructor"]) {
-                for (var injectionPoint in temp) {
-                    // 注入
-                    if (injectionPoint == "constructor") {
-                        continue;
-                    }
-                    var viewInstance = new temp[injectionPoint]();
+                var views: injectModel[] = temp["views"];
+                for (var j = 0; j < views.length; j++) {
+                    var view = views[j];
+                    var viewInstance = new view.creator();
                     if (viewInstance instanceof View) {
-                        viewInstance.SetID(injectionPoint);
+                        viewInstance.SetSelector(view.selector);
                         viewInstance.LoadView();
                     }
-                    instance[injectionPoint] = viewInstance;
+                    instance[view.propertyName] = viewInstance;
                 }
+                break;
             }
         }
     }
-    instance.RegisterEvents();
+
+}
+
+/**
+ * injectModel 注入模型
+ */
+class injectModel {
+
+    propertyName: string;
+
+    selector: string;
+
+    creator: { new (...args: any[]): View };
 }

@@ -1,0 +1,10 @@
+{
+    "compilerOptions": {
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "moduleResolution": "node",
+        "target": "es5",
+        "module": "amd",
+        "outFile": "viewmodels/test.js"
+    }
+}

@@ -9,6 +9,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
 define("control/view", ["require", "exports"], function (require, exports) {
     "use strict";
     /**
@@ -497,16 +500,22 @@ define("core/tinyts", ["require", "exports", "control/view"], function (require,
      */
     var B = (function () {
         function B() {
+            this.BeforeInject();
             i(this.constructor, this);
+            this.AfterInject();
         }
+        // hooks
+        B.prototype.BeforeInject = function () { };
+        B.prototype.AfterInject = function () { };
         return B;
     }());
     exports.B = B;
     /**
      * v decorator 用于标记一个通过ID绑定的View
      * @param c View的构造函数
+     * @param selector 选择器
      */
-    function v(c) {
+    function v(c, selector) {
         /**
          * 该函数运行在ViewModel上
          * @param target ViewModel实例
@@ -524,7 +533,14 @@ define("core/tinyts", ["require", "exports", "control/view"], function (require,
                     constructor: target.constructor
                 };
             }
-            targetType["__inject__"][name][decoratedPropertyName] = c;
+            if (!targetType["__inject__"][name]["views"]) {
+                targetType["__inject__"][name]["views"] = [];
+            }
+            var temp = new injectModel();
+            temp.creator = c;
+            temp.propertyName = decoratedPropertyName;
+            temp.selector = selector == null ? "#" + decoratedPropertyName : selector;
+            targetType["__inject__"][name]["views"].push(temp);
         };
     }
     exports.v = v;
@@ -546,23 +562,29 @@ define("core/tinyts", ["require", "exports", "control/view"], function (require,
                 // 查找构造函数
                 var temp = injector[i];
                 if (instance instanceof temp["constructor"]) {
-                    for (var injectionPoint in temp) {
-                        // 注入
-                        if (injectionPoint == "constructor") {
-                            continue;
-                        }
-                        var viewInstance = new temp[injectionPoint]();
+                    var views = temp["views"];
+                    for (var j = 0; j < views.length; j++) {
+                        var view = views[j];
+                        var viewInstance = new view.creator();
                         if (viewInstance instanceof view_5.View) {
-                            viewInstance.SetID(injectionPoint);
+                            viewInstance.SetSelector(view.selector);
                             viewInstance.LoadView();
                         }
-                        instance[injectionPoint] = viewInstance;
+                        instance[view.propertyName] = viewInstance;
                     }
+                    break;
                 }
             }
         }
-        instance.RegisterEvents();
     }
+    /**
+     * injectModel 注入模型
+     */
+    var injectModel = (function () {
+        function injectModel() {
+        }
+        return injectModel;
+    }());
 });
 define("application/viewmodels/test", ["require", "exports", "core/tinyts", "control/view"], function (require, exports, tinyts_1, view_6) {
     "use strict";
@@ -571,13 +593,14 @@ define("application/viewmodels/test", ["require", "exports", "core/tinyts", "con
         function TestModel() {
             return _super.apply(this, arguments) || this;
         }
-        TestModel.prototype.RegisterEvents = function () {
-            this.text.Focus();
+        TestModel.prototype.AfterInject = function () {
+            this.text.SetStyle("color", "red");
         };
         return TestModel;
     }(tinyts_1.B));
     __decorate([
-        tinyts_1.v(view_6.View)
-    ], TestModel.prototype, "text");
+        tinyts_1.v(view_6.View),
+        __metadata("design:type", view_6.View)
+    ], TestModel.prototype, "text", void 0);
     exports.TestModel = TestModel;
 });

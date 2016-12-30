@@ -3,10 +3,10 @@ import { View } from '../../control/view';
 
 export class TestModel extends B {
 
-    @v(View)
+    @v(View, ".red")
     text: View;
 
-    RegisterEvents() {
-        this.text.Focus();
+    AfterInject() {
+        this.text.SetStyle("color", "red");
     }
 }
