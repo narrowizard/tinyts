@@ -83,6 +83,7 @@ function i(c: Function, instance: B) {
                     var viewInstance = new view.creator();
                     if (viewInstance instanceof View) {
                         viewInstance.SetSelector(view.selector);
+                        viewInstance.SetName(view.propertyName);
                         viewInstance.LoadView();
                     }
                     instance[view.propertyName] = viewInstance;

@@ -15,14 +15,26 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 define("control/view", ["require", "exports"], function (require, exports) {
     "use strict";
     /**
-     * View 控件基类
+     * View 视图基类
      */
     var View = (function () {
         function View() {
         }
         /**
-             * PropertyName 获取属性名
-             */
+         * Name 设置当前视图在viewmodel的属性名
+         */
+        View.prototype.SetName = function (name) {
+            this.name = name;
+        };
+        /**
+         * Name 返回当前视图在viewmodel的属性名
+         */
+        View.prototype.Name = function () {
+            return name;
+        };
+        /**
+         * PropertyName 获取属性名
+         */
         View.prototype.PropertyName = function () {
             return this.propertyName;
         };
@@ -41,20 +53,14 @@ define("control/view", ["require", "exports"], function (require, exports) {
             return this.target.data(attrName);
         };
         /**
-         * SetID 设置控件标识符
-         */
-        View.prototype.SetID = function (id) {
-            this.id = id;
-        };
-        /**
-         * SetSelector 设置控件选择器
+         * SetSelector 设置视图选择器
          */
         View.prototype.SetSelector = function (selector) {
             this.selector = selector;
         };
         /**
-         * LoadView 建立控件与DOM之间的关联关系
-         * 初始化控件属性
+         * LoadView 建立视图与DOM之间的关联关系
+         * 初始化视图属性
          * @param parent JQuery对象或选择器 父元素,若指定该参数,则元素查找范围限制在父元素内
          */
         View.prototype.LoadView = function (parent) {
@@ -72,11 +78,8 @@ define("control/view", ["require", "exports"], function (require, exports) {
                     this.target = $(this.selector);
                 }
             }
-            else if (this.id) {
-                this.target = $("#" + this.id);
-            }
             else {
-                console.error("neither selector nor id is set!");
+                console.warn("[view]" + this.name + " has not set selector!");
             }
             var matchedElementLength = this.target.length;
             if (matchedElementLength > 0) {
@@ -88,7 +91,7 @@ define("control/view", ["require", "exports"], function (require, exports) {
                     // 检测每个元素的propertyName是否一致
                     for (var i = 1; i < matchedElementLength; i++) {
                         if (this.propertyName != this.target.eq(i).attr("data-property")) {
-                            console.warn(this.propertyName + " mismatched the " + i + " element. you cannot use injector with this view any more.");
+                            console.warn("[view]" + this.propertyName + " mismatched the " + i + " element. you cannot use injector with this view any more.");
                             // 不一致,忽略
                             this.propertyName = null;
                             break;
@@ -98,6 +101,8 @@ define("control/view", ["require", "exports"], function (require, exports) {
                 return true;
             }
             else {
+                console.trace("[view]" + this.name + " bind null html element!");
+                console.warn("[view]" + this.name + " bind null html element!");
                 return false;
             }
         };
@@ -105,7 +110,7 @@ define("control/view", ["require", "exports"], function (require, exports) {
          * GetJQueryInstance 获取jquery对象
          */
         View.prototype.GetJQueryInstance = function () {
-            console.warn("jquery instance is deprecated to use.");
+            console.warn("[view]jquery instance is deprecated to use.");
             return this.target;
         };
         /**
@@ -115,7 +120,7 @@ define("control/view", ["require", "exports"], function (require, exports) {
             this.target.focus();
         };
         /**
-         * On 注册控件事件
+         * On 注册视图事件
          * @param eventName:事件名称
          * @param handler: 事件处理函数
          */
@@ -201,13 +206,13 @@ define("control/view", ["require", "exports"], function (require, exports) {
             }
         };
         /**
-         * Disable 设置控件为不可用(仅支持disabled属性的元素有效)
+         * Disable 设置视图为不可用(仅支持disabled属性的元素有效)
          */
         View.prototype.Disable = function () {
             this.target.attr("disabled", "true");
         };
         /**
-         * Enable 设置控件为可用(仅支持disabled属性的元素有效)
+         * Enable 设置视图为可用(仅支持disabled属性的元素有效)
          */
         View.prototype.Enable = function () {
             this.target.removeAttr("disabled");
@@ -568,6 +573,7 @@ define("core/tinyts", ["require", "exports", "control/view"], function (require,
                         var viewInstance = new view.creator();
                         if (viewInstance instanceof view_5.View) {
                             viewInstance.SetSelector(view.selector);
+                            viewInstance.SetName(view.propertyName);
                             viewInstance.LoadView();
                         }
                         instance[view.propertyName] = viewInstance;
@@ -599,7 +605,7 @@ define("application/viewmodels/test", ["require", "exports", "core/tinyts", "con
         return TestModel;
     }(tinyts_1.B));
     __decorate([
-        tinyts_1.v(view_6.View),
+        tinyts_1.v(view_6.View, ".red"),
         __metadata("design:type", view_6.View)
     ], TestModel.prototype, "text", void 0);
     exports.TestModel = TestModel;

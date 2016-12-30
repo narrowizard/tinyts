@@ -1,9 +1,24 @@
 /**
- * View 控件基类
+ * View 视图基类
  */
 export class View {
 
-    protected id: string;
+    // name 当前视图在viewmodel的属性名
+    protected name: string;
+
+    /**
+     * Name 设置当前视图在viewmodel的属性名
+     */
+    SetName(name: string) {
+        this.name = name;
+    }
+
+    /**
+     * Name 返回当前视图在viewmodel的属性名
+     */
+    Name(): string {
+        return name;
+    }
 
     // 该属性用于解决虚拟视图被多次引用时产生的id冲突问题
     protected selector: string;
@@ -17,8 +32,8 @@ export class View {
     protected propertyName: string;
 
     /**
-         * PropertyName 获取属性名
-         */
+     * PropertyName 获取属性名
+     */
     PropertyName(): string {
         return this.propertyName;
     }
@@ -42,22 +57,15 @@ export class View {
     }
 
     /**
-     * SetID 设置控件标识符
-     */
-    SetID(id: string) {
-        this.id = id;
-    }
-
-    /**
-     * SetSelector 设置控件选择器
+     * SetSelector 设置视图选择器
      */
     SetSelector(selector: string) {
         this.selector = selector;
     }
 
     /**
-     * LoadView 建立控件与DOM之间的关联关系
-     * 初始化控件属性
+     * LoadView 建立视图与DOM之间的关联关系
+     * 初始化视图属性
      * @param parent JQuery对象或选择器 父元素,若指定该参数,则元素查找范围限制在父元素内
      */
     LoadView(parent?: JQuery | string): boolean {
@@ -72,10 +80,8 @@ export class View {
             } else {
                 this.target = $(this.selector);
             }
-        } else if (this.id) {
-            this.target = $(`#${this.id}`);
         } else {
-            console.error(`neither selector nor id is set!`);
+            console.warn(`[view]${this.name} has not set selector!`);
         }
         var matchedElementLength = this.target.length;
         if (matchedElementLength > 0) {
@@ -87,7 +93,7 @@ export class View {
                 // 检测每个元素的propertyName是否一致
                 for (var i = 1; i < matchedElementLength; i++) {
                     if (this.propertyName != this.target.eq(i).attr("data-property")) {
-                        console.warn(`${this.propertyName} mismatched the ${i} element. you cannot use injector with this view any more.`);
+                        console.warn(`[view]${this.propertyName} mismatched the ${i} element. you cannot use injector with this view any more.`);
                         // 不一致,忽略
                         this.propertyName = null;
                         break;
@@ -96,6 +102,7 @@ export class View {
             }
             return true;
         } else {
+            console.warn(`[view]${this.name} bind null html element!`);
             return false;
         }
     }
@@ -104,7 +111,7 @@ export class View {
      * GetJQueryInstance 获取jquery对象
      */
     GetJQueryInstance(): JQuery {
-        console.warn("jquery instance is deprecated to use.")
+        console.warn("[view]jquery instance is deprecated to use.")
         return this.target;
     }
 
@@ -116,7 +123,7 @@ export class View {
     }
 
     /**
-     * On 注册控件事件
+     * On 注册视图事件
      * @param eventName:事件名称
      * @param handler: 事件处理函数
      */
@@ -205,14 +212,14 @@ export class View {
     }
 
     /**
-     * Disable 设置控件为不可用(仅支持disabled属性的元素有效)
+     * Disable 设置视图为不可用(仅支持disabled属性的元素有效)
      */
     Disable() {
         this.target.attr("disabled", "true");
     }
 
     /**
-     * Enable 设置控件为可用(仅支持disabled属性的元素有效)
+     * Enable 设置视图为可用(仅支持disabled属性的元素有效)
      */
     Enable() {
         this.target.removeAttr("disabled");
