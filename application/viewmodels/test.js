@@ -101,7 +101,6 @@ define("control/view", ["require", "exports"], function (require, exports) {
                 return true;
             }
             else {
-                console.trace("[view]" + this.name + " bind null html element!");
                 console.warn("[view]" + this.name + " bind null html element!");
                 return false;
             }
@@ -217,9 +216,47 @@ define("control/view", ["require", "exports"], function (require, exports) {
         View.prototype.Enable = function () {
             this.target.removeAttr("disabled");
         };
+        /**
+         * Inject 注入
+         */
+        View.prototype.Inject = function (parent) {
+            var c = this.constructor;
+            var instance = this;
+            var injector = c["__inject__"];
+            if (injector) {
+                for (var i in injector) {
+                    // 查找构造函数
+                    var temp = injector[i];
+                    if (instance instanceof temp["constructor"]) {
+                        var views = temp["views"];
+                        for (var j = 0; j < views.length; j++) {
+                            var view = views[j];
+                            var viewInstance = new view.creator();
+                            if (viewInstance instanceof View) {
+                                viewInstance.SetSelector(view.selector);
+                                viewInstance.SetName(view.propertyName);
+                                viewInstance.LoadView(parent);
+                                viewInstance.Inject(this.selector);
+                            }
+                            instance[view.propertyName] = viewInstance;
+                        }
+                        break;
+                    }
+                }
+            }
+        };
         return View;
     }());
     exports.View = View;
+    /**
+     * injectModel 注入模型
+     */
+    var injectModel = (function () {
+        function injectModel() {
+        }
+        return injectModel;
+    }());
+    exports.injectModel = injectModel;
 });
 define("control/input", ["require", "exports", "control/view"], function (require, exports, view_1) {
     "use strict";
@@ -501,20 +538,28 @@ define("model/injector", ["require", "exports", "control/view", "control/input",
 define("core/tinyts", ["require", "exports", "control/view"], function (require, exports, view_5) {
     "use strict";
     /**
-     * B BaseViewModel ViewModel的基类，该类实现了DOM元素的依赖注入
+     * AncView 祖先视图,继承该视图指示tinyts托管的内容
      */
-    var B = (function () {
-        function B() {
-            this.BeforeInject();
-            i(this.constructor, this);
-            this.AfterInject();
+    var AncView = (function (_super) {
+        __extends(AncView, _super);
+        function AncView() {
+            var _this = _super.call(this) || this;
+            // 绑定该视图
+            var viewId = _this.constructor.toString().match(/^function\s*([^\s(]+)/)[1];
+            _this.SetSelector("#" + viewId);
+            _this.SetName(viewId);
+            _this.LoadView();
+            _this.BeforeInject();
+            _this.Inject(_this.selector);
+            _this.AfterInject();
+            return _this;
         }
         // hooks
-        B.prototype.BeforeInject = function () { };
-        B.prototype.AfterInject = function () { };
-        return B;
-    }());
-    exports.B = B;
+        AncView.prototype.BeforeInject = function () { };
+        AncView.prototype.AfterInject = function () { };
+        return AncView;
+    }(view_5.View));
+    exports.AncView = AncView;
     /**
      * v decorator 用于标记一个通过ID绑定的View
      * @param c View的构造函数
@@ -541,7 +586,7 @@ define("core/tinyts", ["require", "exports", "control/view"], function (require,
             if (!targetType["__inject__"][name]["views"]) {
                 targetType["__inject__"][name]["views"] = [];
             }
-            var temp = new injectModel();
+            var temp = new view_5.injectModel();
             temp.creator = c;
             temp.propertyName = decoratedPropertyName;
             temp.selector = selector == null ? "#" + decoratedPropertyName : selector;
@@ -549,64 +594,33 @@ define("core/tinyts", ["require", "exports", "control/view"], function (require,
         };
     }
     exports.v = v;
-    /**
-     * decorator 用于标记一个通过ID绑定的ViewGroup
-     */
-    function p() {
-    }
-    exports.p = p;
-    /**
-     * i inject 注入
-     * @param c vm的构造函数
-     * @param instance vm实例
-     */
-    function i(c, instance) {
-        var injector = c["__inject__"];
-        if (injector) {
-            for (var i in injector) {
-                // 查找构造函数
-                var temp = injector[i];
-                if (instance instanceof temp["constructor"]) {
-                    var views = temp["views"];
-                    for (var j = 0; j < views.length; j++) {
-                        var view = views[j];
-                        var viewInstance = new view.creator();
-                        if (viewInstance instanceof view_5.View) {
-                            viewInstance.SetSelector(view.selector);
-                            viewInstance.SetName(view.propertyName);
-                            viewInstance.LoadView();
-                        }
-                        instance[view.propertyName] = viewInstance;
-                    }
-                    break;
-                }
-            }
-        }
-    }
-    /**
-     * injectModel 注入模型
-     */
-    var injectModel = (function () {
-        function injectModel() {
-        }
-        return injectModel;
-    }());
 });
 define("application/viewmodels/test", ["require", "exports", "core/tinyts", "control/view"], function (require, exports, tinyts_1, view_6) {
     "use strict";
+    var VG = (function (_super) {
+        __extends(VG, _super);
+        function VG() {
+            return _super.apply(this, arguments) || this;
+        }
+        return VG;
+    }(view_6.View));
+    __decorate([
+        tinyts_1.v(view_6.View, ".red"),
+        __metadata("design:type", view_6.View)
+    ], VG.prototype, "text", void 0);
     var TestModel = (function (_super) {
         __extends(TestModel, _super);
         function TestModel() {
             return _super.apply(this, arguments) || this;
         }
         TestModel.prototype.AfterInject = function () {
-            this.text.SetStyle("color", "red");
+            this.vg.text.SetStyle("color", "red");
         };
         return TestModel;
-    }(tinyts_1.B));
+    }(tinyts_1.AncView));
     __decorate([
-        tinyts_1.v(view_6.View, ".red"),
-        __metadata("design:type", view_6.View)
-    ], TestModel.prototype, "text", void 0);
+        tinyts_1.v(VG),
+        __metadata("design:type", VG)
+    ], TestModel.prototype, "vg", void 0);
     exports.TestModel = TestModel;
 });

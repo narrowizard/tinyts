@@ -1,7 +1,37 @@
 /**
+ * injectModel 注入模型
+ */
+export class injectModel {
+
+    propertyName: string;
+
+    selector: string;
+
+    creator: { new (...args: any[]): View };
+}
+
+enum ViewState {
+    /**
+     * UNLOAD 尚未加载(未调用LoadView)
+     */
+    UNLOAD,
+    /**
+     * LOADSUCC 加载成功,这时候可以通过View.IsMultiparted获取该视图是否绑定多个元素
+     */
+    LOADSUCC,
+    /**
+     * LOADFAIL 调用了LoadView,但是加载失败了
+     */
+    LOADFAIL
+}
+
+/**
  * View 视图基类
  */
 export class View {
+
+    // state 视图当前状态
+    protected state: ViewState;
 
     // name 当前视图在viewmodel的属性名
     protected name: string;
@@ -25,6 +55,10 @@ export class View {
 
     // 该属性标志了当前的view是否绑定了多个元素,默认false
     protected multipart: boolean;
+
+    IsMultiparted() {
+        return this.multipart;
+    }
 
     /**
      * propertyName 属性名(用于注入)
@@ -85,6 +119,7 @@ export class View {
         }
         var matchedElementLength = this.target.length;
         if (matchedElementLength > 0) {
+            this.state = ViewState.LOADSUCC;
             // 绑定成功
             this.propertyName = this.target.attr("data-property");
             if (matchedElementLength > 1) {
@@ -102,6 +137,7 @@ export class View {
             }
             return true;
         } else {
+            this.state = ViewState.LOADFAIL;
             console.warn(`[view]${this.name} bind null html element!`);
             return false;
         }
@@ -225,4 +261,42 @@ export class View {
         this.target.removeAttr("disabled");
     }
 
+    /**
+     * Inject 将@v装饰的属性注入到View中,
+     * 当当前视图绑定DOM元素成功,并且是单元素绑定模式时,下一级注入会限制在当前DOM元素之内进行
+     */
+    protected Inject() {
+        var c = this.constructor;
+        var instance = this;
+
+        var injector = c["__inject__"];
+        if (injector) {
+            for (var i in injector) {
+                // 查找构造函数
+                var temp = injector[i];
+                if (instance instanceof temp["constructor"]) {
+                    var views: injectModel[] = temp["views"];
+                    for (var j = 0; j < views.length; j++) {
+                        var view = views[j];
+                        var viewInstance = new view.creator();
+                        if (viewInstance instanceof View) {
+                            viewInstance.SetSelector(view.selector);
+                            viewInstance.SetName(view.propertyName);
+                            // 检测当前视图是否存在,如果不存在,则不限制下一级视图注入时的parent属性
+                            if (this.state == ViewState.LOADSUCC && !this.multipart) {
+                                viewInstance.LoadView(this.selector);
+                            } else {
+                                viewInstance.LoadView();
+                            }
+                            viewInstance.Inject();
+                        }
+                        instance[view.propertyName] = viewInstance;
+                    }
+                    break;
+                }
+            }
+        }
+
+    }
 }
+

@@ -1,9 +1,10 @@
-import { View } from '../control/view';
+import { View, injectModel } from '../control/view';
 import { Inject } from '../model/injector';
+
 /**
- * B BaseViewModel ViewModel的基类，该类实现了DOM元素的依赖注入
+ * AncView 祖先视图,继承该视图指示tinyts托管的内容
  */
-export abstract class B {
+export class AncView extends View {
 
     // hooks
     BeforeInject() { }
@@ -11,11 +12,17 @@ export abstract class B {
     AfterInject() { }
 
     constructor() {
+        super();
+        // 绑定该视图
+        var viewId = this.constructor.toString().match(/^function\s*([^\s(]+)/)[1];
+        this.SetSelector(`#${viewId}`);
+        this.SetName(viewId);
+        this.LoadView();
+
         this.BeforeInject();
-        i(this.constructor, this);
+        this.Inject();
         this.AfterInject();
     }
-
 
 }
 
@@ -30,7 +37,7 @@ export function v(c: { new (...args: any[]): View }, selector?: string) {
      * @param target ViewModel实例
      * @param decoratedPropertyName 属性名
      */
-    return (target: B, decoratedPropertyName: string) => {
+    return (target: View, decoratedPropertyName: string) => {
         const targetType: { __inject__?: Object } = target.constructor;
         // 目标viewmodel的名称
         var name = target.constructor.toString().match(/^function\s*([^\s(]+)/)[1];
@@ -55,54 +62,4 @@ export function v(c: { new (...args: any[]): View }, selector?: string) {
 
         targetType[`__inject__`][name]["views"].push(temp);
     };
-}
-
-
-/**
- * decorator 用于标记一个通过ID绑定的ViewGroup
- */
-export function p() {
-
-}
-
-/**
- * i inject 注入
- * @param c vm的构造函数
- * @param instance vm实例
- */
-function i(c: Function, instance: B) {
-    var injector = c["__inject__"];
-    if (injector) {
-        for (var i in injector) {
-            // 查找构造函数
-            var temp = injector[i];
-            if (instance instanceof temp["constructor"]) {
-                var views: injectModel[] = temp["views"];
-                for (var j = 0; j < views.length; j++) {
-                    var view = views[j];
-                    var viewInstance = new view.creator();
-                    if (viewInstance instanceof View) {
-                        viewInstance.SetSelector(view.selector);
-                        viewInstance.SetName(view.propertyName);
-                        viewInstance.LoadView();
-                    }
-                    instance[view.propertyName] = viewInstance;
-                }
-                break;
-            }
-        }
-    }
-
-}
-
-/**
- * injectModel 注入模型
- */
-class injectModel {
-
-    propertyName: string;
-
-    selector: string;
-
-    creator: { new (...args: any[]): View };
 }

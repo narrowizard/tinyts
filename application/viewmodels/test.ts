@@ -1,12 +1,19 @@
-import { B, v } from '../../core/tinyts';
+import { v, AncView } from '../../core/tinyts';
 import { View } from '../../control/view';
 
-export class TestModel extends B {
+class VG extends View {
 
     @v(View, ".red")
     text: View;
+}
+
+export class TestModel extends AncView {
+
+    @v(VG)
+    vg: VG;
 
     AfterInject() {
-        this.text.SetStyle("color", "red");
+        this.vg.text.SetStyle("color", "red");
     }
 }
+
