@@ -1,4 +1,4 @@
-import { View } from '../control/view';
+import { View } from './view';
 /**
  * ValueContainer 依赖注入容器
  */

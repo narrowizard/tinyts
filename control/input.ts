@@ -1,4 +1,4 @@
-import { View } from './view';
+import { View } from '../core/view';
 
 /**
  * InputView 文本输入控件,作为输入框的基类

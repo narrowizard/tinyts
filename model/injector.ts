@@ -1,8 +1,8 @@
-import { View } from './../control/view';
 import { InputView } from './../control/input';
 import { ChoiceView } from './../control/choice';
 import { TextView } from './../control/text';
 import { ListView } from './../control/list';
+import { View } from '../core/view';
 
 /**
  * Resolve 将model中的数据注入到context中

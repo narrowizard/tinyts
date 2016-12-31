@@ -10,7 +10,7 @@ export class injectModel {
     creator: { new (...args: any[]): View };
 }
 
-enum ViewState {
+export enum ViewState {
     /**
      * UNLOAD 尚未加载(未调用LoadView)
      */
@@ -266,6 +266,7 @@ export class View {
      * 当当前视图绑定DOM元素成功,并且是单元素绑定模式时,下一级注入会限制在当前DOM元素之内进行
      */
     protected Inject() {
+        this.BeforeInject();
         var c = this.constructor;
         var instance = this;
 
@@ -288,6 +289,12 @@ export class View {
                             } else {
                                 viewInstance.LoadView();
                             }
+                            if (viewInstance instanceof ViewG) {
+                                viewInstance.SetContext(this);
+                            }
+                            if (viewInstance instanceof ViewV) {
+                                viewInstance.SetTemplateView();
+                            }
                             viewInstance.Inject();
                         }
                         instance[view.propertyName] = viewInstance;
@@ -296,7 +303,36 @@ export class View {
                 }
             }
         }
+        this.AfterInject();
+    }
 
+    // hooks
+    BeforeInject() { }
+
+    AfterInject() { }
+}
+
+export class ViewG<T> extends View {
+
+    protected context: T;
+
+    SetContext(context: T) {
+        this.context = context;
     }
 }
 
+export abstract class ViewV<T> extends ViewG<T> {
+
+    /**
+     * GetViewString 获取虚拟视图的html string
+     */
+    abstract GetViewString(): string;
+
+    /**
+     * SetTemplateView 设置虚拟视图的html string,渲染到DOM中
+     */
+    SetTemplateView() {
+        this.target.html(this.GetViewString());
+    }
+
+}

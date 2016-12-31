@@ -1,4 +1,4 @@
-import { View } from './view';
+import { View } from '../core/view';
 
 /**
  * TextView 用于文本显示的控件

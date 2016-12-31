@@ -1,10 +1,24 @@
 import { v, AncView } from '../../core/tinyts';
-import { View } from '../../control/view';
+import { View, ViewG, ViewV } from '../../core/view';
 
-class VG extends View {
+interface VGContext {
+    Log: () => void;
+}
+
+class VG extends ViewV<VGContext> {
 
     @v(View, ".red")
     text: View;
+
+    GetViewString() {
+        return `<p class="red">paragraph 1</p>
+
+                <p class="red">askfhafh</p>`;
+    }
+
+    AfterInject() {
+        this.context.Log();
+    }
 }
 
 export class TestModel extends AncView {
@@ -14,6 +28,10 @@ export class TestModel extends AncView {
 
     AfterInject() {
         this.vg.text.SetStyle("color", "red");
+    }
+
+    Log() {
+        console.log("logged!");
     }
 }
 

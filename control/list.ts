@@ -1,4 +1,4 @@
-import { View } from './view';
+import { View } from '../core/view';
 
 /**
  * List<T> 列表数据操作接口
@@ -96,7 +96,7 @@ export class ListView<T> extends View implements List<T>{
 	*/
     GetView(index: number): string {
         if (!this.getTemplateView) {
-            console.error(this.id + "未定义getTemplateView方法");
+            console.error(this.name + "未定义getTemplateView方法");
             return "";
         }
         return this.getTemplateView(index, this.mData[index]);

@@ -12,8 +12,32 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-define("control/view", ["require", "exports"], function (require, exports) {
+define("core/view", ["require", "exports"], function (require, exports) {
     "use strict";
+    /**
+     * injectModel 注入模型
+     */
+    var injectModel = (function () {
+        function injectModel() {
+        }
+        return injectModel;
+    }());
+    exports.injectModel = injectModel;
+    var ViewState;
+    (function (ViewState) {
+        /**
+         * UNLOAD 尚未加载(未调用LoadView)
+         */
+        ViewState[ViewState["UNLOAD"] = 0] = "UNLOAD";
+        /**
+         * LOADSUCC 加载成功,这时候可以通过View.IsMultiparted获取该视图是否绑定多个元素
+         */
+        ViewState[ViewState["LOADSUCC"] = 1] = "LOADSUCC";
+        /**
+         * LOADFAIL 调用了LoadView,但是加载失败了
+         */
+        ViewState[ViewState["LOADFAIL"] = 2] = "LOADFAIL";
+    })(ViewState = exports.ViewState || (exports.ViewState = {}));
     /**
      * View 视图基类
      */
@@ -31,6 +55,9 @@ define("control/view", ["require", "exports"], function (require, exports) {
          */
         View.prototype.Name = function () {
             return name;
+        };
+        View.prototype.IsMultiparted = function () {
+            return this.multipart;
         };
         /**
          * PropertyName 获取属性名
@@ -83,6 +110,7 @@ define("control/view", ["require", "exports"], function (require, exports) {
             }
             var matchedElementLength = this.target.length;
             if (matchedElementLength > 0) {
+                this.state = ViewState.LOADSUCC;
                 // 绑定成功
                 this.propertyName = this.target.attr("data-property");
                 if (matchedElementLength > 1) {
@@ -101,6 +129,7 @@ define("control/view", ["require", "exports"], function (require, exports) {
                 return true;
             }
             else {
+                this.state = ViewState.LOADFAIL;
                 console.warn("[view]" + this.name + " bind null html element!");
                 return false;
             }
@@ -217,9 +246,11 @@ define("control/view", ["require", "exports"], function (require, exports) {
             this.target.removeAttr("disabled");
         };
         /**
-         * Inject 注入
+         * Inject 将@v装饰的属性注入到View中,
+         * 当当前视图绑定DOM元素成功,并且是单元素绑定模式时,下一级注入会限制在当前DOM元素之内进行
          */
-        View.prototype.Inject = function (parent) {
+        View.prototype.Inject = function () {
+            this.BeforeInject();
             var c = this.constructor;
             var instance = this;
             var injector = c["__inject__"];
@@ -235,8 +266,20 @@ define("control/view", ["require", "exports"], function (require, exports) {
                             if (viewInstance instanceof View) {
                                 viewInstance.SetSelector(view.selector);
                                 viewInstance.SetName(view.propertyName);
-                                viewInstance.LoadView(parent);
-                                viewInstance.Inject(this.selector);
+                                // 检测当前视图是否存在,如果不存在,则不限制下一级视图注入时的parent属性
+                                if (this.state == ViewState.LOADSUCC && !this.multipart) {
+                                    viewInstance.LoadView(this.selector);
+                                }
+                                else {
+                                    viewInstance.LoadView();
+                                }
+                                if (viewInstance instanceof ViewG) {
+                                    viewInstance.SetContext(this);
+                                }
+                                if (viewInstance instanceof ViewV) {
+                                    viewInstance.SetTemplateView();
+                                }
+                                viewInstance.Inject();
                             }
                             instance[view.propertyName] = viewInstance;
                         }
@@ -244,21 +287,41 @@ define("control/view", ["require", "exports"], function (require, exports) {
                     }
                 }
             }
+            this.AfterInject();
         };
+        // hooks
+        View.prototype.BeforeInject = function () { };
+        View.prototype.AfterInject = function () { };
         return View;
     }());
     exports.View = View;
-    /**
-     * injectModel 注入模型
-     */
-    var injectModel = (function () {
-        function injectModel() {
+    var ViewG = (function (_super) {
+        __extends(ViewG, _super);
+        function ViewG() {
+            return _super.apply(this, arguments) || this;
         }
-        return injectModel;
-    }());
-    exports.injectModel = injectModel;
+        ViewG.prototype.SetContext = function (context) {
+            this.context = context;
+        };
+        return ViewG;
+    }(View));
+    exports.ViewG = ViewG;
+    var ViewV = (function (_super) {
+        __extends(ViewV, _super);
+        function ViewV() {
+            return _super.apply(this, arguments) || this;
+        }
+        /**
+         * SetTemplateView 设置虚拟视图的html string,渲染到DOM中
+         */
+        ViewV.prototype.SetTemplateView = function () {
+            this.target.html(this.GetViewString());
+        };
+        return ViewV;
+    }(ViewG));
+    exports.ViewV = ViewV;
 });
-define("control/input", ["require", "exports", "control/view"], function (require, exports, view_1) {
+define("control/input", ["require", "exports", "core/view"], function (require, exports, view_1) {
     "use strict";
     /**
      * InputView 文本输入控件,作为输入框的基类
@@ -290,7 +353,7 @@ define("control/input", ["require", "exports", "control/view"], function (requir
     }(view_1.View));
     exports.InputView = InputView;
 });
-define("control/list", ["require", "exports", "control/view"], function (require, exports, view_2) {
+define("control/list", ["require", "exports", "core/view"], function (require, exports, view_2) {
     "use strict";
     var ListView = (function (_super) {
         __extends(ListView, _super);
@@ -366,7 +429,7 @@ define("control/list", ["require", "exports", "control/view"], function (require
         */
         ListView.prototype.GetView = function (index) {
             if (!this.getTemplateView) {
-                console.error(this.id + "未定义getTemplateView方法");
+                console.error(this.name + "未定义getTemplateView方法");
                 return "";
             }
             return this.getTemplateView(index, this.mData[index]);
@@ -445,7 +508,7 @@ define("control/choice", ["require", "exports", "control/list"], function (requi
     }(list_1.ListView));
     exports.ChoiceView = ChoiceView;
 });
-define("control/text", ["require", "exports", "control/view"], function (require, exports, view_3) {
+define("control/text", ["require", "exports", "core/view"], function (require, exports, view_3) {
     "use strict";
     /**
      * TextView 用于文本显示的控件
@@ -467,7 +530,7 @@ define("control/text", ["require", "exports", "control/view"], function (require
     }(view_3.View));
     exports.TextView = TextView;
 });
-define("model/injector", ["require", "exports", "control/view", "control/input", "control/choice", "control/text", "control/list"], function (require, exports, view_4, input_1, choice_1, text_1, list_2) {
+define("model/injector", ["require", "exports", "control/input", "control/choice", "control/text", "control/list", "core/view"], function (require, exports, input_1, choice_1, text_1, list_2, view_4) {
     "use strict";
     /**
      * Resolve 将model中的数据注入到context中
@@ -535,7 +598,7 @@ define("model/injector", ["require", "exports", "control/view", "control/input",
     }
     exports.Inject = Inject;
 });
-define("core/tinyts", ["require", "exports", "control/view"], function (require, exports, view_5) {
+define("core/tinyts", ["require", "exports", "core/view"], function (require, exports, view_5) {
     "use strict";
     /**
      * AncView 祖先视图,继承该视图指示tinyts托管的内容
@@ -549,19 +612,15 @@ define("core/tinyts", ["require", "exports", "control/view"], function (require,
             _this.SetSelector("#" + viewId);
             _this.SetName(viewId);
             _this.LoadView();
-            _this.BeforeInject();
-            _this.Inject(_this.selector);
-            _this.AfterInject();
+            _this.Inject();
             return _this;
         }
-        // hooks
-        AncView.prototype.BeforeInject = function () { };
-        AncView.prototype.AfterInject = function () { };
         return AncView;
     }(view_5.View));
     exports.AncView = AncView;
     /**
      * v decorator 用于标记一个通过ID绑定的View
+     * @param T 目标视图的类型(如果是ViewG,则要求视图实现T的方法,如果是View则不限制)
      * @param c View的构造函数
      * @param selector 选择器
      */
@@ -595,15 +654,21 @@ define("core/tinyts", ["require", "exports", "control/view"], function (require,
     }
     exports.v = v;
 });
-define("application/viewmodels/test", ["require", "exports", "core/tinyts", "control/view"], function (require, exports, tinyts_1, view_6) {
+define("application/viewmodels/test", ["require", "exports", "core/tinyts", "core/view"], function (require, exports, tinyts_1, view_6) {
     "use strict";
     var VG = (function (_super) {
         __extends(VG, _super);
         function VG() {
             return _super.apply(this, arguments) || this;
         }
+        VG.prototype.GetViewString = function () {
+            return "<p class=\"red\">paragraph 1</p>\n\n                <p class=\"red\">askfhafh</p>";
+        };
+        VG.prototype.AfterInject = function () {
+            this.context.Log();
+        };
         return VG;
-    }(view_6.View));
+    }(view_6.ViewV));
     __decorate([
         tinyts_1.v(view_6.View, ".red"),
         __metadata("design:type", view_6.View)
@@ -615,6 +680,9 @@ define("application/viewmodels/test", ["require", "exports", "core/tinyts", "con
         }
         TestModel.prototype.AfterInject = function () {
             this.vg.text.SetStyle("color", "red");
+        };
+        TestModel.prototype.Log = function () {
+            console.log("logged!");
         };
         return TestModel;
     }(tinyts_1.AncView));
