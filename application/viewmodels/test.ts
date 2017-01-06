@@ -26,6 +26,10 @@ export class TestModel extends AncView {
     @v(VG)
     vg: VG;
 
+    constructor() {
+        super(".class");
+    }
+
     AfterInject() {
         this.vg.text.SetStyle("color", "red");
     }

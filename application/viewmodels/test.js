@@ -602,19 +602,39 @@ define("core/tinyts", ["require", "exports", "core/view"], function (require, ex
     "use strict";
     /**
      * AncView 祖先视图,继承该视图指示tinyts托管的内容
+     * 关于延迟加载的说明(如果要使用此功能,请务必将AncView绑定到一个container元素)
+     * tinyts的异步加载过程会导致页面元素的变化,给用户带来不好的体验
+     * 因此需要在加载之前将tinyts托管的部分隐藏,请在container元素上加上style="display:none"
+     * tinyts在完成注入后,会去除这个style以显示container的内容
+     * 注意:请尽量不要在container上加上display:none意外的style属性,可能会引起不可预知的错误
      */
     var AncView = (function (_super) {
         __extends(AncView, _super);
-        function AncView() {
+        function AncView(selector) {
             var _this = _super.call(this) || this;
             // 绑定该视图
             var viewId = _this.constructor.toString().match(/^function\s*([^\s(]+)/)[1];
-            _this.SetSelector("#" + viewId);
+            if (!selector) {
+                selector = "#" + viewId;
+            }
+            _this.SetSelector(selector);
             _this.SetName(viewId);
             _this.LoadView();
             _this.Inject();
+            _this.Show();
             return _this;
         }
+        /**
+         * Show 移除style中的display:none
+         */
+        AncView.prototype.Show = function () {
+            if (this.state == view_5.ViewState.LOADSUCC) {
+                var style = this.target.attr("style");
+                var aa = /display\s*:\s*none;?/;
+                style = style.replace(aa, "");
+                this.target.attr("style", style);
+            }
+        };
         return AncView;
     }(view_5.View));
     exports.AncView = AncView;
@@ -676,7 +696,7 @@ define("application/viewmodels/test", ["require", "exports", "core/tinyts", "cor
     var TestModel = (function (_super) {
         __extends(TestModel, _super);
         function TestModel() {
-            return _super.apply(this, arguments) || this;
+            return _super.call(this, ".class") || this;
         }
         TestModel.prototype.AfterInject = function () {
             this.vg.text.SetStyle("color", "red");
