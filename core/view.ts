@@ -36,6 +36,22 @@ export class View {
     // name 当前视图在viewmodel的属性名
     protected name: string;
 
+    // 该属性用于解决虚拟视图被多次引用时产生的id冲突问题
+    protected selector: string;
+
+    // 该属性标志了当前的view是否绑定了多个元素,默认false
+    protected multipart: boolean;
+
+    /**
+     * propertyName 属性名(用于注入)
+     */
+    protected propertyName: string;
+
+    protected target: JQuery;
+
+    // 事件列表
+    protected eventList: { [eventName: string]: ((eventObj: JQueryEventObject, ...args: any[]) => any)[] };
+
     /**
      * Name 设置当前视图在viewmodel的属性名
      */
@@ -50,20 +66,12 @@ export class View {
         return name;
     }
 
-    // 该属性用于解决虚拟视图被多次引用时产生的id冲突问题
-    protected selector: string;
-
-    // 该属性标志了当前的view是否绑定了多个元素,默认false
-    protected multipart: boolean;
-
+    /**
+     * IsMultiparted 返回当前视图是否绑定多个元素
+     */
     IsMultiparted() {
         return this.multipart;
     }
-
-    /**
-     * propertyName 属性名(用于注入)
-     */
-    protected propertyName: string;
 
     /**
      * PropertyName 获取属性名
@@ -71,8 +79,6 @@ export class View {
     PropertyName(): string {
         return this.propertyName;
     }
-
-    protected target: JQuery;
 
     /**
      * SetAttr 设置属性,该属性与DOM元素无关
@@ -164,8 +170,20 @@ export class View {
      * @param handler: 事件处理函数
      */
     On(eventName: string, handler: (...args: any[]) => any) {
-        if (this.target != null) {
-            this.target.on(eventName, handler);
+        var needBind = false;
+        // 在注册事件的时候判断该事件是否已存在,如果不存在,则绑定事件
+        if (this.eventList[eventName] == null) {
+            needBind = true;
+            this.eventList[eventName] = [];
+        }
+        this.eventList[eventName].push(handler);
+        if (needBind) {
+            this.target.on(eventName, (eventObj: JQueryEventObject, ...args: any[]) => {
+                // 依次调用事件
+                for (var i = 0; i < this.eventList[eventName].length; i++) {
+                    this.eventList[eventName][i](eventObj, ...args);
+                }
+            });
         }
     }
 
@@ -196,6 +214,11 @@ export class View {
     Off(eventName?: string) {
         if (this.target != null) {
             this.target.off(eventName);
+            if (eventName) {
+                this.eventList[eventName] = [];
+            } else {
+                this.eventList = {};
+            }
         }
     }
 
