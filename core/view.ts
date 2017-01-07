@@ -177,7 +177,7 @@ export class View {
             this.eventList[eventName] = [];
         }
         this.eventList[eventName].push(handler);
-        if (needBind) {
+        if (needBind && this.target != null) {
             this.target.on(eventName, (eventObj: JQueryEventObject, ...args: any[]) => {
                 // 依次调用事件
                 for (var i = 0; i < this.eventList[eventName].length; i++) {
@@ -344,6 +344,11 @@ export class ViewG<T> extends View {
     }
 }
 
+/**
+ * ViewV 虚拟视图,支持同步跟异步两种模式
+ * 同步模式下,html string直接通过GetViewString方法返回
+ * 异步模式下
+ */
 export abstract class ViewV<T> extends ViewG<T> {
 
     /**

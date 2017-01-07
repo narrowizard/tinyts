@@ -1,25 +1,9 @@
 import { v, AncView } from '../../core/tinyts';
 import { View, ViewG, ViewV } from '../../core/view';
+import { VG } from '../views/vg';
+import { HttpUtils } from '../../core/http';
 
-interface VGContext {
-    Log: () => void;
-}
 
-class VG extends ViewV<VGContext> {
-
-    @v(View, ".red")
-    text: View;
-
-    GetViewString() {
-        return `<p class="red">paragraph 1</p>
-
-                <p class="red">askfhafh</p>`;
-    }
-
-    AfterInject() {
-        this.context.Log();
-    }
-}
 
 export class TestModel extends AncView {
 
@@ -28,6 +12,10 @@ export class TestModel extends AncView {
 
     constructor() {
         super(".class");
+    }
+
+    BeforeInject() {
+        HttpUtils.Get("http://10.0.0.12:8124/static/axure/adminserver/index.html");
     }
 
     AfterInject() {
