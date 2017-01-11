@@ -3,16 +3,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-define("core/view", ["require", "exports"], function (require, exports) {
+define("tinyts2/core/view", ["require", "exports"], function (require, exports) {
     "use strict";
     /**
      * injectModel 注入模型
@@ -353,39 +344,54 @@ define("core/view", ["require", "exports"], function (require, exports) {
     }(ViewG));
     exports.ViewV = ViewV;
 });
-define("control/input", ["require", "exports", "core/view"], function (require, exports, view_1) {
+define("tinyts2/control/text", ["require", "exports", "tinyts2/core/view"], function (require, exports, view_1) {
     "use strict";
     /**
-     * InputView 文本输入控件,作为输入框的基类
+     * TextView 用于文本显示的控件
+     * 这里的文本指<tag>文本内容</tag>中的文本内容
+     * 所以button也继承自该类
      */
-    var InputView = (function (_super) {
-        __extends(InputView, _super);
-        function InputView() {
+    var TextView = (function (_super) {
+        __extends(TextView, _super);
+        function TextView() {
+            return _super.apply(this, arguments) || this;
+        }
+        TextView.prototype.Text = function () {
+            return this.target.text();
+        };
+        TextView.prototype.SetText = function (v) {
+            this.target.text(v);
+        };
+        return TextView;
+    }(view_1.View));
+    exports.TextView = TextView;
+});
+define("tinyts2/control/button", ["require", "exports", "tinyts2/control/text"], function (require, exports, text_1) {
+    "use strict";
+    var Button = (function (_super) {
+        __extends(Button, _super);
+        function Button() {
             return _super.apply(this, arguments) || this;
         }
         /**
-         * Value 取值
+         * OnClick 注册点击事件
          */
-        InputView.prototype.Value = function () {
-            return this.target.val();
+        Button.prototype.OnClick = function (handler) {
+            this.target.click(handler);
         };
         /**
-         * SetValue 设置值
+         * PerformClick 触发button的点击事件
          */
-        InputView.prototype.SetValue = function (v) {
-            this.target.val(v);
+        Button.prototype.PerformClick = function () {
+            if (this.target != null) {
+                this.target.click();
+            }
         };
-        /**
-         * Clear 清空值
-         */
-        InputView.prototype.Clear = function () {
-            this.target.val("");
-        };
-        return InputView;
-    }(view_1.View));
-    exports.InputView = InputView;
+        return Button;
+    }(text_1.TextView));
+    exports.Button = Button;
 });
-define("control/list", ["require", "exports", "core/view"], function (require, exports, view_2) {
+define("tinyts2/control/list", ["require", "exports", "tinyts2/core/view"], function (require, exports, view_2) {
     "use strict";
     var ListView = (function (_super) {
         __extends(ListView, _super);
@@ -529,7 +535,39 @@ define("control/list", ["require", "exports", "core/view"], function (require, e
     }(view_2.View));
     exports.ListView = ListView;
 });
-define("control/choice", ["require", "exports", "control/list"], function (require, exports, list_1) {
+define("tinyts2/control/input", ["require", "exports", "tinyts2/core/view"], function (require, exports, view_3) {
+    "use strict";
+    /**
+     * InputView 文本输入控件,作为输入框的基类
+     */
+    var InputView = (function (_super) {
+        __extends(InputView, _super);
+        function InputView() {
+            return _super.apply(this, arguments) || this;
+        }
+        /**
+         * Value 取值
+         */
+        InputView.prototype.Value = function () {
+            return this.target.val();
+        };
+        /**
+         * SetValue 设置值
+         */
+        InputView.prototype.SetValue = function (v) {
+            this.target.val(v);
+        };
+        /**
+         * Clear 清空值
+         */
+        InputView.prototype.Clear = function () {
+            this.target.val("");
+        };
+        return InputView;
+    }(view_3.View));
+    exports.InputView = InputView;
+});
+define("tinyts2/control/choice", ["require", "exports", "tinyts2/control/list"], function (require, exports, list_1) {
     "use strict";
     var ChoiceView = (function (_super) {
         __extends(ChoiceView, _super);
@@ -540,198 +578,52 @@ define("control/choice", ["require", "exports", "control/list"], function (requi
     }(list_1.ListView));
     exports.ChoiceView = ChoiceView;
 });
-define("control/text", ["require", "exports", "core/view"], function (require, exports, view_3) {
+define("tinyts2/control/table", ["require", "exports", "tinyts2/control/list"], function (require, exports, list_2) {
     "use strict";
-    /**
-     * TextView 用于文本显示的控件
-     * 这里的文本指<tag>文本内容</tag>中的文本内容
-     * 所以button也继承自该类
-     */
-    var TextView = (function (_super) {
-        __extends(TextView, _super);
-        function TextView() {
+    var Table = (function (_super) {
+        __extends(Table, _super);
+        function Table() {
             return _super.apply(this, arguments) || this;
         }
-        TextView.prototype.Text = function () {
-            return this.target.text();
-        };
-        TextView.prototype.SetText = function (v) {
-            this.target.text(v);
-        };
-        return TextView;
-    }(view_3.View));
-    exports.TextView = TextView;
+        return Table;
+    }(list_2.ListView));
+    exports.Table = Table;
 });
-define("model/injector", ["require", "exports", "control/input", "control/choice", "control/text", "control/list", "core/view"], function (require, exports, input_1, choice_1, text_1, list_2, view_4) {
+define("tinyts2/core/container", ["require", "exports"], function (require, exports) {
     "use strict";
     /**
-     * Resolve 将model中的数据注入到context中
-     * @param context 控件上下文
-     * @param model 注入模型,若为null,则清空context中的控件
+     * ValueContainer 依赖注入容器
      */
-    function Resolve(context, model) {
-        if (model == null) {
-            // 清空context
-            for (var prop in context) {
-                var target = context[prop];
-                if (target instanceof view_4.View) {
-                    var propName = target.PropertyName();
-                    if (propName) {
-                        if (target instanceof input_1.InputView || target instanceof choice_1.ChoiceView) {
-                            target.Clear();
-                        }
-                        else if (target instanceof text_1.TextView) {
-                            target.SetText("");
-                        }
-                        else if (target instanceof list_2.ListView) {
-                            target.SetData([]);
-                        }
-                        else {
-                            console.warn(propName + " clear failed, missing clear method!");
-                        }
-                    }
-                }
-            }
-            return;
-        }
-        for (var prop in context) {
-            var target = context[prop];
-            if (target instanceof view_4.View) {
-                var propName = target.PropertyName();
-                if (propName) {
-                    var value = model[propName];
-                    if (value) {
-                        // 注入
-                        if (target instanceof input_1.InputView || target instanceof choice_1.ChoiceView) {
-                            target.SetValue(value);
-                        }
-                        else if (target instanceof text_1.TextView) {
-                            target.SetText(value);
-                        }
-                        else if (target instanceof list_2.ListView && $.isArray(value)) {
-                            target.SetData(value);
-                        }
-                        else {
-                            console.warn(propName + " resolve failed, control type is mismatching!");
-                        }
-                    }
-                    else {
-                        console.warn(propName + " resolve failed, value invalid!");
-                    }
-                }
-            }
-        }
-    }
-    exports.Resolve = Resolve;
-    /**
-     * Inject 将context中的control的值注入到model中
-     */
-    function Inject(context) {
-    }
-    exports.Inject = Inject;
-});
-define("core/tinyts", ["require", "exports", "core/view"], function (require, exports, view_5) {
-    "use strict";
-    /**
-     * AncView 祖先视图,继承该视图指示tinyts托管的内容
-     * 关于延迟加载的说明(如果要使用此功能,请务必将AncView绑定到一个container元素)
-     * tinyts的异步加载过程会导致页面元素的变化,给用户带来不好的体验
-     * 因此需要在加载之前将tinyts托管的部分隐藏,请在container元素上加上style="display:none"
-     * tinyts在完成注入后,会去除这个style以显示container的内容
-     * 注意:请尽量不要在container上加上display:none意外的style属性,可能会引起不可预知的错误
-     */
-    var AncView = (function (_super) {
-        __extends(AncView, _super);
-        /**
-         * AncView 祖先视图,包含注入功能
-         * @param selector 祖先试图选择器
-         */
-        function AncView(selector) {
-            var _this = _super.call(this) || this;
-            // 绑定该视图
-            var viewId = _this.constructor.toString().match(/^function\s*([^\s(]+)/)[1];
-            if (!selector) {
-                selector = "#" + viewId;
-            }
-            _this.SetSelector(selector);
-            _this.SetName(viewId);
-            _this.LoadView();
-            _this.Inject();
-            _this.Show();
-            return _this;
+    var ValueContainer = (function () {
+        function ValueContainer() {
         }
         /**
-         * Show 移除style中的display:none
+         * RegisterViewContainer 注册View容器
+         * @param name View名称
+         * @param constructor View的构造函数
          */
-        AncView.prototype.Show = function () {
-            if (this.state == view_5.ViewState.LOADSUCC) {
-                var style = this.target.attr("style");
-                var aa = /display\s*:\s*none;?/;
-                style = style.replace(aa, "");
-                this.target.attr("style", style);
+        ValueContainer.prototype.RegisterViewContainer = function (name, constructor) {
+            if (ValueContainer.viewContainer[name]) {
+                console.warn(name + " already registed!");
+                return;
             }
+            ValueContainer.viewContainer[name] = constructor;
         };
-        return AncView;
-    }(view_5.View));
-    exports.AncView = AncView;
-    /**
-     * v decorator 用于标记一个通过ID绑定的View
-     * @param T 目标视图的类型(如果是ViewG,则要求视图实现T的方法,如果是View则不限制)
-     * @param c View的构造函数
-     * @param selector 选择器
-     */
-    function v(c, selector) {
         /**
-         * 该函数运行在ViewModel上
-         * @param target ViewModel实例
-         * @param decoratedPropertyName 属性名
+         * GetView 根据View名称获取View对象
+         * @param viewName View名称
          */
-        return function (target, decoratedPropertyName) {
-            var targetType = target.constructor;
-            // 目标viewmodel的名称
-            var name = target.constructor.toString().match(/^function\s*([^\s(]+)/)[1];
-            if (!targetType.hasOwnProperty("__inject__")) {
-                targetType["__inject__"] = {};
+        ValueContainer.prototype.GetView = function (viewName) {
+            var constructor = ValueContainer.viewContainer[viewName];
+            if (constructor != null) {
+                return new constructor();
             }
-            if (!targetType["__inject__"][name]) {
-                targetType["__inject__"][name] = {
-                    constructor: target.constructor
-                };
-            }
-            if (!targetType["__inject__"][name]["views"]) {
-                targetType["__inject__"][name]["views"] = [];
-            }
-            var temp = new view_5.injectModel();
-            temp.creator = c;
-            temp.propertyName = decoratedPropertyName;
-            temp.selector = selector == null ? "#" + decoratedPropertyName : selector;
-            targetType["__inject__"][name]["views"].push(temp);
         };
-    }
-    exports.v = v;
+        return ValueContainer;
+    }());
+    exports.ValueContainer = ValueContainer;
 });
-define("application/views/vg", ["require", "exports", "core/view", "core/tinyts"], function (require, exports, view_6, tinyts_1) {
-    "use strict";
-    var VG = (function (_super) {
-        __extends(VG, _super);
-        function VG() {
-            return _super.apply(this, arguments) || this;
-        }
-        VG.prototype.GetViewString = function () {
-            return "<p class=\"red\">paragraph 1</p>\n\n                <p class=\"red\">askfhafh</p>";
-        };
-        VG.prototype.AfterInject = function () {
-            this.context.Log();
-        };
-        return VG;
-    }(view_6.ViewV));
-    __decorate([
-        tinyts_1.v(view_6.View, ".red"),
-        __metadata("design:type", view_6.View)
-    ], VG.prototype, "text", void 0);
-    exports.VG = VG;
-});
-define("core/http", ["require", "exports"], function (require, exports) {
+define("tinyts2/core/http", ["require", "exports"], function (require, exports) {
     "use strict";
     var UrlComparison = (function () {
         function UrlComparison() {
@@ -823,7 +715,7 @@ define("core/http", ["require", "exports"], function (require, exports) {
         /**
          * Get 异步发送一个http get请求
          * @param url 请求url地址
-         * @param params 请求参数,可以是对象或者Map
+         * @param params 请求参数
          * @return
          */
         HttpUtils.Get = function (url, params, otherOptions) {
@@ -835,9 +727,12 @@ define("core/http", ["require", "exports"], function (require, exports) {
                     success: function (data, textStatus, jqXHR) {
                         var dd = new HttpResponse();
                         dd.ResponseBody = data;
+                        dd.HttpStatus = jqXHR.status;
+                        dd.jqXHR = jqXHR;
                         resolve(dd);
                     },
                     error: function (jqXHR, textStatus, errorThrown) {
+                        reject(jqXHR.status);
                     }
                 };
                 if (otherOptions) {
@@ -850,27 +745,171 @@ define("core/http", ["require", "exports"], function (require, exports) {
     }());
     exports.HttpUtils = HttpUtils;
 });
-define("application/viewmodels/test", ["require", "exports", "core/tinyts", "application/views/vg", "core/http"], function (require, exports, tinyts_2, vg_1, http_1) {
+define("tinyts2/model/injector", ["require", "exports", "tinyts2/control/input", "tinyts2/control/choice", "tinyts2/control/text", "tinyts2/control/list", "tinyts2/core/view"], function (require, exports, input_1, choice_1, text_2, list_3, view_4) {
     "use strict";
-    var TestModel = (function (_super) {
-        __extends(TestModel, _super);
-        function TestModel() {
-            return _super.call(this, ".class") || this;
+    /**
+     * Resolve 将model中的数据注入到context中
+     * @param context 控件上下文
+     * @param model 注入模型,若为null,则清空context中的控件
+     */
+    function Resolve(context, model) {
+        if (model == null) {
+            // 清空context
+            for (var prop in context) {
+                var target = context[prop];
+                if (target instanceof view_4.View) {
+                    var propName = target.PropertyName();
+                    if (propName) {
+                        if (target instanceof input_1.InputView || target instanceof choice_1.ChoiceView) {
+                            target.Clear();
+                        }
+                        else if (target instanceof text_2.TextView) {
+                            target.SetText("");
+                        }
+                        else if (target instanceof list_3.ListView) {
+                            target.SetData([]);
+                        }
+                        else {
+                            console.warn(propName + " clear failed, missing clear method!");
+                        }
+                    }
+                }
+            }
+            return;
         }
-        TestModel.prototype.BeforeInject = function () {
-            http_1.HttpUtils.Get("http://10.0.0.12:8124/static/axure/adminserver/index.html");
+        for (var prop in context) {
+            var target = context[prop];
+            if (target instanceof view_4.View) {
+                var propName = target.PropertyName();
+                if (propName) {
+                    var value = model[propName];
+                    if (value) {
+                        // 注入
+                        if (target instanceof input_1.InputView || target instanceof choice_1.ChoiceView) {
+                            target.SetValue(value);
+                        }
+                        else if (target instanceof text_2.TextView) {
+                            target.SetText(value);
+                        }
+                        else if (target instanceof list_3.ListView && $.isArray(value)) {
+                            target.SetData(value);
+                        }
+                        else {
+                            console.warn(propName + " resolve failed, control type is mismatching!");
+                        }
+                    }
+                    else {
+                        console.warn(propName + " resolve failed, value invalid!");
+                    }
+                }
+            }
+        }
+    }
+    exports.Resolve = Resolve;
+    /**
+     * Inject 将context中的control的值注入到model中
+     */
+    function Inject(context) {
+    }
+    exports.Inject = Inject;
+});
+define("tinyts2/core/tinyts", ["require", "exports", "tinyts2/core/view"], function (require, exports, view_5) {
+    "use strict";
+    /**
+     * AncView 祖先视图,继承该视图指示tinyts托管的内容
+     * 关于延迟加载的说明(如果要使用此功能,请务必将AncView绑定到一个container元素)
+     * tinyts的异步加载过程会导致页面元素的变化,给用户带来不好的体验
+     * 因此需要在加载之前将tinyts托管的部分隐藏,请在container元素上加上style="display:none"
+     * tinyts在完成注入后,会去除这个style以显示container的内容
+     * 注意:请尽量不要在container上加上display:none意外的style属性,可能会引起不可预知的错误
+     */
+    var AncView = (function (_super) {
+        __extends(AncView, _super);
+        /**
+         * AncView 祖先视图,包含注入功能
+         * @param selector 祖先试图选择器
+         */
+        function AncView(selector) {
+            var _this = _super.call(this) || this;
+            // 绑定该视图
+            var viewId = _this.constructor.toString().match(/^function\s*([^\s(]+)/)[1];
+            if (!selector) {
+                selector = "#" + viewId;
+            }
+            _this.SetSelector(selector);
+            _this.SetName(viewId);
+            _this.LoadView();
+            _this.Inject();
+            _this.Show();
+            return _this;
+        }
+        /**
+         * Show 移除style中的display:none
+         */
+        AncView.prototype.Show = function () {
+            if (this.state == view_5.ViewState.LOADSUCC) {
+                var style = this.target.attr("style");
+                var aa = /display\s*:\s*none;?/;
+                style = style.replace(aa, "");
+                this.target.attr("style", style);
+            }
         };
-        TestModel.prototype.AfterInject = function () {
-            this.vg.text.SetStyle("color", "red");
+        return AncView;
+    }(view_5.View));
+    exports.AncView = AncView;
+    /**
+     * v decorator 用于标记一个通过ID绑定的View
+     * @param T 目标视图的类型(如果是ViewG,则要求视图实现T的方法,如果是View则不限制)
+     * @param c View的构造函数
+     * @param selector 选择器
+     */
+    function v(c, selector) {
+        /**
+         * 该函数运行在ViewModel上
+         * @param target ViewModel实例
+         * @param decoratedPropertyName 属性名
+         */
+        return function (target, decoratedPropertyName) {
+            var targetType = target.constructor;
+            // 目标viewmodel的名称
+            var name = target.constructor.toString().match(/^function\s*([^\s(]+)/)[1];
+            if (!targetType.hasOwnProperty("__inject__")) {
+                targetType["__inject__"] = {};
+            }
+            if (!targetType["__inject__"][name]) {
+                targetType["__inject__"][name] = {
+                    constructor: target.constructor
+                };
+            }
+            if (!targetType["__inject__"][name]["views"]) {
+                targetType["__inject__"][name]["views"] = [];
+            }
+            var temp = new view_5.injectModel();
+            temp.creator = c;
+            temp.propertyName = decoratedPropertyName;
+            temp.selector = selector == null ? "#" + decoratedPropertyName : selector;
+            targetType["__inject__"][name]["views"].push(temp);
         };
-        TestModel.prototype.Log = function () {
-            console.log("logged!");
-        };
-        return TestModel;
-    }(tinyts_2.AncView));
-    __decorate([
-        tinyts_2.v(vg_1.VG),
-        __metadata("design:type", vg_1.VG)
-    ], TestModel.prototype, "vg", void 0);
-    exports.TestModel = TestModel;
+    }
+    exports.v = v;
+});
+define("tinyts2/test/http_test", ["require", "exports", "tinyts2/core/http"], function (require, exports, http_1) {
+    "use strict";
+    http_1.HttpUtils.Get("http://10.0.0.12:20380/home/index").then(function (res) {
+        console.log(res.HttpStatus);
+    }).catch(function (reason) {
+        console.log(reason);
+    });
+});
+define("tinyts2/test/run", ["require", "exports", "jsdom", "vm"], function (require, exports, jsdom_1, vm) {
+    "use strict";
+    var window = jsdom_1.jsdom(null).defaultView;
+    window.document.location.href = "https://www.baidu.com";
+    window.document.onload = function () {
+        console.log(window.document.location.href);
+    };
+    window["RunTest"] = function () {
+    };
+    var context = vm.createContext(window);
+    vm.runInContext("RunTest();", context);
 });

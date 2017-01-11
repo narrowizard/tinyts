@@ -5,6 +5,7 @@
         "moduleResolution": "node",
         "target": "es5",
         "module": "amd",
-        "outFile": "viewmodels/test.js"
+        "outFile": "js/http_test.js",
+        "rootDir": "../.."
     }
 }
