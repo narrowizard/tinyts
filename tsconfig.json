@@ -8,7 +8,11 @@
         "module": "amd",
         "outFile": "dist/tinyts.js",
         "rootDir": ".."
-    }
+    },
+    "exclude": [
+        "application",
+        "node_modules"
+    ]
 }
 // 单元测试配置
 // {

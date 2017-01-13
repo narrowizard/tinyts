@@ -141,6 +141,36 @@ export class HttpUtils {
         });
     }
 
+    /**
+     * Get 异步发送一个http post请求
+     * @param url 请求url地址
+     * @param params 请求参数
+     * @return 
+     */
+    public static Post(url: string, params?: Object, otherOptions?: JQueryAjaxSettings): Promise<HttpResponse> {
+        return new Promise<HttpResponse>((resolve, reject) => {
+            var baseOptions: JQueryAjaxSettings = {
+                url: url,
+                type: "POST",
+                data: params,
+                success: (data: any, textStatus: string, jqXHR: JQueryXHR) => {
+                    var dd = new HttpResponse();
+                    dd.ResponseBody = data;
+                    dd.HttpStatus = jqXHR.status;
+                    dd.jqXHR = jqXHR;
+                    resolve(dd);
+                },
+                error: (jqXHR: JQueryXHR, textStatus: string, errorThrown: string) => {
+                    reject(jqXHR.status);
+                }
+            };
+            if (otherOptions) {
+                baseOptions = $.extend({}, baseOptions, otherOptions);
+            }
+            $.ajax(baseOptions);
+        });
+    }
+
 }
 
 

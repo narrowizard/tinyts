@@ -893,23 +893,3 @@ define("tinyts2/core/tinyts", ["require", "exports", "tinyts2/core/view"], funct
     }
     exports.v = v;
 });
-define("tinyts2/test/http_test", ["require", "exports", "tinyts2/core/http"], function (require, exports, http_1) {
-    "use strict";
-    http_1.HttpUtils.Get("http://10.0.0.12:20380/home/index").then(function (res) {
-        console.log(res.HttpStatus);
-    }).catch(function (reason) {
-        console.log(reason);
-    });
-});
-define("tinyts2/test/run", ["require", "exports", "jsdom", "vm"], function (require, exports, jsdom_1, vm) {
-    "use strict";
-    var window = jsdom_1.jsdom(null).defaultView;
-    window.document.location.href = "https://www.baidu.com";
-    window.document.onload = function () {
-        console.log(window.document.location.href);
-    };
-    window["RunTest"] = function () {
-    };
-    var context = vm.createContext(window);
-    vm.runInContext("RunTest();", context);
-});

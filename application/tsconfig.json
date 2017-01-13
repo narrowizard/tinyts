@@ -5,7 +5,9 @@
         "moduleResolution": "node",
         "target": "es5",
         "module": "amd",
-        "outFile": "js/http_test.js",
-        "rootDir": "../.."
-    }
+        "outDir": "js/"
+    },
+    "include": [
+        "ts/*.ts"
+    ]
 }
