@@ -1,3 +1,4 @@
+import { HttpUtils, HttpResponse } from './http';
 /**
  * injectModel 注入模型
  */
@@ -289,12 +290,12 @@ export class View {
      * 当当前视图绑定DOM元素成功,并且是单元素绑定模式时,下一级注入会限制在当前DOM元素之内进行
      */
     protected Inject() {
-        this.BeforeInject();
         var c = this.constructor;
         var instance = this;
 
         var injector = c["__inject__"];
         if (injector) {
+            this.BeforeInject();
             for (var i in injector) {
                 // 查找构造函数
                 var temp = injector[i];
@@ -316,17 +317,25 @@ export class View {
                                 viewInstance.SetContext(this);
                             }
                             if (viewInstance instanceof ViewV) {
-                                viewInstance.SetTemplateView();
+                                // 默认虚拟视图为耗时操作
+                                (() => {
+                                    // 在循环中会出现引用出错的问题,在这里用一个闭包隐藏作用域
+                                    var temp = viewInstance;
+                                    temp.SetTemplateView().then(() => {
+                                        temp.Inject();
+                                    });
+                                })();
+                            } else {
+                                viewInstance.Inject();
                             }
-                            viewInstance.Inject();
                         }
                         instance[view.propertyName] = viewInstance;
                     }
                     break;
                 }
             }
+            this.AfterInject();
         }
-        this.AfterInject();
     }
 
     // hooks
@@ -351,16 +360,24 @@ export class ViewG<T> extends View {
  */
 export abstract class ViewV<T> extends ViewG<T> {
 
-    /**
-     * GetViewString 获取虚拟视图的html string
-     */
-    abstract GetViewString(): string;
+    protected viewString: string;
 
     /**
-     * SetTemplateView 设置虚拟视图的html string,渲染到DOM中
+     * SetTemplateView 设置虚拟视图的html
      */
-    SetTemplateView() {
-        this.target.html(this.GetViewString());
+    SetTemplateView(): Promise<void> {
+        var url = this.constructor["__url__"];
+        if (url) {
+            // 异步获取html
+            return HttpUtils.Get(url).then((res: HttpResponse) => {
+                this.target.html(res.ResponseBody);
+            });
+        } else {
+            return new Promise<void>((resolve, reject) => {
+                this.target.html(this.viewString);
+                resolve();
+            });
+        }
     }
 
 }

@@ -1,5 +1,5 @@
 import { Inject } from '../model/injector';
-import { View, injectModel, ViewG, ViewState } from './view';
+import { View, injectModel, ViewG, ViewState, ViewV } from './view';
 
 /**
  * AncView 祖先视图,继承该视图指示tinyts托管的内容
@@ -79,5 +79,19 @@ export function v<T>(c: { new (...args: any[]): ViewG<T> | View }, selector?: st
         temp.selector = selector == null ? `#${decoratedPropertyName}` : selector;
 
         targetType[`__inject__`][name]["views"].push(temp);
+    };
+}
+
+/**
+ * f decorator 用于声明虚拟视图的html文件
+ * @param url html文件的url地址
+ */
+export function f(url: string) {
+    /**
+     * 该函数运行在ViewV的构造函数上
+     * @param constructor ViewV的构造函数
+     */
+    return (constructor: { new (...args: any[]): ViewV<any> }) => {
+        constructor["__url__"] = url;
     };
 }
