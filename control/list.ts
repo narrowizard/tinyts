@@ -7,8 +7,19 @@ import { Meta } from '../core/meta';
 interface List<T> {
     SetData(data: T[]);
     Count(): number;
-    Add(...model: T[]);
+
+    AppendItems(...model: T[]);
+
+    GetItem(index: number): T;
+    GetItem(predicate: (p: T) => boolean): T;
+
+    RemoveItem(index: number);
+    RemoveItem(predicate: (p: T) => boolean): T;
+
+    ReplaceItem(index: number, newItem: T);
+    ReplaceItem(predicate: (p: T) => boolean, newItem: T);
 }
+
 
 export class ListView<T> extends View implements List<T>{
 
@@ -16,10 +27,16 @@ export class ListView<T> extends View implements List<T>{
 
     protected viewString: string[];
 
+    /**
+     * GetTemplpateModel 可以设置该方法来对data进行渲染前预处理
+     */
+    getTemplpateModel: (data: T) => T;
+
     LoadView(parent?: string | JQuery): boolean {
         var succ = super.LoadView(parent);
         this.viewString = [];
         if (succ) {
+            // 设置模版
             if (this.multipart) {
                 // 多绑定元素,viewString可能每个都不一样,但是数据是一份一样的
                 this.target.each((index, elem) => {
@@ -28,6 +45,7 @@ export class ListView<T> extends View implements List<T>{
             } else {
                 // 单元素绑定关系
                 this.viewString.push(this.target.html());
+
             }
         }
         return succ;
@@ -108,11 +126,21 @@ export class ListView<T> extends View implements List<T>{
 
     /**
 	 * 获取列表中某一个元素的html代码
-	 * @param index 索引
+	 * @param dataIndex 数据索引
+     * @param (仅多元素绑定时)元素索引
 	*/
-    GetView(dataIndex: number, elemIndex: number): string {
-        return Meta.Resolve(this.viewString[elemIndex], this.mData[dataIndex]);
+    GetView(dataIndex: number, elemIndex?: number): string {
+        var data = this.mData[dataIndex];
+        if (this.getTemplpateModel) {
+            data = this.getTemplpateModel(data);
+        }
+        if (elemIndex == null) {
+            elemIndex = 0;
+        }
+        return Meta.Resolve(this.viewString[elemIndex], data);
     };
+
+
 
     /**
      * createView 创建一个视图的html代码,并添加到当前view的最后面
@@ -121,15 +149,36 @@ export class ListView<T> extends View implements List<T>{
     protected createView(index: number) {
         if (this.multipart) {
             this.target.each((i, elem) => {
-                $(elem).append(this.GetView(index, i));
+                this.append(this.GetView(index, i), i);
             });
         } else {
-            this.target.append(this.GetView(index, 0));
+            this.append(this.GetView(index, 0));
         }
     }
 
     /**
-     * ClearView 清空列表部分视图
+     * [override] append 在视图的最后添加html内容,该方法是为了避免类似table元素这种列表内容并非其直接子元素的情况
+     */
+    protected append(viewString: string, elemIndex?: number) {
+        if (this.multipart) {
+            if (elemIndex == null) {
+                elemIndex = 0;
+            }
+            this.target.eq(elemIndex).append(viewString);
+        } else {
+            this.target.append(viewString);
+        }
+    }
+
+    /**
+     * [override] GetChildren 获取列表内容的jquery引用
+     */
+    protected GetChildren(): JQuery {
+        return this.target.children();
+    }
+
+    /**
+     * [override] ClearView 清空列表部分视图
      */
     ClearView() {
         this.target.html("");
@@ -169,11 +218,17 @@ export class ListView<T> extends View implements List<T>{
      * Add 添加数据，该方法不会刷新整个列表
      * @param model 待添加的数据
      */
-    Add(...model: T[]) {
+    AppendItems(...model: T[]) {
         this.mData.push(...model);
-        var c = model.length;
-        for (var i = 0; i < c; i++) {
-            this.createView(this.Count() - c + i);
+    }
+
+    /**
+     * CheckView 检验当前视图是否与数据一直,如不一致,则刷新不一致的部分
+     */
+    CheckView() {
+        for (var i = 0; i < this.mData.length; i++) {
+            var t = this.GetChildren().eq(i).html();
+
         }
     }
 
