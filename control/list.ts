@@ -1,4 +1,5 @@
-import { View } from '../core/view';
+import { View, ViewState } from '../core/view';
+import { Meta } from '../core/meta';
 
 /**
  * List<T> 列表数据操作接口
@@ -13,13 +14,24 @@ export class ListView<T> extends View implements List<T>{
 
     protected mData: T[];
 
-    /**
-     * getTemplateView 设置列表部分的模板
-     * @param index 索引
-     * @param data 数据
-     */
-    getTemplateView: (index: number, data: T) => string;
+    protected viewString: string[];
 
+    LoadView(parent?: string | JQuery): boolean {
+        var succ = super.LoadView(parent);
+        this.viewString = [];
+        if (succ) {
+            if (this.multipart) {
+                // 多绑定元素,viewString可能每个都不一样,但是数据是一份一样的
+                this.target.each((index, elem) => {
+                    this.viewString[index] = $(elem).html();
+                });
+            } else {
+                // 单元素绑定关系
+                this.viewString.push(this.target.html());
+            }
+        }
+        return succ;
+    }
 
     protected eventHandler: { selector: string, event?: string, handler: (obj: JQueryEventObject) => void }[];
 
@@ -72,6 +84,10 @@ export class ListView<T> extends View implements List<T>{
         if (!data) {
             data = [];
         }
+        if (this.state != ViewState.LOADSUCC) {
+            console.error(`${this.name} load error!`);
+            return;
+        }
         this.mData = data;
         this.RefreshView();
     }
@@ -85,7 +101,7 @@ export class ListView<T> extends View implements List<T>{
             return;
         }
         for (var i = 0; i < this.Count(); i++) {
-            this.append(this.GetView(i));
+            this.createView(i);
         }
         this.RegisterEvents();
     }
@@ -94,20 +110,22 @@ export class ListView<T> extends View implements List<T>{
 	 * 获取列表中某一个元素的html代码
 	 * @param index 索引
 	*/
-    GetView(index: number): string {
-        if (!this.getTemplateView) {
-            console.error(this.name + "未定义getTemplateView方法");
-            return "";
-        }
-        return this.getTemplateView(index, this.mData[index]);
+    GetView(dataIndex: number, elemIndex: number): string {
+        return Meta.Resolve(this.viewString[elemIndex], this.mData[dataIndex]);
     };
 
     /**
-     * 在列表的最后插入元素,请在子类中实现该方法
-     * @param viewString 元素的html字符串
+     * createView 创建一个视图的html代码,并添加到当前view的最后面
+     * @param index 需要创建的view的索引
      */
-    protected append(viewString: string) {
-        this.target.append(viewString);
+    protected createView(index: number) {
+        if (this.multipart) {
+            this.target.each((i, elem) => {
+                $(elem).append(this.GetView(index, i));
+            });
+        } else {
+            this.target.append(this.GetView(index, 0));
+        }
     }
 
     /**
@@ -155,7 +173,7 @@ export class ListView<T> extends View implements List<T>{
         this.mData.push(...model);
         var c = model.length;
         for (var i = 0; i < c; i++) {
-            this.append(this.GetView(this.Count() - c + i));
+            this.createView(this.Count() - c + i);
         }
     }
 

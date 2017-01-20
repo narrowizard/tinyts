@@ -3,7 +3,158 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-define("tinyts2/core/view", ["require", "exports"], function (require, exports) {
+define("tinyts2/core/http", ["require", "exports"], function (require, exports) {
+    "use strict";
+    var UrlComparison = (function () {
+        function UrlComparison() {
+        }
+        return UrlComparison;
+    }());
+    exports.UrlComparison = UrlComparison;
+    /**
+     * url parser 解析url地址
+     */
+    var UrlParser = (function () {
+        function UrlParser() {
+        }
+        /**
+         * Parse 解析url
+         */
+        UrlParser.prototype.Parse = function (url) {
+            this.url = url;
+            this.searchObject = {};
+            var parser = document.createElement('a'), queries, split, i;
+            // Let the browser do the work
+            parser.href = this.url;
+            // Convert query string to object
+            queries = parser.search.replace(/^\?/, '').split('&');
+            for (i = 0; i < queries.length; i++) {
+                split = queries[i].split('=');
+                if (split[0] != "" && split[1]) {
+                    this.searchObject[split[0]] = decodeURIComponent(split[1]);
+                }
+            }
+            this.protocol = parser.protocol;
+            this.host = parser.host;
+            this.hostname = parser.hostname;
+            this.port = parser.port;
+            this.pathname = parser.pathname.indexOf("/") == 0 ? parser.pathname : "/" + parser.pathname;
+            this.search = parser.search;
+            this.hash = parser.hash;
+            return this;
+        };
+        /**
+         * 生成url
+         */
+        UrlParser.prototype.Generate = function () {
+            this.search = "?";
+            for (var temp in this.searchObject) {
+                this.search += temp + "=" + this.searchObject[temp] + "&";
+            }
+            this.search = this.search.substr(0, this.search.length - 1);
+            this.url = "";
+            if (this.protocol) {
+                this.url += this.protocol + "//";
+            }
+            this.url += this.host + this.pathname + this.search + this.hash;
+            return this.url;
+        };
+        /**
+         * CompareUrls 比较url,返回信息
+         */
+        UrlParser.CompareUrls = function (url1, url2) {
+            var temp = new UrlComparison();
+            var u1 = new UrlParser();
+            var u2 = new UrlParser();
+            u1.Parse(url1);
+            u2.Parse(url2);
+            temp.Path = u1.pathname.toLowerCase() == u2.pathname.toLocaleLowerCase();
+            temp.Search = u1.search.toLowerCase() == u2.search.toLowerCase();
+            temp.Hash = u1.hash.toLowerCase() == u2.hash.toLowerCase();
+            temp.Host = u1.host.toLowerCase() == u2.host.toLowerCase();
+            if (temp.Hash && temp.Host && temp.Path && temp.Search) {
+                temp.Complete = true;
+            }
+            else {
+                temp.Complete = false;
+            }
+            return temp;
+        };
+        return UrlParser;
+    }());
+    exports.UrlParser = UrlParser;
+    var HttpResponse = (function () {
+        function HttpResponse() {
+        }
+        return HttpResponse;
+    }());
+    exports.HttpResponse = HttpResponse;
+    var HttpUtils = (function () {
+        function HttpUtils() {
+        }
+        /**
+         * Get 异步发送一个http get请求
+         * @param url 请求url地址
+         * @param params 请求参数
+         * @return
+         */
+        HttpUtils.Get = function (url, params, otherOptions) {
+            return new Promise(function (resolve, reject) {
+                var baseOptions = {
+                    url: url,
+                    type: "GET",
+                    data: params,
+                    success: function (data, textStatus, jqXHR) {
+                        var dd = new HttpResponse();
+                        dd.ResponseBody = data;
+                        dd.HttpStatus = jqXHR.status;
+                        dd.jqXHR = jqXHR;
+                        resolve(dd);
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        reject(jqXHR.status);
+                    }
+                };
+                if (otherOptions) {
+                    baseOptions = $.extend({}, baseOptions, otherOptions);
+                }
+                $.ajax(baseOptions);
+            });
+        };
+        /**
+         * Get 异步发送一个http post请求
+         * @param url 请求url地址
+         * @param params 请求参数
+         * @return
+         */
+        HttpUtils.Post = function (url, params, otherOptions) {
+            return new Promise(function (resolve, reject) {
+                var baseOptions = {
+                    url: url,
+                    type: "POST",
+                    data: params,
+                    success: function (data, textStatus, jqXHR) {
+                        var dd = new HttpResponse();
+                        dd.ResponseBody = data;
+                        dd.HttpStatus = jqXHR.status;
+                        dd.jqXHR = jqXHR;
+                        resolve(dd);
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        reject(jqXHR.status);
+                    }
+                };
+                if (otherOptions) {
+                    baseOptions = $.extend({}, baseOptions, otherOptions);
+                }
+                $.ajax(baseOptions);
+            });
+        };
+        return HttpUtils;
+    }());
+    exports.HttpUtils = HttpUtils;
+});
+define("tinyts2/core/view", ["require", "exports", "tinyts2/core/http"], function (require, exports, http_1) {
     "use strict";
     /**
      * injectModel 注入模型
@@ -268,11 +419,11 @@ define("tinyts2/core/view", ["require", "exports"], function (require, exports) 
          * 当当前视图绑定DOM元素成功,并且是单元素绑定模式时,下一级注入会限制在当前DOM元素之内进行
          */
         View.prototype.Inject = function () {
-            this.BeforeInject();
             var c = this.constructor;
             var instance = this;
             var injector = c["__inject__"];
             if (injector) {
+                this.BeforeInject();
                 for (var i in injector) {
                     // 查找构造函数
                     var temp = injector[i];
@@ -295,17 +446,26 @@ define("tinyts2/core/view", ["require", "exports"], function (require, exports) 
                                     viewInstance.SetContext(this);
                                 }
                                 if (viewInstance instanceof ViewV) {
-                                    viewInstance.SetTemplateView();
+                                    // 默认虚拟视图为耗时操作
+                                    (function () {
+                                        // 在循环中会出现引用出错的问题,在这里用一个闭包隐藏作用域
+                                        var temp = viewInstance;
+                                        temp.SetTemplateView().then(function () {
+                                            temp.Inject();
+                                        });
+                                    })();
                                 }
-                                viewInstance.Inject();
+                                else {
+                                    viewInstance.Inject();
+                                }
                             }
                             instance[view.propertyName] = viewInstance;
                         }
                         break;
                     }
                 }
+                this.AfterInject();
             }
-            this.AfterInject();
         };
         // hooks
         View.prototype.BeforeInject = function () { };
@@ -335,10 +495,23 @@ define("tinyts2/core/view", ["require", "exports"], function (require, exports) 
             return _super.apply(this, arguments) || this;
         }
         /**
-         * SetTemplateView 设置虚拟视图的html string,渲染到DOM中
+         * SetTemplateView 设置虚拟视图的html
          */
         ViewV.prototype.SetTemplateView = function () {
-            this.target.html(this.GetViewString());
+            var _this = this;
+            var url = this.constructor["__url__"];
+            if (url) {
+                // 异步获取html
+                return http_1.HttpUtils.Get(url).then(function (res) {
+                    _this.target.html(res.ResponseBody);
+                });
+            }
+            else {
+                return new Promise(function (resolve, reject) {
+                    _this.target.html(_this.viewString);
+                    resolve();
+                });
+            }
         };
         return ViewV;
     }(ViewG));
@@ -391,13 +564,51 @@ define("tinyts2/control/button", ["require", "exports", "tinyts2/control/text"],
     }(text_1.TextView));
     exports.Button = Button;
 });
-define("tinyts2/control/list", ["require", "exports", "tinyts2/core/view"], function (require, exports, view_2) {
+/**
+ * Meta 实现一个模版语法解析的类
+ */
+define("tinyts2/core/meta", ["require", "exports"], function (require, exports) {
+    "use strict";
+    var Meta = (function () {
+        function Meta() {
+        }
+        /**
+         * Resolve 解析模版语法,返回嵌入data后的html string
+         * @param viewString 模版语法
+         * @param model 需要嵌入的data模型
+         */
+        Meta.Resolve = function (viewString, model) {
+            return "" + viewString;
+        };
+        return Meta;
+    }());
+    exports.Meta = Meta;
+});
+define("tinyts2/control/list", ["require", "exports", "tinyts2/core/view", "tinyts2/core/meta"], function (require, exports, view_2, meta_1) {
     "use strict";
     var ListView = (function (_super) {
         __extends(ListView, _super);
         function ListView() {
             return _super.apply(this, arguments) || this;
         }
+        ListView.prototype.LoadView = function (parent) {
+            var _this = this;
+            var succ = _super.prototype.LoadView.call(this, parent);
+            this.viewString = [];
+            if (succ) {
+                if (this.multipart) {
+                    // 多绑定元素,viewString可能每个都不一样,但是数据是一份一样的
+                    this.target.each(function (index, elem) {
+                        _this.viewString[index] = $(elem).html();
+                    });
+                }
+                else {
+                    // 单元素绑定关系
+                    this.viewString.push(this.target.html());
+                }
+            }
+            return succ;
+        };
         /**
          * SetEventHandler 设置事件处理函数
          * @param selector 选择器
@@ -445,6 +656,10 @@ define("tinyts2/control/list", ["require", "exports", "tinyts2/core/view"], func
             if (!data) {
                 data = [];
             }
+            if (this.state != view_2.ViewState.LOADSUCC) {
+                console.error(this.name + " load error!");
+                return;
+            }
             this.mData = data;
             this.RefreshView();
         };
@@ -457,7 +672,7 @@ define("tinyts2/control/list", ["require", "exports", "tinyts2/core/view"], func
                 return;
             }
             for (var i = 0; i < this.Count(); i++) {
-                this.append(this.GetView(i));
+                this.createView(i);
             }
             this.RegisterEvents();
         };
@@ -465,20 +680,24 @@ define("tinyts2/control/list", ["require", "exports", "tinyts2/core/view"], func
          * 获取列表中某一个元素的html代码
          * @param index 索引
         */
-        ListView.prototype.GetView = function (index) {
-            if (!this.getTemplateView) {
-                console.error(this.name + "未定义getTemplateView方法");
-                return "";
-            }
-            return this.getTemplateView(index, this.mData[index]);
+        ListView.prototype.GetView = function (dataIndex, elemIndex) {
+            return meta_1.Meta.Resolve(this.viewString[elemIndex], this.mData[dataIndex]);
         };
         ;
         /**
          * 在列表的最后插入元素,请在子类中实现该方法
          * @param viewString 元素的html字符串
          */
-        ListView.prototype.append = function (viewString) {
-            this.target.append(viewString);
+        ListView.prototype.createView = function (index) {
+            var _this = this;
+            if (this.multipart) {
+                this.target.each(function (i, elem) {
+                    $(elem).append(_this.GetView(index, i));
+                });
+            }
+            else {
+                this.target.append(this.GetView(index, 0));
+            }
         };
         /**
          * ClearView 清空列表部分视图
@@ -527,7 +746,7 @@ define("tinyts2/control/list", ["require", "exports", "tinyts2/core/view"], func
             (_a = this.mData).push.apply(_a, model);
             var c = model.length;
             for (var i = 0; i < c; i++) {
-                this.append(this.GetView(this.Count() - c + i));
+                this.createView(this.Count() - c + i);
             }
             var _a;
         };
@@ -622,128 +841,6 @@ define("tinyts2/core/container", ["require", "exports"], function (require, expo
         return ValueContainer;
     }());
     exports.ValueContainer = ValueContainer;
-});
-define("tinyts2/core/http", ["require", "exports"], function (require, exports) {
-    "use strict";
-    var UrlComparison = (function () {
-        function UrlComparison() {
-        }
-        return UrlComparison;
-    }());
-    exports.UrlComparison = UrlComparison;
-    /**
-     * url parser 解析url地址
-     */
-    var UrlParser = (function () {
-        function UrlParser() {
-        }
-        /**
-         * Parse 解析url
-         */
-        UrlParser.prototype.Parse = function (url) {
-            this.url = url;
-            this.searchObject = {};
-            var parser = document.createElement('a'), queries, split, i;
-            // Let the browser do the work
-            parser.href = this.url;
-            // Convert query string to object
-            queries = parser.search.replace(/^\?/, '').split('&');
-            for (i = 0; i < queries.length; i++) {
-                split = queries[i].split('=');
-                if (split[0] != "" && split[1]) {
-                    this.searchObject[split[0]] = decodeURIComponent(split[1]);
-                }
-            }
-            this.protocol = parser.protocol;
-            this.host = parser.host;
-            this.hostname = parser.hostname;
-            this.port = parser.port;
-            this.pathname = parser.pathname.indexOf("/") == 0 ? parser.pathname : "/" + parser.pathname;
-            this.search = parser.search;
-            this.hash = parser.hash;
-            return this;
-        };
-        /**
-         * 生成url
-         */
-        UrlParser.prototype.Generate = function () {
-            this.search = "?";
-            for (var temp in this.searchObject) {
-                this.search += temp + "=" + this.searchObject[temp] + "&";
-            }
-            this.search = this.search.substr(0, this.search.length - 1);
-            this.url = "";
-            if (this.protocol) {
-                this.url += this.protocol + "//";
-            }
-            this.url += this.host + this.pathname + this.search + this.hash;
-            return this.url;
-        };
-        /**
-         * CompareUrls 比较url,返回信息
-         */
-        UrlParser.CompareUrls = function (url1, url2) {
-            var temp = new UrlComparison();
-            var u1 = new UrlParser();
-            var u2 = new UrlParser();
-            u1.Parse(url1);
-            u2.Parse(url2);
-            temp.Path = u1.pathname.toLowerCase() == u2.pathname.toLocaleLowerCase();
-            temp.Search = u1.search.toLowerCase() == u2.search.toLowerCase();
-            temp.Hash = u1.hash.toLowerCase() == u2.hash.toLowerCase();
-            temp.Host = u1.host.toLowerCase() == u2.host.toLowerCase();
-            if (temp.Hash && temp.Host && temp.Path && temp.Search) {
-                temp.Complete = true;
-            }
-            else {
-                temp.Complete = false;
-            }
-            return temp;
-        };
-        return UrlParser;
-    }());
-    exports.UrlParser = UrlParser;
-    var HttpResponse = (function () {
-        function HttpResponse() {
-        }
-        return HttpResponse;
-    }());
-    exports.HttpResponse = HttpResponse;
-    var HttpUtils = (function () {
-        function HttpUtils() {
-        }
-        /**
-         * Get 异步发送一个http get请求
-         * @param url 请求url地址
-         * @param params 请求参数
-         * @return
-         */
-        HttpUtils.Get = function (url, params, otherOptions) {
-            return new Promise(function (resolve, reject) {
-                var baseOptions = {
-                    url: url,
-                    type: "GET",
-                    data: params,
-                    success: function (data, textStatus, jqXHR) {
-                        var dd = new HttpResponse();
-                        dd.ResponseBody = data;
-                        dd.HttpStatus = jqXHR.status;
-                        dd.jqXHR = jqXHR;
-                        resolve(dd);
-                    },
-                    error: function (jqXHR, textStatus, errorThrown) {
-                        reject(jqXHR.status);
-                    }
-                };
-                if (otherOptions) {
-                    baseOptions = $.extend({}, baseOptions, otherOptions);
-                }
-                $.ajax(baseOptions);
-            });
-        };
-        return HttpUtils;
-    }());
-    exports.HttpUtils = HttpUtils;
 });
 define("tinyts2/model/injector", ["require", "exports", "tinyts2/control/input", "tinyts2/control/choice", "tinyts2/control/text", "tinyts2/control/list", "tinyts2/core/view"], function (require, exports, input_1, choice_1, text_2, list_3, view_4) {
     "use strict";
@@ -892,4 +989,18 @@ define("tinyts2/core/tinyts", ["require", "exports", "tinyts2/core/view"], funct
         };
     }
     exports.v = v;
+    /**
+     * f decorator 用于声明虚拟视图的html文件
+     * @param url html文件的url地址
+     */
+    function f(url) {
+        /**
+         * 该函数运行在ViewV的构造函数上
+         * @param constructor ViewV的构造函数
+         */
+        return function (constructor) {
+            constructor["__url__"] = url;
+        };
+    }
+    exports.f = f;
 });
