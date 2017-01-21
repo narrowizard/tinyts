@@ -67,6 +67,6 @@ export class Table<T extends IModel> extends ListView<T> {
     }
 
     protected append(viewString: string) {
-        this.target.find("tbody").append(viewString);
+        this.target.children("tbody").append(viewString);
     }
 }
