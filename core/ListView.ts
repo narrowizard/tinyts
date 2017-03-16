@@ -10,7 +10,7 @@
  * data-pagable sync或async
  */
 
-import {View} from './View';
+import { View } from './View';
 
 export abstract class ListView<T extends IModel> extends View {
     mData: T[];
@@ -518,6 +518,13 @@ class PageManager<T extends IModel> {
     protected total: number;
 
     /**
+     * RecordCount 返回记录总条数,仅在通过SetRecordCount方法设置总条数后才有效
+     */
+    RecordCount(): number {
+        return this.total;
+    }
+
+    /**
      * SetRecordCount 设置记录总条数,同时设置pageCount
      * @param count 记录总数量
      */
@@ -601,7 +608,8 @@ class PageManager<T extends IModel> {
      * NextPage 下一页
      */
     NextPage() {
-        if (this.curPage >= this.pageCount) {
+        var nPageSize = this.context.GetPageSize();
+        if (nPageSize >= this.pageSize && this.curPage >= this.pageCount) {
             return;
         }
         this.curPage++;
@@ -624,7 +632,8 @@ class PageManager<T extends IModel> {
      * @param index 页码
      */
     TurnToPage(index: number) {
-        if (index < 1 || index > this.pageCount) {
+        var nPageSize = this.context.GetPageSize();
+        if (index < 1 || (nPageSize >= this.pageSize && index > this.pageCount)) {
             return;
         }
         this.curPage = index;
