@@ -3,7 +3,7 @@
     "compilerOptions": {
         "emitDecoratorMetadata": true,
         "experimentalDecorators": true,
-        "moduleResolution": "node",
+        "moduleResolution": "classic",
         "target": "es5",
         "module": "amd",
         "outFile": "dist/tinyts.js",

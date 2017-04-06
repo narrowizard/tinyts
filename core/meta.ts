@@ -9,6 +9,10 @@ export class Meta {
      * @param model 需要嵌入的data模型
      */
     static Resolve(viewString: string, model: Object): string {
-        return `${viewString}`;
+        return Mustache.render(viewString, model);
+    }
+
+    static Compile(viewString: string) {
+        Mustache.parse(viewString);
     }
 }

@@ -7,6 +7,7 @@ jquery
 multiplex(linq)  
 es6 promise  
 es6 proxy  
+[mustache](https://github.com/janl/mustache.js)
 
 ## directory
 ```shell

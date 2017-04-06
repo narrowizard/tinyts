@@ -60,6 +60,6 @@ export function Resolve(context, model) {
 /**
  * Inject 将context中的control的值注入到model中
  */
-export function Inject(context): any {
+export function Inject<T>(context): T {
 
 }
