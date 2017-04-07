@@ -18,10 +18,8 @@ export function Resolve(context, model) {
             if (target instanceof View) {
                 var propName = target.PropertyName();
                 if (propName) {
-                    if (target instanceof InputView || target instanceof ChoiceView) {
+                    if (target instanceof TextView || target instanceof ChoiceView) {
                         target.Clear();
-                    } else if (target instanceof TextView) {
-                        target.SetText("");
                     } else if (target instanceof ListView) {
                         target.SetData([]);
                     } else {
@@ -41,10 +39,8 @@ export function Resolve(context, model) {
                 var value = model[propName];
                 if (value) {
                     // 注入
-                    if (target instanceof InputView || target instanceof ChoiceView) {
+                    if (target instanceof TextView || target instanceof ChoiceView) {
                         target.SetValue(value);
-                    } else if (target instanceof TextView) {
-                        target.SetText(value);
                     } else if (target instanceof ListView && $.isArray(value)) {
                         target.SetData(value);
                     } else {
