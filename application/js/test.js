@@ -1,3 +1,12 @@
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
         ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -8,9 +17,37 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-System.register("tinyts/core/http", [], function (exports_1, context_1) {
+System.register("application/model/validator_test", ["class-validator"], function (exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
+    var class_validator_1, TestModel;
+    return {
+        setters: [
+            function (class_validator_1_1) {
+                class_validator_1 = class_validator_1_1;
+            }
+        ],
+        execute: function () {
+            TestModel = (function () {
+                function TestModel() {
+                }
+                return TestModel;
+            }());
+            __decorate([
+                class_validator_1.Length(5, 10),
+                __metadata("design:type", String)
+            ], TestModel.prototype, "name", void 0);
+            __decorate([
+                class_validator_1.IsMobilePhone('zh-CN'),
+                __metadata("design:type", String)
+            ], TestModel.prototype, "phone", void 0);
+            exports_1("TestModel", TestModel);
+        }
+    };
+});
+System.register("core/http", [], function (exports_2, context_2) {
+    "use strict";
+    var __moduleName = context_2 && context_2.id;
     var UrlComparison, UrlParser, HttpResponse, HttpUtils;
     return {
         setters: [],
@@ -20,7 +57,7 @@ System.register("tinyts/core/http", [], function (exports_1, context_1) {
                 }
                 return UrlComparison;
             }());
-            exports_1("UrlComparison", UrlComparison);
+            exports_2("UrlComparison", UrlComparison);
             /**
              * url parser 解析url地址
              */
@@ -92,13 +129,13 @@ System.register("tinyts/core/http", [], function (exports_1, context_1) {
                 };
                 return UrlParser;
             }());
-            exports_1("UrlParser", UrlParser);
+            exports_2("UrlParser", UrlParser);
             HttpResponse = (function () {
                 function HttpResponse() {
                 }
                 return HttpResponse;
             }());
-            exports_1("HttpResponse", HttpResponse);
+            exports_2("HttpResponse", HttpResponse);
             HttpUtils = (function () {
                 function HttpUtils() {
                 }
@@ -162,18 +199,38 @@ System.register("tinyts/core/http", [], function (exports_1, context_1) {
                 };
                 return HttpUtils;
             }());
-            exports_1("HttpUtils", HttpUtils);
+            exports_2("HttpUtils", HttpUtils);
         }
     };
 });
-System.register("tinyts/core/view", ["tinyts/core/http"], function (exports_2, context_2) {
+System.register("application/ts/http_test", ["core/http"], function (exports_3, context_3) {
     "use strict";
-    var __moduleName = context_2 && context_2.id;
-    var http_1, injectModel, ViewState, View, ViewG, ViewV;
+    var __moduleName = context_3 && context_3.id;
+    var http_1;
     return {
         setters: [
             function (http_1_1) {
                 http_1 = http_1_1;
+            }
+        ],
+        execute: function () {
+            http_1.HttpUtils.Get("../ts/http_test.ts").then(function (res) {
+                console.log(res.HttpStatus);
+                console.log(res.ResponseBody);
+            }).catch(function (reason) {
+                console.log(reason);
+            });
+        }
+    };
+});
+System.register("core/view", ["core/http"], function (exports_4, context_4) {
+    "use strict";
+    var __moduleName = context_4 && context_4.id;
+    var http_2, injectModel, ViewState, View, ViewG, ViewV;
+    return {
+        setters: [
+            function (http_2_1) {
+                http_2 = http_2_1;
             }
         ],
         execute: function () {
@@ -185,7 +242,7 @@ System.register("tinyts/core/view", ["tinyts/core/http"], function (exports_2, c
                 }
                 return injectModel;
             }());
-            exports_2("injectModel", injectModel);
+            exports_4("injectModel", injectModel);
             (function (ViewState) {
                 /**
                  * UNLOAD 尚未加载(未调用LoadView)
@@ -200,7 +257,7 @@ System.register("tinyts/core/view", ["tinyts/core/http"], function (exports_2, c
                  */
                 ViewState[ViewState["LOADFAIL"] = 2] = "LOADFAIL";
             })(ViewState || (ViewState = {}));
-            exports_2("ViewState", ViewState);
+            exports_4("ViewState", ViewState);
             /**
              * View 视图基类
              */
@@ -493,7 +550,7 @@ System.register("tinyts/core/view", ["tinyts/core/http"], function (exports_2, c
                 View.prototype.AfterInject = function () { };
                 return View;
             }());
-            exports_2("View", View);
+            exports_4("View", View);
             ViewG = (function (_super) {
                 __extends(ViewG, _super);
                 function ViewG() {
@@ -504,7 +561,7 @@ System.register("tinyts/core/view", ["tinyts/core/http"], function (exports_2, c
                 };
                 return ViewG;
             }(View));
-            exports_2("ViewG", ViewG);
+            exports_4("ViewG", ViewG);
             /**
              * ViewV 虚拟视图,支持同步跟异步两种模式
              * 同步模式下,html string直接通过GetViewString方法返回
@@ -523,7 +580,7 @@ System.register("tinyts/core/view", ["tinyts/core/http"], function (exports_2, c
                     var url = this.constructor["__url__"];
                     if (url) {
                         // 异步获取html
-                        return http_1.HttpUtils.Get(url).then(function (res) {
+                        return http_2.HttpUtils.Get(url).then(function (res) {
                             _this.target.html(res.ResponseBody);
                         });
                     }
@@ -536,14 +593,14 @@ System.register("tinyts/core/view", ["tinyts/core/http"], function (exports_2, c
                 };
                 return ViewV;
             }(ViewG));
-            exports_2("ViewV", ViewV);
+            exports_4("ViewV", ViewV);
         }
     };
 });
-System.register("tinyts/control/text", ["tinyts/core/view"], function (exports_3, context_3) {
+System.register("control/input", ["core/view"], function (exports_5, context_5) {
     "use strict";
-    var __moduleName = context_3 && context_3.id;
-    var view_1, TextView;
+    var __moduleName = context_5 && context_5.id;
+    var view_1, InputView;
     return {
         setters: [
             function (view_1_1) {
@@ -552,69 +609,43 @@ System.register("tinyts/control/text", ["tinyts/core/view"], function (exports_3
         ],
         execute: function () {
             /**
-             * TextView 用于文本显示的控件
-             * 这里的文本指<tag>文本内容</tag>中的文本内容
-             * 所以button也继承自该类
+             * InputView 文本输入控件,作为输入框的基类
              */
-            TextView = (function (_super) {
-                __extends(TextView, _super);
-                function TextView() {
+            InputView = (function (_super) {
+                __extends(InputView, _super);
+                function InputView() {
                     return _super !== null && _super.apply(this, arguments) || this;
                 }
-                TextView.prototype.Text = function () {
-                    return this.target.text();
+                /**
+                 * Value 取值
+                 */
+                InputView.prototype.Value = function () {
+                    return this.target.val();
                 };
-                TextView.prototype.SetText = function (v) {
-                    this.target.text(v);
+                /**
+                 * SetValue 设置值
+                 */
+                InputView.prototype.SetValue = function (v) {
+                    this.target.val(v);
                 };
-                return TextView;
+                /**
+                 * Clear 清空值
+                 */
+                InputView.prototype.Clear = function () {
+                    this.target.val("");
+                };
+                return InputView;
             }(view_1.View));
-            exports_3("TextView", TextView);
-        }
-    };
-});
-System.register("tinyts/control/button", ["tinyts/control/text"], function (exports_4, context_4) {
-    "use strict";
-    var __moduleName = context_4 && context_4.id;
-    var text_1, Button;
-    return {
-        setters: [
-            function (text_1_1) {
-                text_1 = text_1_1;
-            }
-        ],
-        execute: function () {
-            Button = (function (_super) {
-                __extends(Button, _super);
-                function Button() {
-                    return _super !== null && _super.apply(this, arguments) || this;
-                }
-                /**
-                 * OnClick 注册点击事件
-                 */
-                Button.prototype.OnClick = function (handler) {
-                    this.target.click(handler);
-                };
-                /**
-                 * PerformClick 触发button的点击事件
-                 */
-                Button.prototype.PerformClick = function () {
-                    if (this.target != null) {
-                        this.target.click();
-                    }
-                };
-                return Button;
-            }(text_1.TextView));
-            exports_4("Button", Button);
+            exports_5("InputView", InputView);
         }
     };
 });
 /**
  * Meta 实现一个模版语法解析的类
  */
-System.register("tinyts/core/meta", [], function (exports_5, context_5) {
+System.register("core/meta", [], function (exports_6, context_6) {
     "use strict";
-    var __moduleName = context_5 && context_5.id;
+    var __moduleName = context_6 && context_6.id;
     var Meta;
     return {
         setters: [],
@@ -637,13 +668,13 @@ System.register("tinyts/core/meta", [], function (exports_5, context_5) {
                 };
                 return Meta;
             }());
-            exports_5("Meta", Meta);
+            exports_6("Meta", Meta);
         }
     };
 });
-System.register("tinyts/control/list", ["tinyts/core/view", "tinyts/core/meta"], function (exports_6, context_6) {
+System.register("control/list", ["core/view", "core/meta"], function (exports_7, context_7) {
     "use strict";
-    var __moduleName = context_6 && context_6.id;
+    var __moduleName = context_7 && context_7.id;
     var view_2, meta_1, ListView;
     return {
         setters: [
@@ -854,54 +885,11 @@ System.register("tinyts/control/list", ["tinyts/core/view", "tinyts/core/meta"],
                 };
                 return ListView;
             }(view_2.View));
-            exports_6("ListView", ListView);
+            exports_7("ListView", ListView);
         }
     };
 });
-System.register("tinyts/control/input", ["tinyts/core/view"], function (exports_7, context_7) {
-    "use strict";
-    var __moduleName = context_7 && context_7.id;
-    var view_3, InputView;
-    return {
-        setters: [
-            function (view_3_1) {
-                view_3 = view_3_1;
-            }
-        ],
-        execute: function () {
-            /**
-             * InputView 文本输入控件,作为输入框的基类
-             */
-            InputView = (function (_super) {
-                __extends(InputView, _super);
-                function InputView() {
-                    return _super !== null && _super.apply(this, arguments) || this;
-                }
-                /**
-                 * Value 取值
-                 */
-                InputView.prototype.Value = function () {
-                    return this.target.val();
-                };
-                /**
-                 * SetValue 设置值
-                 */
-                InputView.prototype.SetValue = function (v) {
-                    this.target.val(v);
-                };
-                /**
-                 * Clear 清空值
-                 */
-                InputView.prototype.Clear = function () {
-                    this.target.val("");
-                };
-                return InputView;
-            }(view_3.View));
-            exports_7("InputView", InputView);
-        }
-    };
-});
-System.register("tinyts/control/choice", ["tinyts/control/list"], function (exports_8, context_8) {
+System.register("control/choice", ["control/list"], function (exports_8, context_8) {
     "use strict";
     var __moduleName = context_8 && context_8.id;
     var list_1, ChoiceView;
@@ -923,72 +911,42 @@ System.register("tinyts/control/choice", ["tinyts/control/list"], function (expo
         }
     };
 });
-System.register("tinyts/control/table", ["tinyts/control/list"], function (exports_9, context_9) {
+System.register("control/text", ["core/view"], function (exports_9, context_9) {
     "use strict";
     var __moduleName = context_9 && context_9.id;
-    var list_2, Table;
+    var view_3, TextView;
     return {
         setters: [
-            function (list_2_1) {
-                list_2 = list_2_1;
+            function (view_3_1) {
+                view_3 = view_3_1;
             }
         ],
         execute: function () {
-            Table = (function (_super) {
-                __extends(Table, _super);
-                function Table() {
+            /**
+             * TextView 用于文本显示的控件
+             * 这里的文本指<tag>文本内容</tag>中的文本内容
+             * 所以button也继承自该类
+             */
+            TextView = (function (_super) {
+                __extends(TextView, _super);
+                function TextView() {
                     return _super !== null && _super.apply(this, arguments) || this;
                 }
-                return Table;
-            }(list_2.ListView));
-            exports_9("Table", Table);
+                TextView.prototype.Text = function () {
+                    return this.target.text();
+                };
+                TextView.prototype.SetText = function (v) {
+                    this.target.text(v);
+                };
+                return TextView;
+            }(view_3.View));
+            exports_9("TextView", TextView);
         }
     };
 });
-System.register("tinyts/core/container", [], function (exports_10, context_10) {
+System.register("model/injector", ["control/input", "control/choice", "control/text", "control/list", "core/view"], function (exports_10, context_10) {
     "use strict";
     var __moduleName = context_10 && context_10.id;
-    var ValueContainer;
-    return {
-        setters: [],
-        execute: function () {
-            /**
-             * ValueContainer 依赖注入容器
-             */
-            ValueContainer = (function () {
-                function ValueContainer() {
-                }
-                /**
-                 * RegisterViewContainer 注册View容器
-                 * @param name View名称
-                 * @param constructor View的构造函数
-                 */
-                ValueContainer.prototype.RegisterViewContainer = function (name, constructor) {
-                    if (ValueContainer.viewContainer[name]) {
-                        console.warn(name + " already registed!");
-                        return;
-                    }
-                    ValueContainer.viewContainer[name] = constructor;
-                };
-                /**
-                 * GetView 根据View名称获取View对象
-                 * @param viewName View名称
-                 */
-                ValueContainer.prototype.GetView = function (viewName) {
-                    var constructor = ValueContainer.viewContainer[viewName];
-                    if (constructor != null) {
-                        return new constructor();
-                    }
-                };
-                return ValueContainer;
-            }());
-            exports_10("ValueContainer", ValueContainer);
-        }
-    };
-});
-System.register("tinyts/model/injector", ["tinyts/control/input", "tinyts/control/choice", "tinyts/control/text", "tinyts/control/list", "tinyts/core/view"], function (exports_11, context_11) {
-    "use strict";
-    var __moduleName = context_11 && context_11.id;
     /**
      * Resolve 将model中的数据注入到context中
      * @param context 控件上下文
@@ -1005,10 +963,10 @@ System.register("tinyts/model/injector", ["tinyts/control/input", "tinyts/contro
                         if (target instanceof input_1.InputView || target instanceof choice_1.ChoiceView) {
                             target.Clear();
                         }
-                        else if (target instanceof text_2.TextView) {
+                        else if (target instanceof text_1.TextView) {
                             target.SetText("");
                         }
-                        else if (target instanceof list_3.ListView) {
+                        else if (target instanceof list_2.ListView) {
                             target.SetData([]);
                         }
                         else {
@@ -1030,10 +988,10 @@ System.register("tinyts/model/injector", ["tinyts/control/input", "tinyts/contro
                         if (target instanceof input_1.InputView || target instanceof choice_1.ChoiceView) {
                             target.SetValue(value);
                         }
-                        else if (target instanceof text_2.TextView) {
+                        else if (target instanceof text_1.TextView) {
                             target.SetText(value);
                         }
-                        else if (target instanceof list_3.ListView && $.isArray(value)) {
+                        else if (target instanceof list_2.ListView && $.isArray(value)) {
                             target.SetData(value);
                         }
                         else {
@@ -1047,14 +1005,14 @@ System.register("tinyts/model/injector", ["tinyts/control/input", "tinyts/contro
             }
         }
     }
-    exports_11("Resolve", Resolve);
+    exports_10("Resolve", Resolve);
     /**
      * Inject 将context中的control的值注入到model中
      */
     function Inject(context) {
     }
-    exports_11("Inject", Inject);
-    var input_1, choice_1, text_2, list_3, view_4;
+    exports_10("Inject", Inject);
+    var input_1, choice_1, text_1, list_2, view_4;
     return {
         setters: [
             function (input_1_1) {
@@ -1063,11 +1021,11 @@ System.register("tinyts/model/injector", ["tinyts/control/input", "tinyts/contro
             function (choice_1_1) {
                 choice_1 = choice_1_1;
             },
-            function (text_2_1) {
-                text_2 = text_2_1;
+            function (text_1_1) {
+                text_1 = text_1_1;
             },
-            function (list_3_1) {
-                list_3 = list_3_1;
+            function (list_2_1) {
+                list_2 = list_2_1;
             },
             function (view_4_1) {
                 view_4 = view_4_1;
@@ -1077,9 +1035,9 @@ System.register("tinyts/model/injector", ["tinyts/control/input", "tinyts/contro
         }
     };
 });
-System.register("tinyts/core/tinyts", ["tinyts/core/view"], function (exports_12, context_12) {
+System.register("core/tinyts", ["core/view"], function (exports_11, context_11) {
     "use strict";
-    var __moduleName = context_12 && context_12.id;
+    var __moduleName = context_11 && context_11.id;
     /**
      * v decorator 用于标记一个通过ID绑定的View
      * @param T 目标视图的类型(如果是ViewG,则要求视图实现T的方法,如果是View则不限制)
@@ -1114,7 +1072,7 @@ System.register("tinyts/core/tinyts", ["tinyts/core/view"], function (exports_12
             targetType["__inject__"][name]["views"].push(temp);
         };
     }
-    exports_12("v", v);
+    exports_11("v", v);
     /**
      * f decorator 用于声明虚拟视图的html文件
      * @param url html文件的url地址
@@ -1128,7 +1086,7 @@ System.register("tinyts/core/tinyts", ["tinyts/core/view"], function (exports_12
             constructor["__url__"] = url;
         };
     }
-    exports_12("f", f);
+    exports_11("f", f);
     var view_5, AncView;
     return {
         setters: [
@@ -1178,7 +1136,198 @@ System.register("tinyts/core/tinyts", ["tinyts/core/view"], function (exports_12
                 };
                 return AncView;
             }(view_5.View));
-            exports_12("AncView", AncView);
+            exports_11("AncView", AncView);
+        }
+    };
+});
+System.register("control/button", ["control/text"], function (exports_12, context_12) {
+    "use strict";
+    var __moduleName = context_12 && context_12.id;
+    var text_2, Button;
+    return {
+        setters: [
+            function (text_2_1) {
+                text_2 = text_2_1;
+            }
+        ],
+        execute: function () {
+            Button = (function (_super) {
+                __extends(Button, _super);
+                function Button() {
+                    return _super !== null && _super.apply(this, arguments) || this;
+                }
+                /**
+                 * OnClick 注册点击事件
+                 */
+                Button.prototype.OnClick = function (handler) {
+                    this.target.click(handler);
+                };
+                /**
+                 * PerformClick 触发button的点击事件
+                 */
+                Button.prototype.PerformClick = function () {
+                    if (this.target != null) {
+                        this.target.click();
+                    }
+                };
+                return Button;
+            }(text_2.TextView));
+            exports_12("Button", Button);
+        }
+    };
+});
+System.register("application/ts/list_test", ["core/tinyts", "control/list"], function (exports_13, context_13) {
+    "use strict";
+    var __moduleName = context_13 && context_13.id;
+    var tinyts_1, list_3, DataModel, ListModel, aa;
+    return {
+        setters: [
+            function (tinyts_1_1) {
+                tinyts_1 = tinyts_1_1;
+            },
+            function (list_3_1) {
+                list_3 = list_3_1;
+            }
+        ],
+        execute: function () {
+            DataModel = (function () {
+                function DataModel(Id, Name) {
+                    this.Id = Id;
+                    this.Name = Name;
+                }
+                return DataModel;
+            }());
+            ListModel = (function (_super) {
+                __extends(ListModel, _super);
+                function ListModel() {
+                    return _super !== null && _super.apply(this, arguments) || this;
+                }
+                ListModel.prototype.AfterInject = function () {
+                    var data = [];
+                    data.push({});
+                    data.push(new DataModel(2, "bbb"));
+                    this.mList.SetData(data);
+                };
+                return ListModel;
+            }(tinyts_1.AncView));
+            __decorate([
+                tinyts_1.v(list_3.ListView),
+                __metadata("design:type", list_3.ListView)
+            ], ListModel.prototype, "mList", void 0);
+            exports_13("ListModel", ListModel);
+            aa = new ListModel();
+        }
+    };
+});
+System.register("application/ts/validator_test", ["application/model/validator_test", "class-validator"], function (exports_14, context_14) {
+    "use strict";
+    var __moduleName = context_14 && context_14.id;
+    var validator_test_1, class_validator_2, ValidatorTestModel, aa;
+    return {
+        setters: [
+            function (validator_test_1_1) {
+                validator_test_1 = validator_test_1_1;
+            },
+            function (class_validator_2_1) {
+                class_validator_2 = class_validator_2_1;
+            }
+        ],
+        execute: function () {
+            ValidatorTestModel = (function () {
+                function ValidatorTestModel() {
+                    var aa = new validator_test_1.TestModel();
+                    aa.name = "aa1111a";
+                    aa.phone = "15958049371";
+                    class_validator_2.validate(aa).then(function (errors) {
+                        if (errors.length > 0) {
+                            console.log("validate error!");
+                            console.log(errors);
+                        }
+                        else {
+                            console.log("validate succ!");
+                        }
+                    });
+                }
+                return ValidatorTestModel;
+            }());
+            exports_14("ValidatorTestModel", ValidatorTestModel);
+            aa = new ValidatorTestModel();
+        }
+    };
+});
+System.register("application/ts/viewv_test", ["core/view", "core/tinyts", "control/button", "control/list"], function (exports_15, context_15) {
+    "use strict";
+    var __moduleName = context_15 && context_15.id;
+    var view_6, tinyts_2, button_1, list_4, ViewVTest, ViewVTest2, ViewVModel, aa;
+    return {
+        setters: [
+            function (view_6_1) {
+                view_6 = view_6_1;
+            },
+            function (tinyts_2_1) {
+                tinyts_2 = tinyts_2_1;
+            },
+            function (button_1_1) {
+                button_1 = button_1_1;
+            },
+            function (list_4_1) {
+                list_4 = list_4_1;
+            }
+        ],
+        execute: function () {
+            ViewVTest = (function (_super) {
+                __extends(ViewVTest, _super);
+                function ViewVTest() {
+                    var _this = _super !== null && _super.apply(this, arguments) || this;
+                    _this.viewString = "<p></p>";
+                    return _this;
+                }
+                ViewVTest.prototype.AfterInject = function () {
+                    this.btnClick.SetText("消失");
+                };
+                return ViewVTest;
+            }(view_6.ViewV));
+            __decorate([
+                tinyts_2.v(button_1.Button),
+                __metadata("design:type", button_1.Button)
+            ], ViewVTest.prototype, "btnClick", void 0);
+            ViewVTest = __decorate([
+                tinyts_2.f("viewv_v.html")
+            ], ViewVTest);
+            ViewVTest2 = (function (_super) {
+                __extends(ViewVTest2, _super);
+                function ViewVTest2() {
+                    var _this = _super !== null && _super.apply(this, arguments) || this;
+                    _this.viewString = "<ul id=\"list\" data-property=\"mList\"></ul>";
+                    return _this;
+                }
+                ViewVTest2.prototype.AfterInject = function () {
+                    console.log(this.list.PropertyName());
+                };
+                return ViewVTest2;
+            }(view_6.ViewV));
+            __decorate([
+                tinyts_2.v(list_4.ListView),
+                __metadata("design:type", list_4.ListView)
+            ], ViewVTest2.prototype, "list", void 0);
+            exports_15("ViewVTest2", ViewVTest2);
+            ViewVModel = (function (_super) {
+                __extends(ViewVModel, _super);
+                function ViewVModel() {
+                    return _super !== null && _super.apply(this, arguments) || this;
+                }
+                return ViewVModel;
+            }(tinyts_2.AncView));
+            __decorate([
+                tinyts_2.v(ViewVTest),
+                __metadata("design:type", ViewVTest)
+            ], ViewVModel.prototype, "v", void 0);
+            __decorate([
+                tinyts_2.v(ViewVTest2),
+                __metadata("design:type", ViewVTest2)
+            ], ViewVModel.prototype, "c", void 0);
+            exports_15("ViewVModel", ViewVModel);
+            aa = new ViewVModel();
         }
     };
 });

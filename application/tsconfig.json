@@ -4,7 +4,7 @@
         "experimentalDecorators": true,
         "moduleResolution": "node",
         "target": "es5",
-        "module": "amd",
+        "module": "system",
         "outFile": "js/test.js"
     }
 }
