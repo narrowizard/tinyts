@@ -944,7 +944,7 @@ System.register("control/text", ["core/view"], function (exports_9, context_9) {
         }
     };
 });
-System.register("model/injector", ["control/input", "control/choice", "control/text", "control/list", "core/view"], function (exports_10, context_10) {
+System.register("model/injector", ["control/input", "control/choice", "control/text", "control/list", "core/view", "class-validator"], function (exports_10, context_10) {
     "use strict";
     var __moduleName = context_10 && context_10.id;
     /**
@@ -1009,10 +1009,46 @@ System.register("model/injector", ["control/input", "control/choice", "control/t
     /**
      * Inject 将context中的control的值注入到model中
      */
-    function Inject(context) {
+    function Inject(TClass, context) {
+        return new Promise(function (resolve, reject) {
+            var temp = new TClass();
+            for (var property in context) {
+                var target = context[property];
+                if (target instanceof view_4.View) {
+                    var propName = target.PropertyName();
+                    if (propName) {
+                        var value;
+                        if (target instanceof input_1.InputView || target instanceof choice_1.ChoiceView) {
+                            value = target.Value();
+                        }
+                        else if (target instanceof list_2.ListView) {
+                            // 暂时不注入列表数据
+                        }
+                        //如果model中存在,优先注入
+                        if (TClass.prototype.hasOwnProperty(propName)) {
+                            temp[propName] = value;
+                        }
+                        else if (value != null) {
+                            //注入model中不存在,但是value不为null的值
+                            temp[propName] = value;
+                        }
+                    }
+                }
+            }
+            // 注入完成,验证
+            class_validator_2.validate(temp).then(function (errors) {
+                if (errors.length == 0) {
+                    // 验证通过
+                    resolve(temp);
+                }
+                else {
+                    reject(errors);
+                }
+            });
+        });
     }
     exports_10("Inject", Inject);
-    var input_1, choice_1, text_1, list_2, view_4;
+    var input_1, choice_1, text_1, list_2, view_4, class_validator_2;
     return {
         setters: [
             function (input_1_1) {
@@ -1029,6 +1065,9 @@ System.register("model/injector", ["control/input", "control/choice", "control/t
             },
             function (view_4_1) {
                 view_4 = view_4_1;
+            },
+            function (class_validator_2_1) {
+                class_validator_2 = class_validator_2_1;
             }
         ],
         execute: function () {
@@ -1176,14 +1215,71 @@ System.register("control/button", ["control/text"], function (exports_12, contex
         }
     };
 });
-System.register("application/ts/list_test", ["core/tinyts", "control/list"], function (exports_13, context_13) {
+System.register("application/ts/injector_test", ["control/input", "core/tinyts", "model/injector", "application/model/validator_test", "control/button"], function (exports_13, context_13) {
     "use strict";
     var __moduleName = context_13 && context_13.id;
-    var tinyts_1, list_3, DataModel, ListModel, aa;
+    var input_2, tinyts_1, injector_1, validator_test_1, button_1, InjectorTestModel, aa;
     return {
         setters: [
+            function (input_2_1) {
+                input_2 = input_2_1;
+            },
             function (tinyts_1_1) {
                 tinyts_1 = tinyts_1_1;
+            },
+            function (injector_1_1) {
+                injector_1 = injector_1_1;
+            },
+            function (validator_test_1_1) {
+                validator_test_1 = validator_test_1_1;
+            },
+            function (button_1_1) {
+                button_1 = button_1_1;
+            }
+        ],
+        execute: function () {
+            InjectorTestModel = (function (_super) {
+                __extends(InjectorTestModel, _super);
+                function InjectorTestModel() {
+                    return _super !== null && _super.apply(this, arguments) || this;
+                }
+                InjectorTestModel.prototype.AfterInject = function () {
+                    var me = this;
+                    me.btnInject.OnClick(function () {
+                        injector_1.Inject(validator_test_1.TestModel, me).then(function (data) {
+                            console.log(data);
+                        }).catch(function (errors) {
+                            console.log(errors);
+                        });
+                    });
+                };
+                return InjectorTestModel;
+            }(tinyts_1.AncView));
+            __decorate([
+                tinyts_1.v(input_2.InputView),
+                __metadata("design:type", input_2.InputView)
+            ], InjectorTestModel.prototype, "sName", void 0);
+            __decorate([
+                tinyts_1.v(input_2.InputView),
+                __metadata("design:type", input_2.InputView)
+            ], InjectorTestModel.prototype, "sPhone", void 0);
+            __decorate([
+                tinyts_1.v(button_1.Button),
+                __metadata("design:type", button_1.Button)
+            ], InjectorTestModel.prototype, "btnInject", void 0);
+            exports_13("InjectorTestModel", InjectorTestModel);
+            aa = new InjectorTestModel();
+        }
+    };
+});
+System.register("application/ts/list_test", ["core/tinyts", "control/list"], function (exports_14, context_14) {
+    "use strict";
+    var __moduleName = context_14 && context_14.id;
+    var tinyts_2, list_3, DataModel, ListModel, aa;
+    return {
+        setters: [
+            function (tinyts_2_1) {
+                tinyts_2 = tinyts_2_1;
             },
             function (list_3_1) {
                 list_3 = list_3_1;
@@ -1209,36 +1305,36 @@ System.register("application/ts/list_test", ["core/tinyts", "control/list"], fun
                     this.mList.SetData(data);
                 };
                 return ListModel;
-            }(tinyts_1.AncView));
+            }(tinyts_2.AncView));
             __decorate([
-                tinyts_1.v(list_3.ListView),
+                tinyts_2.v(list_3.ListView),
                 __metadata("design:type", list_3.ListView)
             ], ListModel.prototype, "mList", void 0);
-            exports_13("ListModel", ListModel);
+            exports_14("ListModel", ListModel);
             aa = new ListModel();
         }
     };
 });
-System.register("application/ts/validator_test", ["application/model/validator_test", "class-validator"], function (exports_14, context_14) {
+System.register("application/ts/validator_test", ["application/model/validator_test", "class-validator"], function (exports_15, context_15) {
     "use strict";
-    var __moduleName = context_14 && context_14.id;
-    var validator_test_1, class_validator_2, ValidatorTestModel, aa;
+    var __moduleName = context_15 && context_15.id;
+    var validator_test_2, class_validator_3, ValidatorTestModel, aa;
     return {
         setters: [
-            function (validator_test_1_1) {
-                validator_test_1 = validator_test_1_1;
+            function (validator_test_2_1) {
+                validator_test_2 = validator_test_2_1;
             },
-            function (class_validator_2_1) {
-                class_validator_2 = class_validator_2_1;
+            function (class_validator_3_1) {
+                class_validator_3 = class_validator_3_1;
             }
         ],
         execute: function () {
             ValidatorTestModel = (function () {
                 function ValidatorTestModel() {
-                    var aa = new validator_test_1.TestModel();
+                    var aa = new validator_test_2.TestModel();
                     aa.name = "aa1111a";
                     aa.phone = "15958049371";
-                    class_validator_2.validate(aa).then(function (errors) {
+                    class_validator_3.validate(aa).then(function (errors) {
                         if (errors.length > 0) {
                             console.log("validate error!");
                             console.log(errors);
@@ -1250,25 +1346,25 @@ System.register("application/ts/validator_test", ["application/model/validator_t
                 }
                 return ValidatorTestModel;
             }());
-            exports_14("ValidatorTestModel", ValidatorTestModel);
+            exports_15("ValidatorTestModel", ValidatorTestModel);
             aa = new ValidatorTestModel();
         }
     };
 });
-System.register("application/ts/viewv_test", ["core/view", "core/tinyts", "control/button", "control/list"], function (exports_15, context_15) {
+System.register("application/ts/viewv_test", ["core/view", "core/tinyts", "control/button", "control/list"], function (exports_16, context_16) {
     "use strict";
-    var __moduleName = context_15 && context_15.id;
-    var view_6, tinyts_2, button_1, list_4, ViewVTest, ViewVTest2, ViewVModel, aa;
+    var __moduleName = context_16 && context_16.id;
+    var view_6, tinyts_3, button_2, list_4, ViewVTest, ViewVTest2, ViewVModel, aa;
     return {
         setters: [
             function (view_6_1) {
                 view_6 = view_6_1;
             },
-            function (tinyts_2_1) {
-                tinyts_2 = tinyts_2_1;
+            function (tinyts_3_1) {
+                tinyts_3 = tinyts_3_1;
             },
-            function (button_1_1) {
-                button_1 = button_1_1;
+            function (button_2_1) {
+                button_2 = button_2_1;
             },
             function (list_4_1) {
                 list_4 = list_4_1;
@@ -1288,11 +1384,11 @@ System.register("application/ts/viewv_test", ["core/view", "core/tinyts", "contr
                 return ViewVTest;
             }(view_6.ViewV));
             __decorate([
-                tinyts_2.v(button_1.Button),
-                __metadata("design:type", button_1.Button)
+                tinyts_3.v(button_2.Button),
+                __metadata("design:type", button_2.Button)
             ], ViewVTest.prototype, "btnClick", void 0);
             ViewVTest = __decorate([
-                tinyts_2.f("viewv_v.html")
+                tinyts_3.f("viewv_v.html")
             ], ViewVTest);
             ViewVTest2 = (function (_super) {
                 __extends(ViewVTest2, _super);
@@ -1307,26 +1403,26 @@ System.register("application/ts/viewv_test", ["core/view", "core/tinyts", "contr
                 return ViewVTest2;
             }(view_6.ViewV));
             __decorate([
-                tinyts_2.v(list_4.ListView),
+                tinyts_3.v(list_4.ListView),
                 __metadata("design:type", list_4.ListView)
             ], ViewVTest2.prototype, "list", void 0);
-            exports_15("ViewVTest2", ViewVTest2);
+            exports_16("ViewVTest2", ViewVTest2);
             ViewVModel = (function (_super) {
                 __extends(ViewVModel, _super);
                 function ViewVModel() {
                     return _super !== null && _super.apply(this, arguments) || this;
                 }
                 return ViewVModel;
-            }(tinyts_2.AncView));
+            }(tinyts_3.AncView));
             __decorate([
-                tinyts_2.v(ViewVTest),
+                tinyts_3.v(ViewVTest),
                 __metadata("design:type", ViewVTest)
             ], ViewVModel.prototype, "v", void 0);
             __decorate([
-                tinyts_2.v(ViewVTest2),
+                tinyts_3.v(ViewVTest2),
                 __metadata("design:type", ViewVTest2)
             ], ViewVModel.prototype, "c", void 0);
-            exports_15("ViewVModel", ViewVModel);
+            exports_16("ViewVModel", ViewVModel);
             aa = new ViewVModel();
         }
     };
