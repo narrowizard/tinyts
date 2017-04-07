@@ -41,6 +41,10 @@ System.register("application/model/validator_test", ["class-validator"], functio
                 class_validator_1.IsMobilePhone('zh-CN'),
                 __metadata("design:type", String)
             ], TestModel.prototype, "phone", void 0);
+            __decorate([
+                class_validator_1.Length(1, 2),
+                __metadata("design:type", String)
+            ], TestModel.prototype, "subname", void 0);
             exports_1("TestModel", TestModel);
         }
     };
@@ -1006,34 +1010,52 @@ System.register("model/injector", ["control/input", "control/choice", "control/t
         }
     }
     exports_10("Resolve", Resolve);
+    function InjectWithoutValidate(TClass, context) {
+        var temp = new TClass();
+        for (var property in context) {
+            if (property == "context") {
+                // 上下文,跳过
+                continue;
+            }
+            var target = context[property];
+            if (target instanceof view_4.View) {
+                if (target instanceof view_4.ViewG || target instanceof view_4.ViewV) {
+                    // nest inject
+                    var tt = InjectWithoutValidate(TClass, target);
+                    // 合并temp和tt
+                    temp = $.extend({}, temp, tt);
+                }
+                var propName = target.PropertyName();
+                if (propName) {
+                    var value;
+                    if (target instanceof input_1.InputView || target instanceof choice_1.ChoiceView) {
+                        value = target.Value();
+                    }
+                    else if (target instanceof list_2.ListView) {
+                        // 暂时不注入列表数据
+                    }
+                    //如果model中存在,优先注入
+                    if (TClass.prototype.hasOwnProperty(propName)) {
+                        temp[propName] = value;
+                    }
+                    else if (value != null) {
+                        //注入model中不存在,但是value不为null的值
+                        temp[propName] = value;
+                    }
+                }
+            }
+        }
+        return temp;
+    }
     /**
      * Inject 将context中的control的值注入到model中
      */
     function Inject(TClass, context) {
         return new Promise(function (resolve, reject) {
+            var data = InjectWithoutValidate(TClass, context);
             var temp = new TClass();
-            for (var property in context) {
-                var target = context[property];
-                if (target instanceof view_4.View) {
-                    var propName = target.PropertyName();
-                    if (propName) {
-                        var value;
-                        if (target instanceof input_1.InputView || target instanceof choice_1.ChoiceView) {
-                            value = target.Value();
-                        }
-                        else if (target instanceof list_2.ListView) {
-                            // 暂时不注入列表数据
-                        }
-                        //如果model中存在,优先注入
-                        if (TClass.prototype.hasOwnProperty(propName)) {
-                            temp[propName] = value;
-                        }
-                        else if (value != null) {
-                            //注入model中不存在,但是value不为null的值
-                            temp[propName] = value;
-                        }
-                    }
-                }
+            for (var property in data) {
+                temp[property] = data[property];
             }
             // 注入完成,验证
             class_validator_2.validate(temp).then(function (errors) {
@@ -1215,10 +1237,10 @@ System.register("control/button", ["control/text"], function (exports_12, contex
         }
     };
 });
-System.register("application/ts/injector_test", ["control/input", "core/tinyts", "model/injector", "application/model/validator_test", "control/button"], function (exports_13, context_13) {
+System.register("application/ts/injector_test", ["control/input", "core/tinyts", "model/injector", "application/model/validator_test", "control/button", "core/view"], function (exports_13, context_13) {
     "use strict";
     var __moduleName = context_13 && context_13.id;
-    var input_2, tinyts_1, injector_1, validator_test_1, button_1, InjectorTestModel, aa;
+    var input_2, tinyts_1, injector_1, validator_test_1, button_1, view_6, Name2Model, SubModel, InjectorTestModel, aa;
     return {
         setters: [
             function (input_2_1) {
@@ -1235,9 +1257,38 @@ System.register("application/ts/injector_test", ["control/input", "core/tinyts",
             },
             function (button_1_1) {
                 button_1 = button_1_1;
+            },
+            function (view_6_1) {
+                view_6 = view_6_1;
             }
         ],
         execute: function () {
+            Name2Model = (function (_super) {
+                __extends(Name2Model, _super);
+                function Name2Model() {
+                    return _super !== null && _super.apply(this, arguments) || this;
+                }
+                return Name2Model;
+            }(view_6.ViewG));
+            __decorate([
+                tinyts_1.v(input_2.InputView),
+                __metadata("design:type", input_2.InputView)
+            ], Name2Model.prototype, "Name2", void 0);
+            SubModel = (function (_super) {
+                __extends(SubModel, _super);
+                function SubModel() {
+                    return _super !== null && _super.apply(this, arguments) || this;
+                }
+                return SubModel;
+            }(view_6.ViewG));
+            __decorate([
+                tinyts_1.v(Name2Model),
+                __metadata("design:type", Name2Model)
+            ], SubModel.prototype, "aaa", void 0);
+            __decorate([
+                tinyts_1.v(input_2.InputView),
+                __metadata("design:type", input_2.InputView)
+            ], SubModel.prototype, "sSubName", void 0);
             InjectorTestModel = (function (_super) {
                 __extends(InjectorTestModel, _super);
                 function InjectorTestModel() {
@@ -1267,6 +1318,10 @@ System.register("application/ts/injector_test", ["control/input", "core/tinyts",
                 tinyts_1.v(button_1.Button),
                 __metadata("design:type", button_1.Button)
             ], InjectorTestModel.prototype, "btnInject", void 0);
+            __decorate([
+                tinyts_1.v(SubModel),
+                __metadata("design:type", SubModel)
+            ], InjectorTestModel.prototype, "sub", void 0);
             exports_13("InjectorTestModel", InjectorTestModel);
             aa = new InjectorTestModel();
         }
@@ -1354,11 +1409,11 @@ System.register("application/ts/validator_test", ["application/model/validator_t
 System.register("application/ts/viewv_test", ["core/view", "core/tinyts", "control/button", "control/list"], function (exports_16, context_16) {
     "use strict";
     var __moduleName = context_16 && context_16.id;
-    var view_6, tinyts_3, button_2, list_4, ViewVTest, ViewVTest2, ViewVModel, aa;
+    var view_7, tinyts_3, button_2, list_4, ViewVTest, ViewVTest2, ViewVModel, aa;
     return {
         setters: [
-            function (view_6_1) {
-                view_6 = view_6_1;
+            function (view_7_1) {
+                view_7 = view_7_1;
             },
             function (tinyts_3_1) {
                 tinyts_3 = tinyts_3_1;
@@ -1382,7 +1437,7 @@ System.register("application/ts/viewv_test", ["core/view", "core/tinyts", "contr
                     this.btnClick.SetText("消失");
                 };
                 return ViewVTest;
-            }(view_6.ViewV));
+            }(view_7.ViewV));
             __decorate([
                 tinyts_3.v(button_2.Button),
                 __metadata("design:type", button_2.Button)
@@ -1401,7 +1456,7 @@ System.register("application/ts/viewv_test", ["core/view", "core/tinyts", "contr
                     console.log(this.list.PropertyName());
                 };
                 return ViewVTest2;
-            }(view_6.ViewV));
+            }(view_7.ViewV));
             __decorate([
                 tinyts_3.v(list_4.ListView),
                 __metadata("design:type", list_4.ListView)

@@ -8,4 +8,7 @@ export class TestModel {
     @IsMobilePhone('zh-CN')
     phone: string;
 
+    @Length(1, 2)
+    subname: string;
+
 }
