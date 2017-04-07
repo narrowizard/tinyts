@@ -1,6 +1,7 @@
 import { HttpUtils, HttpResponse } from './http';
+import { ServicePoolInstance } from './servicepool';
 /**
- * injectModel 注入模型
+ * injectModel 视图注入模型
  */
 export class injectModel {
 
@@ -9,6 +10,24 @@ export class injectModel {
     selector: string;
 
     creator: { new (...args: any[]): View };
+}
+
+/**
+ * serviceInjectModel 服务注入模型
+ */
+export class serviceInjectModel {
+    propertyName: string;
+    creator: { new (...args: any[]): any };
+}
+
+export enum DataBindingType {
+    FUNCTION,
+    PROPERTY
+}
+
+export interface DataBindingProperty {
+    type: DataBindingType;
+    express: string[];
 }
 
 export enum ViewState {
@@ -52,6 +71,8 @@ export class View {
 
     // 事件列表
     protected eventList: { [eventName: string]: ((eventObj: JQueryEventObject, ...args: any[]) => any)[] };
+
+    protected bindingExpression: string;
 
     /**
      * Name 设置当前视图在viewmodel的属性名
@@ -129,6 +150,7 @@ export class View {
             this.state = ViewState.LOADSUCC;
             // 绑定成功
             this.propertyName = this.target.attr("data-property");
+            this.bindingExpression = this.target.attr("data-bind");
             if (matchedElementLength > 1) {
                 // 绑定了多个元素
                 this.multipart = true;
@@ -292,50 +314,60 @@ export class View {
     protected Inject() {
         var c = this.constructor;
         var instance = this;
-
         var injector = c["__inject__"];
+        this.BeforeInject();
         if (injector) {
-            this.BeforeInject();
             for (var i in injector) {
                 // 查找构造函数
                 var temp = injector[i];
                 if (instance instanceof temp["constructor"]) {
+                    // 注入视图
                     var views: injectModel[] = temp["views"];
-                    for (var j = 0; j < views.length; j++) {
-                        var view = views[j];
-                        var viewInstance = new view.creator();
-                        if (viewInstance instanceof View) {
-                            viewInstance.SetSelector(view.selector);
-                            viewInstance.SetName(view.propertyName);
-                            // 检测当前视图是否存在,如果不存在,则不限制下一级视图注入时的parent属性
-                            if (this.state == ViewState.LOADSUCC && !this.multipart) {
-                                viewInstance.LoadView(this.selector);
-                            } else {
-                                viewInstance.LoadView();
+                    if (views) {
+                        for (var j = 0; j < views.length; j++) {
+                            var view = views[j];
+                            var viewInstance = new view.creator();
+                            if (viewInstance instanceof View) {
+                                viewInstance.SetSelector(view.selector);
+                                viewInstance.SetName(view.propertyName);
+                                // 检测当前视图是否存在,如果不存在,则不限制下一级视图注入时的parent属性
+                                if (this.state == ViewState.LOADSUCC && !this.multipart) {
+                                    viewInstance.LoadView(this.selector);
+                                } else {
+                                    viewInstance.LoadView();
+                                }
+                                if (viewInstance instanceof ViewG) {
+                                    viewInstance.SetContext(this);
+                                }
+                                if (viewInstance instanceof ViewV) {
+                                    // 默认虚拟视图为耗时操作
+                                    (() => {
+                                        // 在循环中会出现引用出错的问题,在这里用一个闭包隐藏作用域
+                                        var temp = viewInstance;
+                                        temp.SetTemplateView().then(() => {
+                                            temp.Inject();
+                                        });
+                                    })();
+                                } else {
+                                    viewInstance.Inject();
+                                }
                             }
-                            if (viewInstance instanceof ViewG) {
-                                viewInstance.SetContext(this);
-                            }
-                            if (viewInstance instanceof ViewV) {
-                                // 默认虚拟视图为耗时操作
-                                (() => {
-                                    // 在循环中会出现引用出错的问题,在这里用一个闭包隐藏作用域
-                                    var temp = viewInstance;
-                                    temp.SetTemplateView().then(() => {
-                                        temp.Inject();
-                                    });
-                                })();
-                            } else {
-                                viewInstance.Inject();
-                            }
+                            instance[view.propertyName] = viewInstance;
                         }
-                        instance[view.propertyName] = viewInstance;
+                    }
+                    // 注入服务
+                    var services: serviceInjectModel[] = temp["services"];
+                    if (services) {
+                        for (var j = 0; j < services.length; j++) {
+                            var service = services[j];
+                            instance[service.propertyName] = ServicePoolInstance.GetService(service.creator);
+                        }
                     }
                     break;
                 }
             }
-            this.AfterInject();
         }
+        this.AfterInject();
     }
 
     // hooks

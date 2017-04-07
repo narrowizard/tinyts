@@ -1,5 +1,5 @@
 import { Inject } from '../model/injector';
-import { View, injectModel, ViewG, ViewState, ViewV } from './view';
+import { View, injectModel, ViewG, ViewState, ViewV, serviceInjectModel } from './view';
 
 /**
  * AncView 祖先视图,继承该视图指示tinyts托管的内容
@@ -51,13 +51,13 @@ export class AncView extends View {
  */
 export function v<T>(c: { new (...args: any[]): ViewG<T> | View }, selector?: string) {
     /**
-     * 该函数运行在ViewModel上
-     * @param target ViewModel实例
+     * 该函数运行在View上
+     * @param target View实例
      * @param decoratedPropertyName 属性名
      */
     return (target: T, decoratedPropertyName: string) => {
         const targetType: { __inject__?: Object } = target.constructor;
-        // 目标viewmodel的名称
+        // 目标view的名称
         var name = target.constructor.toString().match(/^function\s*([^\s(]+)/)[1];
 
         if (!targetType.hasOwnProperty(`__inject__`)) {
@@ -93,5 +93,41 @@ export function f(url: string) {
      */
     return (constructor: { new (...args: any[]): ViewV<any> }) => {
         constructor["__url__"] = url;
+    };
+}
+
+/**
+ * 用于声明需要注入的service
+ * @param s service的构造函数
+ */
+export function s<T>(s: { new (...args: any[]): T }) {
+    /**
+     * 该函数运行在View上
+     * @param target View实例
+     * @param decoratedPropertyName 属性名
+     */
+    return (target: View, decoratedPropertyName: string) => {
+        const targetType: { __inject__?: Object } = target.constructor;
+        // 目标view的名称
+        var name = target.constructor.toString().match(/^function\s*([^\s(]+)/)[1];
+
+        if (!targetType.hasOwnProperty(`__inject__`)) {
+            targetType[`__inject__`] = {};
+        }
+
+        if (!targetType["__inject__"][name]) {
+            targetType["__inject__"][name] = {
+                constructor: target.constructor
+            };
+        }
+        if (!targetType[`__inject__`][name]["services"]) {
+            targetType[`__inject__`][name]["services"] = [];
+        }
+
+        var temp = new serviceInjectModel();
+        temp.creator = s;
+        temp.propertyName = decoratedPropertyName;
+
+        targetType[`__inject__`][name]["services"].push(temp);
     };
 }

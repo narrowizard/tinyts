@@ -15,6 +15,10 @@ export class ListModel extends AncView {
     @v(ListView)
     mList: ListView<DataModel>;
 
+    constructor(private aa: UserService) {
+        super();
+    }
+
     AfterInject() {
         var data: DataModel[] = [];
         data.push({});
@@ -23,5 +27,3 @@ export class ListModel extends AncView {
     }
 
 }
-
-var aa = new ListModel();

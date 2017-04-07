@@ -1,3 +1,4 @@
+import { DataBindingType, DataBindingProperty } from './view';
 /**
  * Meta 实现一个模版语法解析的类
  */
@@ -14,5 +15,12 @@ export class Meta {
 
     static Compile(viewString: string) {
         Mustache.parse(viewString);
+    }
+
+    static ResolveDataBindingType(expression: string): DataBindingProperty {
+        if (!expression) {
+            return null;
+        }
+        
     }
 }
