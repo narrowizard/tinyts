@@ -277,10 +277,61 @@ System.register("core/servicepool", [], function (exports_4, context_4) {
         }
     };
 });
-System.register("core/view", ["core/http", "core/servicepool"], function (exports_5, context_5) {
+System.register("core/meta", [], function (exports_5, context_5) {
     "use strict";
     var __moduleName = context_5 && context_5.id;
-    var http_1, servicepool_1, injectModel, serviceInjectModel, DataBindingType, ViewState, View, ViewG, ViewV;
+    var Meta;
+    return {
+        setters: [],
+        execute: function () {
+            /**
+             * Meta 实现一个模版语法解析的类
+             */
+            Meta = (function () {
+                function Meta() {
+                }
+                /**
+                 * Resolve 解析模版语法,返回嵌入data后的html string
+                 * @param viewString 模版语法
+                 * @param model 需要嵌入的data模型
+                 */
+                Meta.Resolve = function (viewString, model) {
+                    return Mustache.render(viewString, model);
+                };
+                Meta.Compile = function (viewString) {
+                    Mustache.parse(viewString);
+                };
+                /**
+                 * BindView 绑定数据属性和View
+                 * @param p 父View
+                 * @param propertyName 属性名
+                 * @param view 子view
+                 */
+                Meta.BindView = function (p, propertyName, view) {
+                    Object.defineProperty(p, propertyName, {
+                        get: function () {
+                            return view.Value();
+                        },
+                        set: function (value) {
+                            view.SetValue(value);
+                        }
+                    });
+                };
+                Meta.ResolveDataBindingType = function (expression) {
+                    if (!expression) {
+                        return null;
+                    }
+                };
+                return Meta;
+            }());
+            exports_5("Meta", Meta);
+        }
+    };
+});
+System.register("core/view", ["core/http", "core/servicepool", "core/meta"], function (exports_6, context_6) {
+    "use strict";
+    var __moduleName = context_6 && context_6.id;
+    var http_1, servicepool_1, meta_1, injectModel, serviceInjectModel, DataBindingType, ViewState, View, ViewG, ViewV;
     return {
         setters: [
             function (http_1_1) {
@@ -288,6 +339,9 @@ System.register("core/view", ["core/http", "core/servicepool"], function (export
             },
             function (servicepool_1_1) {
                 servicepool_1 = servicepool_1_1;
+            },
+            function (meta_1_1) {
+                meta_1 = meta_1_1;
             }
         ],
         execute: function () {
@@ -299,7 +353,7 @@ System.register("core/view", ["core/http", "core/servicepool"], function (export
                 }
                 return injectModel;
             }());
-            exports_5("injectModel", injectModel);
+            exports_6("injectModel", injectModel);
             /**
              * serviceInjectModel 服务注入模型
              */
@@ -308,12 +362,12 @@ System.register("core/view", ["core/http", "core/servicepool"], function (export
                 }
                 return serviceInjectModel;
             }());
-            exports_5("serviceInjectModel", serviceInjectModel);
+            exports_6("serviceInjectModel", serviceInjectModel);
             (function (DataBindingType) {
                 DataBindingType[DataBindingType["FUNCTION"] = 0] = "FUNCTION";
                 DataBindingType[DataBindingType["PROPERTY"] = 1] = "PROPERTY";
             })(DataBindingType || (DataBindingType = {}));
-            exports_5("DataBindingType", DataBindingType);
+            exports_6("DataBindingType", DataBindingType);
             (function (ViewState) {
                 /**
                  * UNLOAD 尚未加载(未调用LoadView)
@@ -328,13 +382,24 @@ System.register("core/view", ["core/http", "core/servicepool"], function (export
                  */
                 ViewState[ViewState["LOADFAIL"] = 2] = "LOADFAIL";
             })(ViewState || (ViewState = {}));
-            exports_5("ViewState", ViewState);
+            exports_6("ViewState", ViewState);
             /**
              * View 视图基类
              */
             View = (function () {
                 function View() {
                 }
+                /**
+                 * Value 获取控件值,请在子类重写此方法
+                 */
+                View.prototype.Value = function () {
+                    return this.name;
+                };
+                /**
+                 * SetValue 设置控件值,请在子类重写此方法
+                 */
+                View.prototype.SetValue = function (value) {
+                };
                 /**
                  * Name 设置当前视图在viewmodel的属性名
                  */
@@ -565,6 +630,13 @@ System.register("core/view", ["core/http", "core/servicepool"], function (export
                     this.target.removeAttr("disabled");
                 };
                 /**
+                 * DataBind 处理数据绑定
+                 * @param context 上下文
+                 */
+                View.prototype.DataBind = function () {
+                    return this.bindingExpression;
+                };
+                /**
                  * Inject 将@v装饰的属性注入到View中,
                  * 当当前视图绑定DOM元素成功,并且是单元素绑定模式时,下一级注入会限制在当前DOM元素之内进行
                  */
@@ -593,6 +665,10 @@ System.register("core/view", ["core/http", "core/servicepool"], function (export
                                             }
                                             else {
                                                 viewInstance.LoadView();
+                                            }
+                                            // View.Loadview之后处理绑定逻辑
+                                            if (temp["models"] && temp["models"][viewInstance.DataBind()]) {
+                                                meta_1.Meta.BindView(instance, viewInstance.DataBind(), viewInstance);
                                             }
                                             if (viewInstance instanceof ViewG) {
                                                 viewInstance.SetContext(this);
@@ -633,7 +709,7 @@ System.register("core/view", ["core/http", "core/servicepool"], function (export
                 View.prototype.AfterInject = function () { };
                 return View;
             }());
-            exports_5("View", View);
+            exports_6("View", View);
             ViewG = (function (_super) {
                 __extends(ViewG, _super);
                 function ViewG() {
@@ -644,7 +720,7 @@ System.register("core/view", ["core/http", "core/servicepool"], function (export
                 };
                 return ViewG;
             }(View));
-            exports_5("ViewG", ViewG);
+            exports_6("ViewG", ViewG);
             /**
              * ViewV 虚拟视图,支持同步跟异步两种模式
              * 同步模式下,html string直接通过GetViewString方法返回
@@ -676,13 +752,13 @@ System.register("core/view", ["core/http", "core/servicepool"], function (export
                 };
                 return ViewV;
             }(ViewG));
-            exports_5("ViewV", ViewV);
+            exports_6("ViewV", ViewV);
         }
     };
 });
-System.register("control/text", ["core/view"], function (exports_6, context_6) {
+System.register("control/text", ["core/view"], function (exports_7, context_7) {
     "use strict";
-    var __moduleName = context_6 && context_6.id;
+    var __moduleName = context_7 && context_7.id;
     var view_1, TextView;
     return {
         setters: [
@@ -720,13 +796,13 @@ System.register("control/text", ["core/view"], function (exports_6, context_6) {
                 };
                 return TextView;
             }(view_1.View));
-            exports_6("TextView", TextView);
+            exports_7("TextView", TextView);
         }
     };
 });
-System.register("control/input", ["control/text"], function (exports_7, context_7) {
+System.register("control/input", ["control/text"], function (exports_8, context_8) {
     "use strict";
-    var __moduleName = context_7 && context_7.id;
+    var __moduleName = context_8 && context_8.id;
     var text_1, InputView;
     return {
         setters: [
@@ -757,56 +833,21 @@ System.register("control/input", ["control/text"], function (exports_7, context_
                 };
                 return InputView;
             }(text_1.TextView));
-            exports_7("InputView", InputView);
-        }
-    };
-});
-System.register("core/meta", [], function (exports_8, context_8) {
-    "use strict";
-    var __moduleName = context_8 && context_8.id;
-    var Meta;
-    return {
-        setters: [],
-        execute: function () {
-            /**
-             * Meta 实现一个模版语法解析的类
-             */
-            Meta = (function () {
-                function Meta() {
-                }
-                /**
-                 * Resolve 解析模版语法,返回嵌入data后的html string
-                 * @param viewString 模版语法
-                 * @param model 需要嵌入的data模型
-                 */
-                Meta.Resolve = function (viewString, model) {
-                    return Mustache.render(viewString, model);
-                };
-                Meta.Compile = function (viewString) {
-                    Mustache.parse(viewString);
-                };
-                Meta.ResolveDataBindingType = function (expression) {
-                    if (!expression) {
-                        return null;
-                    }
-                };
-                return Meta;
-            }());
-            exports_8("Meta", Meta);
+            exports_8("InputView", InputView);
         }
     };
 });
 System.register("control/list", ["core/view", "core/meta"], function (exports_9, context_9) {
     "use strict";
     var __moduleName = context_9 && context_9.id;
-    var view_2, meta_1, ListView;
+    var view_2, meta_2, ListView;
     return {
         setters: [
             function (view_2_1) {
                 view_2 = view_2_1;
             },
-            function (meta_1_1) {
-                meta_1 = meta_1_1;
+            function (meta_2_1) {
+                meta_2 = meta_2_1;
             }
         ],
         execute: function () {
@@ -914,7 +955,7 @@ System.register("control/list", ["core/view", "core/meta"], function (exports_9,
                     if (elemIndex == null) {
                         elemIndex = 0;
                     }
-                    return meta_1.Meta.Resolve(this.viewString[elemIndex], data);
+                    return meta_2.Meta.Resolve(this.viewString[elemIndex], data);
                 };
                 ;
                 /**
@@ -1261,6 +1302,29 @@ System.register("core/tinyts", ["core/view"], function (exports_12, context_12) 
         };
     }
     exports_12("s", s);
+    /**
+     * d 用于声明需要被数据绑定的属性
+     */
+    function d() {
+        return function (target, decoratedPropertyName) {
+            var targetType = target.constructor;
+            // 目标view的名称
+            var name = target.constructor.toString().match(/^function\s*([^\s(]+)/)[1];
+            if (!targetType.hasOwnProperty("__inject__")) {
+                targetType["__inject__"] = {};
+            }
+            if (!targetType["__inject__"][name]) {
+                targetType["__inject__"][name] = {
+                    constructor: target.constructor
+                };
+            }
+            if (!targetType["__inject__"][name]["models"]) {
+                targetType["__inject__"][name]["models"] = {};
+            }
+            targetType["__inject__"][name]["models"][decoratedPropertyName] = true;
+        };
+    }
+    exports_12("d", d);
     var view_4, AncView;
     return {
         setters: [
@@ -1275,7 +1339,7 @@ System.register("core/tinyts", ["core/view"], function (exports_12, context_12) 
              * tinyts的异步加载过程会导致页面元素的变化,给用户带来不好的体验
              * 因此需要在加载之前将tinyts托管的部分隐藏,请在container元素上加上style="display:none"
              * tinyts在完成注入后,会去除这个style以显示container的内容
-             * 注意:请尽量不要在container上加上display:none意外的style属性,可能会引起不可预知的错误
+             * 注意:请尽量不要在container上加上display:none以外的style属性,可能会引起不可预知的错误
              */
             AncView = (function (_super) {
                 __extends(AncView, _super);
@@ -1314,51 +1378,9 @@ System.register("core/tinyts", ["core/view"], function (exports_12, context_12) 
         }
     };
 });
-System.register("application/ts/bind_test", ["core/tinyts"], function (exports_13, context_13) {
+System.register("control/button", ["control/text"], function (exports_13, context_13) {
     "use strict";
     var __moduleName = context_13 && context_13.id;
-    var tinyts_1, BindTestModel;
-    return {
-        setters: [
-            function (tinyts_1_1) {
-                tinyts_1 = tinyts_1_1;
-            }
-        ],
-        execute: function () {
-            BindTestModel = (function (_super) {
-                __extends(BindTestModel, _super);
-                function BindTestModel() {
-                    return _super !== null && _super.apply(this, arguments) || this;
-                }
-                return BindTestModel;
-            }(tinyts_1.AncView));
-            exports_13("BindTestModel", BindTestModel);
-        }
-    };
-});
-System.register("application/ts/http_test", ["core/http"], function (exports_14, context_14) {
-    "use strict";
-    var __moduleName = context_14 && context_14.id;
-    var http_2;
-    return {
-        setters: [
-            function (http_2_1) {
-                http_2 = http_2_1;
-            }
-        ],
-        execute: function () {
-            http_2.HttpUtils.Get("../ts/http_test.ts").then(function (res) {
-                console.log(res.HttpStatus);
-                console.log(res.ResponseBody);
-            }).catch(function (reason) {
-                console.log(reason);
-            });
-        }
-    };
-});
-System.register("control/button", ["control/text"], function (exports_15, context_15) {
-    "use strict";
-    var __moduleName = context_15 && context_15.id;
     var text_3, Button;
     return {
         setters: [
@@ -1388,18 +1410,86 @@ System.register("control/button", ["control/text"], function (exports_15, contex
                 };
                 return Button;
             }(text_3.TextView));
-            exports_15("Button", Button);
+            exports_13("Button", Button);
+        }
+    };
+});
+System.register("application/ts/bind_test", ["core/tinyts", "control/input", "control/button"], function (exports_14, context_14) {
+    "use strict";
+    var __moduleName = context_14 && context_14.id;
+    var tinyts_1, input_2, button_1, BindTestModel, aa;
+    return {
+        setters: [
+            function (tinyts_1_1) {
+                tinyts_1 = tinyts_1_1;
+            },
+            function (input_2_1) {
+                input_2 = input_2_1;
+            },
+            function (button_1_1) {
+                button_1 = button_1_1;
+            }
+        ],
+        execute: function () {
+            BindTestModel = (function (_super) {
+                __extends(BindTestModel, _super);
+                function BindTestModel() {
+                    return _super !== null && _super.apply(this, arguments) || this;
+                }
+                BindTestModel.prototype.AfterInject = function () {
+                    var _this = this;
+                    this.name = "narro";
+                    this.btnInject.OnClick(function () {
+                        console.log(_this.name);
+                    });
+                };
+                return BindTestModel;
+            }(tinyts_1.AncView));
+            __decorate([
+                tinyts_1.d(),
+                __metadata("design:type", String)
+            ], BindTestModel.prototype, "name", void 0);
+            __decorate([
+                tinyts_1.v(input_2.InputView),
+                __metadata("design:type", input_2.InputView)
+            ], BindTestModel.prototype, "sName", void 0);
+            __decorate([
+                tinyts_1.v(button_1.Button),
+                __metadata("design:type", button_1.Button)
+            ], BindTestModel.prototype, "btnInject", void 0);
+            exports_14("BindTestModel", BindTestModel);
+            aa = new BindTestModel();
+        }
+    };
+});
+System.register("application/ts/http_test", ["core/http"], function (exports_15, context_15) {
+    "use strict";
+    var __moduleName = context_15 && context_15.id;
+    var http_2;
+    return {
+        setters: [
+            function (http_2_1) {
+                http_2 = http_2_1;
+            }
+        ],
+        execute: function () {
+            http_2.HttpUtils.Get("../ts/http_test.ts").then(function (res) {
+                console.log(res.HttpStatus);
+                console.log(res.ResponseBody);
+            }).catch(function (reason) {
+                console.log(reason);
+            });
         }
     };
 });
 System.register("application/ts/injector_test", ["control/input", "core/tinyts", "model/injector", "application/model/validator_test", "control/button", "core/view"], function (exports_16, context_16) {
     "use strict";
     var __moduleName = context_16 && context_16.id;
-    var input_2, tinyts_2, injector_1, validator_test_1, button_1, view_5, Name2Model, SubModel, InjectorTestModel, aa;
+    var input_3, tinyts_2, injector_1, validator_test_1, button_2, view_5, Name2Model, SubModel, InjectorTestModel, aa;
     return {
         setters: [
-            function (input_2_1) {
-                input_2 = input_2_1;
+            function (input_3_1) {
+                input_3 = input_3_1;
             },
             function (tinyts_2_1) {
                 tinyts_2 = tinyts_2_1;
@@ -1410,8 +1500,8 @@ System.register("application/ts/injector_test", ["control/input", "core/tinyts",
             function (validator_test_1_1) {
                 validator_test_1 = validator_test_1_1;
             },
-            function (button_1_1) {
-                button_1 = button_1_1;
+            function (button_2_1) {
+                button_2 = button_2_1;
             },
             function (view_5_1) {
                 view_5 = view_5_1;
@@ -1426,8 +1516,8 @@ System.register("application/ts/injector_test", ["control/input", "core/tinyts",
                 return Name2Model;
             }(view_5.ViewG));
             __decorate([
-                tinyts_2.v(input_2.InputView),
-                __metadata("design:type", input_2.InputView)
+                tinyts_2.v(input_3.InputView),
+                __metadata("design:type", input_3.InputView)
             ], Name2Model.prototype, "Name2", void 0);
             SubModel = (function (_super) {
                 __extends(SubModel, _super);
@@ -1441,8 +1531,8 @@ System.register("application/ts/injector_test", ["control/input", "core/tinyts",
                 __metadata("design:type", Name2Model)
             ], SubModel.prototype, "aaa", void 0);
             __decorate([
-                tinyts_2.v(input_2.InputView),
-                __metadata("design:type", input_2.InputView)
+                tinyts_2.v(input_3.InputView),
+                __metadata("design:type", input_3.InputView)
             ], SubModel.prototype, "sSubName", void 0);
             InjectorTestModel = (function (_super) {
                 __extends(InjectorTestModel, _super);
@@ -1462,16 +1552,16 @@ System.register("application/ts/injector_test", ["control/input", "core/tinyts",
                 return InjectorTestModel;
             }(tinyts_2.AncView));
             __decorate([
-                tinyts_2.v(input_2.InputView),
-                __metadata("design:type", input_2.InputView)
+                tinyts_2.v(input_3.InputView),
+                __metadata("design:type", input_3.InputView)
             ], InjectorTestModel.prototype, "sName", void 0);
             __decorate([
-                tinyts_2.v(input_2.InputView),
-                __metadata("design:type", input_2.InputView)
+                tinyts_2.v(input_3.InputView),
+                __metadata("design:type", input_3.InputView)
             ], InjectorTestModel.prototype, "sPhone", void 0);
             __decorate([
-                tinyts_2.v(button_1.Button),
-                __metadata("design:type", button_1.Button)
+                tinyts_2.v(button_2.Button),
+                __metadata("design:type", button_2.Button)
             ], InjectorTestModel.prototype, "btnInject", void 0);
             __decorate([
                 tinyts_2.v(SubModel),
@@ -1598,7 +1688,7 @@ System.register("application/ts/validator_test", ["application/model/validator_t
 System.register("application/ts/viewv_test", ["core/view", "core/tinyts", "control/button", "control/list"], function (exports_20, context_20) {
     "use strict";
     var __moduleName = context_20 && context_20.id;
-    var view_6, tinyts_5, button_2, list_4, ViewVTest, ViewVTest2, ViewVModel, aa;
+    var view_6, tinyts_5, button_3, list_4, ViewVTest, ViewVTest2, ViewVModel, aa;
     return {
         setters: [
             function (view_6_1) {
@@ -1607,8 +1697,8 @@ System.register("application/ts/viewv_test", ["core/view", "core/tinyts", "contr
             function (tinyts_5_1) {
                 tinyts_5 = tinyts_5_1;
             },
-            function (button_2_1) {
-                button_2 = button_2_1;
+            function (button_3_1) {
+                button_3 = button_3_1;
             },
             function (list_4_1) {
                 list_4 = list_4_1;
@@ -1628,8 +1718,8 @@ System.register("application/ts/viewv_test", ["core/view", "core/tinyts", "contr
                 return ViewVTest;
             }(view_6.ViewV));
             __decorate([
-                tinyts_5.v(button_2.Button),
-                __metadata("design:type", button_2.Button)
+                tinyts_5.v(button_3.Button),
+                __metadata("design:type", button_3.Button)
             ], ViewVTest.prototype, "btnClick", void 0);
             ViewVTest = __decorate([
                 tinyts_5.f("viewv_v.html")

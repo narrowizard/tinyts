@@ -7,7 +7,7 @@ import { View, injectModel, ViewG, ViewState, ViewV, serviceInjectModel } from '
  * tinyts的异步加载过程会导致页面元素的变化,给用户带来不好的体验
  * 因此需要在加载之前将tinyts托管的部分隐藏,请在container元素上加上style="display:none"
  * tinyts在完成注入后,会去除这个style以显示container的内容
- * 注意:请尽量不要在container上加上display:none意外的style属性,可能会引起不可预知的错误
+ * 注意:请尽量不要在container上加上display:none以外的style属性,可能会引起不可预知的错误
  */
 export class AncView extends View {
 
@@ -129,5 +129,31 @@ export function s<T>(s: { new (...args: any[]): T }) {
         temp.propertyName = decoratedPropertyName;
 
         targetType[`__inject__`][name]["services"].push(temp);
+    };
+}
+
+/**
+ * d 用于声明需要被数据绑定的属性
+ */
+export function d() {
+    return (target: View, decoratedPropertyName: string) => {
+        const targetType: { __inject__?: Object } = target.constructor;
+        // 目标view的名称
+        var name = target.constructor.toString().match(/^function\s*([^\s(]+)/)[1];
+
+        if (!targetType.hasOwnProperty(`__inject__`)) {
+            targetType[`__inject__`] = {};
+        }
+
+        if (!targetType["__inject__"][name]) {
+            targetType["__inject__"][name] = {
+                constructor: target.constructor
+            };
+        }
+        if (!targetType[`__inject__`][name]["models"]) {
+            targetType[`__inject__`][name]["models"] = {};
+        }
+
+        targetType[`__inject__`][name]["models"][decoratedPropertyName] = true;
     };
 }

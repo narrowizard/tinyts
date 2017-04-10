@@ -1,4 +1,4 @@
-import { DataBindingType, DataBindingProperty } from './view';
+import { DataBindingType, DataBindingProperty, View } from './view';
 /**
  * Meta 实现一个模版语法解析的类
  */
@@ -17,10 +17,27 @@ export class Meta {
         Mustache.parse(viewString);
     }
 
+    /**
+     * BindView 绑定数据属性和View
+     * @param p 父View
+     * @param propertyName 属性名
+     * @param view 子view
+     */
+    static BindView(p: View, propertyName: string, view: View) {
+        Object.defineProperty(p, propertyName, {
+            get: () => {
+                return view.Value();
+            },
+            set: (value) => {
+                view.SetValue(value);
+            }
+        });
+    }
+
     static ResolveDataBindingType(expression: string): DataBindingProperty {
         if (!expression) {
             return null;
         }
-        
+
     }
 }

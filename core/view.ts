@@ -1,5 +1,7 @@
 import { HttpUtils, HttpResponse } from './http';
 import { ServicePoolInstance } from './servicepool';
+import { Meta } from './meta';
+
 /**
  * injectModel 视图注入模型
  */
@@ -73,6 +75,20 @@ export class View {
     protected eventList: { [eventName: string]: ((eventObj: JQueryEventObject, ...args: any[]) => any)[] };
 
     protected bindingExpression: string;
+
+    /**
+     * Value 获取控件值,请在子类重写此方法
+     */
+    Value() {
+        return this.name;
+    }
+
+    /**
+     * SetValue 设置控件值,请在子类重写此方法
+     */
+    SetValue(value) {
+
+    }
 
     /**
      * Name 设置当前视图在viewmodel的属性名
@@ -308,6 +324,14 @@ export class View {
     }
 
     /**
+     * DataBind 处理数据绑定
+     * @param context 上下文
+     */
+    DataBind(): string {
+        return this.bindingExpression;
+    }
+
+    /**
      * Inject 将@v装饰的属性注入到View中,
      * 当当前视图绑定DOM元素成功,并且是单元素绑定模式时,下一级注入会限制在当前DOM元素之内进行
      */
@@ -336,6 +360,12 @@ export class View {
                                 } else {
                                     viewInstance.LoadView();
                                 }
+
+                                // View.Loadview之后处理绑定逻辑
+                                if (temp["models"] && temp["models"][viewInstance.DataBind()]) {
+                                    Meta.BindView(instance, viewInstance.DataBind(), viewInstance);
+                                }
+
                                 if (viewInstance instanceof ViewG) {
                                     viewInstance.SetContext(this);
                                 }
