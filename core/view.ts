@@ -22,16 +22,6 @@ export class serviceInjectModel {
     creator: { new (...args: any[]): any };
 }
 
-export enum DataBindingType {
-    FUNCTION,
-    PROPERTY
-}
-
-export interface DataBindingProperty {
-    type: DataBindingType;
-    express: string[];
-}
-
 export enum ViewState {
     /**
      * UNLOAD 尚未加载(未调用LoadView)
@@ -76,10 +66,12 @@ export class View {
 
     protected bindingExpression: string;
 
+    protected bindings: string[];
+
     /**
      * Value 获取控件值,请在子类重写此方法
      */
-    Value() {
+    Value(): any {
         return this.name;
     }
 
@@ -167,6 +159,9 @@ export class View {
             // 绑定成功
             this.propertyName = this.target.attr("data-property");
             this.bindingExpression = this.target.attr("data-bind");
+            if (this.bindingExpression) {
+                this.bindings = this.bindingExpression.split('.');
+            }
             if (matchedElementLength > 1) {
                 // 绑定了多个元素
                 this.multipart = true;
@@ -323,12 +318,16 @@ export class View {
         this.target.removeAttr("disabled");
     }
 
-    /**
-     * DataBind 处理数据绑定
-     * @param context 上下文
-     */
-    DataBind(): string {
+    DataBindExpression() {
         return this.bindingExpression;
+    }
+
+    /**
+     * DataBind 返回数据绑定第index级属性
+     * @param index 
+     */
+    DataBind(): string[] {
+        return this.bindings;
     }
 
     /**
@@ -361,11 +360,6 @@ export class View {
                                     viewInstance.LoadView();
                                 }
 
-                                // View.Loadview之后处理绑定逻辑
-                                if (temp["models"] && temp["models"][viewInstance.DataBind()]) {
-                                    Meta.BindView(instance, viewInstance.DataBind(), viewInstance);
-                                }
-
                                 if (viewInstance instanceof ViewG) {
                                     viewInstance.SetContext(this);
                                 }
@@ -383,6 +377,18 @@ export class View {
                                 }
                             }
                             instance[view.propertyName] = viewInstance;
+                        }
+                        // views注入完成后,统一处理data binding
+                        var models = temp["models"];
+                        for (var m in models) {
+                            var property = {};
+                            for (var viewProperty in instance) {
+                                var tempView = instance[viewProperty];
+                                if (tempView instanceof View && tempView.DataBind()[0] == m) {
+                                    
+                                }
+                            }
+                            Object.defineProperty(instance, m, property);
                         }
                     }
                     // 注入服务
@@ -404,6 +410,33 @@ export class View {
     BeforeInject() { }
 
     AfterInject() { }
+}
+
+function propertySetter(value, instance, index) {
+    // 遍历属性,查找需要绑定的键
+    for (var p in value) {
+        // 遍历父view,绑定键
+        for (var property in instance) {
+            var tempView = instance[property];
+            if (tempView instanceof View) {
+                if (p == tempView.DataBind(index + 1)) {
+                    Object.defineProperty(value, p, {
+                        get: () => {
+                            return (<View>tempView).Value();
+                        },
+                        set: (value) => {
+                            if (value instanceof Object) {
+                                propertySetter(value, instance, index);
+                            } else {
+                                (<View>tempView).SetValue(value);
+                            }
+                        }
+                    });
+                    break;
+                }
+            }
+        }
+    }
 }
 
 export class ViewG<T> extends View {

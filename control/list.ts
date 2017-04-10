@@ -110,6 +110,14 @@ export class ListView<T> extends View implements List<T>{
         this.RefreshView();
     }
 
+    SetValue(data: T[]) {
+        this.SetData(data);
+    }
+
+    Value() {
+        return this.mData;
+    }
+
     /**
      * RefreshView 刷新列表部分视图
      */
