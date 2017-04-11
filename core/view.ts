@@ -132,11 +132,7 @@ class TreeNode {
                     }
                 },
                 get: () => {
-                    var d = {};
-                    for (var i in temp["_" + this.Expression]) {
-                        d[i] = temp["_" + this.Expression][i];
-                    }
-                    return d;
+                    return temp["_" + this.Expression];
                 }
             });
             temp[this.Expression] = child;

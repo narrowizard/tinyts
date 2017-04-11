@@ -418,11 +418,7 @@ System.register("core/view", ["core/http", "core/servicepool"], function (export
                                 }
                             },
                             get: function () {
-                                var d = {};
-                                for (var i in temp["_" + _this.Expression]) {
-                                    d[i] = temp["_" + _this.Expression][i];
-                                }
-                                return d;
+                                return temp["_" + _this.Expression];
                             }
                         });
                         temp[this.Expression] = child;
@@ -1546,6 +1542,7 @@ System.register("application/ts/bind_test", ["core/tinyts", "control/input", "co
                     };
                     this.btnInject.OnClick(function () {
                         console.log(_this.data.name);
+                        _this.data.name = "foxery";
                     });
                 };
                 return BindTestModel;
