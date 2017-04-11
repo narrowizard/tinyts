@@ -1,8 +1,9 @@
-import { AncView, d, v } from '../../core/tinyts';
+import { AncView, v } from '../../core/tinyts';
 import { TestModel } from '../model/validator_test';
 import { InputView } from '../../control/input';
 import { Button } from '../../control/button';
 import { ListView } from '../../control/list';
+import { Meta } from '../../core/meta';
 
 class DataModel {
 
@@ -18,7 +19,6 @@ class ObjectModel {
 
 export class BindTestModel extends AncView {
 
-    @d()
     data: ObjectModel;
 
     @v(InputView)
@@ -37,7 +37,7 @@ export class BindTestModel extends AncView {
         };
 
         this.btnInject.OnClick(() => {
-            console.log(this.name);
+            console.log(this.data.name);
         });
     }
 

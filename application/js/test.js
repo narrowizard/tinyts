@@ -277,72 +277,10 @@ System.register("core/servicepool", [], function (exports_4, context_4) {
         }
     };
 });
-System.register("core/meta", [], function (exports_5, context_5) {
+System.register("core/view", ["core/http", "core/servicepool"], function (exports_5, context_5) {
     "use strict";
     var __moduleName = context_5 && context_5.id;
-    var Meta;
-    return {
-        setters: [],
-        execute: function () {
-            /**
-             * Meta 实现一个模版语法解析的类
-             */
-            Meta = (function () {
-                function Meta() {
-                }
-                /**
-                 * Resolve 解析模版语法,返回嵌入data后的html string
-                 * @param viewString 模版语法
-                 * @param model 需要嵌入的data模型
-                 */
-                Meta.Resolve = function (viewString, model) {
-                    return Mustache.render(viewString, model);
-                };
-                Meta.Compile = function (viewString) {
-                    Mustache.parse(viewString);
-                };
-                Meta.ResolveDataBindingType = function (expression) {
-                    if (!expression) {
-                        return null;
-                    }
-                };
-                return Meta;
-            }());
-            exports_5("Meta", Meta);
-        }
-    };
-});
-System.register("core/view", ["core/http", "core/servicepool"], function (exports_6, context_6) {
-    "use strict";
-    var __moduleName = context_6 && context_6.id;
-    function propertySetter(value, instance, index) {
-        // 遍历属性,查找需要绑定的键
-        for (var p in value) {
-            // 遍历父view,绑定键
-            for (var property in instance) {
-                var tempView = instance[property];
-                if (tempView instanceof View) {
-                    if (p == tempView.DataBind(index + 1)) {
-                        Object.defineProperty(value, p, {
-                            get: function () {
-                                return tempView.Value();
-                            },
-                            set: function (value) {
-                                if (value instanceof Object) {
-                                    propertySetter(value, instance, index);
-                                }
-                                else {
-                                    tempView.SetValue(value);
-                                }
-                            }
-                        });
-                        break;
-                    }
-                }
-            }
-        }
-    }
-    var http_1, servicepool_1, injectModel, serviceInjectModel, DataBindingType, ViewState, View, ViewG, ViewV;
+    var http_1, servicepool_1, injectModel, serviceInjectModel, ViewState, DataBindExpressionModel, TreeNode, View, ViewG, ViewV;
     return {
         setters: [
             function (http_1_1) {
@@ -361,7 +299,7 @@ System.register("core/view", ["core/http", "core/servicepool"], function (export
                 }
                 return injectModel;
             }());
-            exports_6("injectModel", injectModel);
+            exports_5("injectModel", injectModel);
             /**
              * serviceInjectModel 服务注入模型
              */
@@ -370,12 +308,7 @@ System.register("core/view", ["core/http", "core/servicepool"], function (export
                 }
                 return serviceInjectModel;
             }());
-            exports_6("serviceInjectModel", serviceInjectModel);
-            (function (DataBindingType) {
-                DataBindingType[DataBindingType["FUNCTION"] = 0] = "FUNCTION";
-                DataBindingType[DataBindingType["PROPERTY"] = 1] = "PROPERTY";
-            })(DataBindingType || (DataBindingType = {}));
-            exports_6("DataBindingType", DataBindingType);
+            exports_5("serviceInjectModel", serviceInjectModel);
             (function (ViewState) {
                 /**
                  * UNLOAD 尚未加载(未调用LoadView)
@@ -390,7 +323,114 @@ System.register("core/view", ["core/http", "core/servicepool"], function (export
                  */
                 ViewState[ViewState["LOADFAIL"] = 2] = "LOADFAIL";
             })(ViewState || (ViewState = {}));
-            exports_6("ViewState", ViewState);
+            exports_5("ViewState", ViewState);
+            DataBindExpressionModel = (function () {
+                function DataBindExpressionModel(Expression, ViewInstance) {
+                    this.Expression = Expression;
+                    this.ViewInstance = ViewInstance;
+                }
+                return DataBindExpressionModel;
+            }());
+            TreeNode = (function () {
+                function TreeNode() {
+                    this.Child = [];
+                }
+                /**
+                 * AddChild 添加子节点,如果子节点已存在,则合并子节点
+                 * @param c 子节点
+                 */
+                TreeNode.prototype.AddChild = function (c) {
+                    // 遍历检查是否已存在
+                    var count = mx(this.Child).where(function (it) { return it.Expression == c.Expression; }).count();
+                    if (count == 1) {
+                        this.CombineChild(c);
+                    }
+                    else {
+                        this.Child.push(c);
+                    }
+                };
+                /**
+                 * CombineChild 合并两个子节点
+                 */
+                TreeNode.prototype.CombineChild = function (c) {
+                    var child = mx(this.Child).where(function (it) { return it.Expression == c.Expression; }).first();
+                    for (var i = 0; i < c.Child.length; i++) {
+                        child.AddChild(c.Child[i]);
+                    }
+                };
+                /**
+                 * Resolve 解析字符串数组成TreeNode
+                 * @param data 字符串数组
+                 * @param view 绑定的视图,如果存在下一级,则传递下去
+                 */
+                TreeNode.prototype.Resolve = function (data, view) {
+                    if (data.length < 1) {
+                        return null;
+                    }
+                    this.Expression = data[0];
+                    if (data.length == 1) {
+                        this.ViewInstance = view;
+                    }
+                    if (data.length > 1) {
+                        var temp = (new TreeNode()).Resolve(data.slice(1), view);
+                        if (temp) {
+                            this.Child.push(temp);
+                        }
+                    }
+                    return this;
+                };
+                TreeNode.prototype.BuildProxy = function () {
+                    var _this = this;
+                    var temp = {};
+                    if (this.ViewInstance) {
+                        Object.defineProperty(temp, this.Expression, {
+                            enumerable: true,
+                            set: function (value) {
+                                _this.ViewInstance.SetValue(value);
+                            },
+                            get: function () {
+                                return _this.ViewInstance.Value();
+                            }
+                        });
+                    }
+                    else {
+                        var child = {};
+                        // 存在子级
+                        for (var i = 0; i < this.Child.length; i++) {
+                            Object.defineProperty(child, this.Child[i].Expression, Object.getOwnPropertyDescriptor(this.Child[i].BuildProxy(), this.Child[i].Expression));
+                        }
+                        temp["_" + this.Expression] = {};
+                        Object.defineProperty(temp, this.Expression, {
+                            enumerable: true,
+                            set: function (value) {
+                                // 在这里setter需要处理子级的getter和setter
+                                if (value instanceof Object) {
+                                    for (var p in value) {
+                                        if (Object.getOwnPropertyDescriptor(temp["_" + _this.Expression], p)) {
+                                            // 已存在则赋值
+                                            temp["_" + _this.Expression][p] = value[p];
+                                        }
+                                        else {
+                                            // 不存在则定义
+                                            Object.defineProperty(temp["_" + _this.Expression], p, Object.getOwnPropertyDescriptor(value, p));
+                                        }
+                                    }
+                                }
+                            },
+                            get: function () {
+                                var d = {};
+                                for (var i in temp["_" + _this.Expression]) {
+                                    d[i] = temp["_" + _this.Expression][i];
+                                }
+                                return d;
+                            }
+                        });
+                        temp[this.Expression] = child;
+                    }
+                    return temp;
+                };
+                return TreeNode;
+            }());
             /**
              * View 视图基类
              */
@@ -481,6 +521,9 @@ System.register("core/view", ["core/http", "core/servicepool"], function (export
                         // 绑定成功
                         this.propertyName = this.target.attr("data-property");
                         this.bindingExpression = this.target.attr("data-bind");
+                        if (this.bindingExpression) {
+                            this.bindings = this.bindingExpression.split('.');
+                        }
                         if (matchedElementLength > 1) {
                             // 绑定了多个元素
                             this.multipart = true;
@@ -637,18 +680,15 @@ System.register("core/view", ["core/http", "core/servicepool"], function (export
                 View.prototype.Enable = function () {
                     this.target.removeAttr("disabled");
                 };
+                View.prototype.DataBindExpression = function () {
+                    return this.bindingExpression;
+                };
                 /**
                  * DataBind 返回数据绑定第index级属性
                  * @param index
                  */
-                View.prototype.DataBind = function (index) {
-                    if (!this.bindingExpression) {
-                        return;
-                    }
-                    if (!index) {
-                        index = 0;
-                    }
-                    return this.bindingExpression.split('.')[index];
+                View.prototype.DataBind = function () {
+                    return this.bindings;
                 };
                 /**
                  * Inject 将@v装饰的属性注入到View中,
@@ -658,6 +698,7 @@ System.register("core/view", ["core/http", "core/servicepool"], function (export
                     var c = this.constructor;
                     var instance = this;
                     var injector = c["__inject__"];
+                    var dataBindingExpressions = [];
                     this.BeforeInject();
                     if (injector) {
                         for (var i in injector) {
@@ -680,9 +721,9 @@ System.register("core/view", ["core/http", "core/servicepool"], function (export
                                             else {
                                                 viewInstance.LoadView();
                                             }
-                                            // View.Loadview之后处理绑定逻辑
-                                            if (temp["models"] && viewInstance.DataBind() && temp["models"][viewInstance.DataBind()]) {
-                                                this.InjectData(instance, viewInstance, 0);
+                                            // 如果存在data bind expression 
+                                            if (viewInstance.DataBindExpression()) {
+                                                dataBindingExpressions.push(new DataBindExpressionModel(viewInstance.DataBindExpression(), viewInstance));
                                             }
                                             if (viewInstance instanceof ViewG) {
                                                 viewInstance.SetContext(this);
@@ -703,6 +744,8 @@ System.register("core/view", ["core/http", "core/servicepool"], function (export
                                         }
                                         instance[view.propertyName] = viewInstance;
                                     }
+                                    // views注入完成,根据views生成数据绑定树
+                                    this.ResolveDataBinding(dataBindingExpressions);
                                 }
                                 // 注入服务
                                 var services = temp["services"];
@@ -718,31 +761,29 @@ System.register("core/view", ["core/http", "core/servicepool"], function (export
                     }
                     this.AfterInject();
                 };
-                View.prototype.InjectData = function (instance, viewInstance, index) {
-                    Object.defineProperty(instance, viewInstance.DataBind(index), {
-                        enumerable: true,
-                        get: function () {
-                            return viewInstance.Value();
-                        },
-                        set: function (value) {
-                            if ($.isArray(value)) {
-                                viewInstance.SetValue(value);
-                            }
-                            else if (value instanceof Object) {
-                                propertySetter(value, instance, index);
-                            }
-                            else {
-                                viewInstance.SetValue(value);
-                            }
-                        }
-                    });
+                /**
+                 * ResolveDataBinding 解析数据绑定模版语法
+                 * @param bindingExpressions 数据绑定模板 格式为 model1.property1.property2
+                 */
+                View.prototype.ResolveDataBinding = function (bindingExpressions) {
+                    // 构造一棵数据绑定树
+                    var root = new TreeNode();
+                    for (var i = 0; i < bindingExpressions.length; i++) {
+                        var segments = bindingExpressions[i].Expression.split('.');
+                        var node = new TreeNode();
+                        root.AddChild(node.Resolve(segments, bindingExpressions[i].ViewInstance));
+                    }
+                    // 设置root的context
+                    for (var i = 0; i < root.Child.length; i++) {
+                        Object.defineProperty(this, root.Child[i].Expression, Object.getOwnPropertyDescriptor(root.Child[i].BuildProxy(), root.Child[i].Expression));
+                    }
                 };
                 // hooks
                 View.prototype.BeforeInject = function () { };
                 View.prototype.AfterInject = function () { };
                 return View;
             }());
-            exports_6("View", View);
+            exports_5("View", View);
             ViewG = (function (_super) {
                 __extends(ViewG, _super);
                 function ViewG() {
@@ -753,7 +794,7 @@ System.register("core/view", ["core/http", "core/servicepool"], function (export
                 };
                 return ViewG;
             }(View));
-            exports_6("ViewG", ViewG);
+            exports_5("ViewG", ViewG);
             /**
              * ViewV 虚拟视图,支持同步跟异步两种模式
              * 同步模式下,html string直接通过GetViewString方法返回
@@ -785,13 +826,13 @@ System.register("core/view", ["core/http", "core/servicepool"], function (export
                 };
                 return ViewV;
             }(ViewG));
-            exports_6("ViewV", ViewV);
+            exports_5("ViewV", ViewV);
         }
     };
 });
-System.register("control/text", ["core/view"], function (exports_7, context_7) {
+System.register("control/text", ["core/view"], function (exports_6, context_6) {
     "use strict";
-    var __moduleName = context_7 && context_7.id;
+    var __moduleName = context_6 && context_6.id;
     var view_1, TextView;
     return {
         setters: [
@@ -829,13 +870,13 @@ System.register("control/text", ["core/view"], function (exports_7, context_7) {
                 };
                 return TextView;
             }(view_1.View));
-            exports_7("TextView", TextView);
+            exports_6("TextView", TextView);
         }
     };
 });
-System.register("control/input", ["control/text"], function (exports_8, context_8) {
+System.register("control/input", ["control/text"], function (exports_7, context_7) {
     "use strict";
-    var __moduleName = context_8 && context_8.id;
+    var __moduleName = context_7 && context_7.id;
     var text_1, InputView;
     return {
         setters: [
@@ -866,7 +907,37 @@ System.register("control/input", ["control/text"], function (exports_8, context_
                 };
                 return InputView;
             }(text_1.TextView));
-            exports_8("InputView", InputView);
+            exports_7("InputView", InputView);
+        }
+    };
+});
+System.register("core/meta", [], function (exports_8, context_8) {
+    "use strict";
+    var __moduleName = context_8 && context_8.id;
+    var Meta;
+    return {
+        setters: [],
+        execute: function () {
+            /**
+             * Meta 实现一个模版语法解析的类
+             */
+            Meta = (function () {
+                function Meta() {
+                }
+                /**
+                 * Resolve 解析模版语法,返回嵌入data后的html string
+                 * @param viewString 模版语法
+                 * @param model 需要嵌入的data模型
+                 */
+                Meta.Resolve = function (viewString, model) {
+                    return Mustache.render(viewString, model);
+                };
+                Meta.Compile = function (viewString) {
+                    Mustache.parse(viewString);
+                };
+                return Meta;
+            }());
+            exports_8("Meta", Meta);
         }
     };
 });
@@ -1341,29 +1412,6 @@ System.register("core/tinyts", ["core/view"], function (exports_12, context_12) 
         };
     }
     exports_12("s", s);
-    /**
-     * d 用于声明需要被数据绑定的属性
-     */
-    function d() {
-        return function (target, decoratedPropertyName) {
-            var targetType = target.constructor;
-            // 目标view的名称
-            var name = target.constructor.toString().match(/^function\s*([^\s(]+)/)[1];
-            if (!targetType.hasOwnProperty("__inject__")) {
-                targetType["__inject__"] = {};
-            }
-            if (!targetType["__inject__"][name]) {
-                targetType["__inject__"][name] = {
-                    constructor: target.constructor
-                };
-            }
-            if (!targetType["__inject__"][name]["models"]) {
-                targetType["__inject__"][name]["models"] = {};
-            }
-            targetType["__inject__"][name]["models"][decoratedPropertyName] = true;
-        };
-    }
-    exports_12("d", d);
     var view_4, AncView;
     return {
         setters: [
@@ -1497,15 +1545,11 @@ System.register("application/ts/bind_test", ["core/tinyts", "control/input", "co
                         listData: [new DataModel(2, "bbb")]
                     };
                     this.btnInject.OnClick(function () {
-                        console.log(_this.name);
+                        console.log(_this.data.name);
                     });
                 };
                 return BindTestModel;
             }(tinyts_1.AncView));
-            __decorate([
-                tinyts_1.d(),
-                __metadata("design:type", ObjectModel)
-            ], BindTestModel.prototype, "data", void 0);
             __decorate([
                 tinyts_1.v(input_2.InputView),
                 __metadata("design:type", input_2.InputView)

@@ -131,29 +131,3 @@ export function s<T>(s: { new (...args: any[]): T }) {
         targetType[`__inject__`][name]["services"].push(temp);
     };
 }
-
-/**
- * d 用于声明需要被数据绑定的属性
- */
-export function d() {
-    return (target: View, decoratedPropertyName: string) => {
-        const targetType: { __inject__?: Object } = target.constructor;
-        // 目标view的名称
-        var name = target.constructor.toString().match(/^function\s*([^\s(]+)/)[1];
-
-        if (!targetType.hasOwnProperty(`__inject__`)) {
-            targetType[`__inject__`] = {};
-        }
-
-        if (!targetType["__inject__"][name]) {
-            targetType["__inject__"][name] = {
-                constructor: target.constructor
-            };
-        }
-        if (!targetType[`__inject__`][name]["models"]) {
-            targetType[`__inject__`][name]["models"] = {};
-        }
-
-        targetType[`__inject__`][name]["models"][decoratedPropertyName] = true;
-    };
-}

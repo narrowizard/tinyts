@@ -1,6 +1,5 @@
 import { HttpUtils, HttpResponse } from './http';
 import { ServicePoolInstance } from './servicepool';
-import { Meta } from './meta';
 
 /**
  * injectModel 视图注入模型
@@ -35,6 +34,116 @@ export enum ViewState {
      * LOADFAIL 调用了LoadView,但是加载失败了
      */
     LOADFAIL
+}
+
+class DataBindExpressionModel {
+    constructor(public Expression: string,
+        public ViewInstance: View) { }
+}
+
+class TreeNode {
+    Expression: string;
+    Child: TreeNode[];
+    ViewInstance: View;
+
+    constructor() {
+        this.Child = [];
+    }
+
+    /**
+     * AddChild 添加子节点,如果子节点已存在,则合并子节点
+     * @param c 子节点
+     */
+    AddChild(c: TreeNode) {
+        // 遍历检查是否已存在
+        var count = mx(this.Child).where(it => it.Expression == c.Expression).count();
+        if (count == 1) {
+            this.CombineChild(c);
+        } else {
+            this.Child.push(c);
+        }
+    }
+
+    /**
+     * CombineChild 合并两个子节点
+     */
+    protected CombineChild(c: TreeNode) {
+        var child = mx(this.Child).where(it => it.Expression == c.Expression).first();
+        for (var i = 0; i < c.Child.length; i++) {
+            child.AddChild(c.Child[i]);
+        }
+    }
+
+    /**
+     * Resolve 解析字符串数组成TreeNode
+     * @param data 字符串数组
+     * @param view 绑定的视图,如果存在下一级,则传递下去
+     */
+    Resolve(data: string[], view: View): TreeNode {
+        if (data.length < 1) {
+            return null;
+        }
+        this.Expression = data[0];
+        if (data.length == 1) {
+            this.ViewInstance = view;
+        }
+        if (data.length > 1) {
+            var temp = (new TreeNode()).Resolve(data.slice(1), view);
+            if (temp) {
+                this.Child.push(temp);
+            }
+        }
+        return this;
+    }
+
+    BuildProxy(): Object {
+        var temp = {};
+        if (this.ViewInstance) {
+            Object.defineProperty(temp, this.Expression, {
+                enumerable: true,
+                set: (value) => {
+                    this.ViewInstance.SetValue(value);
+                },
+                get: () => {
+                    return this.ViewInstance.Value();
+                }
+            });
+        } else {
+            var child = {};
+            // 存在子级
+            for (var i = 0; i < this.Child.length; i++) {
+                Object.defineProperty(child, this.Child[i].Expression, Object.getOwnPropertyDescriptor(this.Child[i].BuildProxy(), this.Child[i].Expression));
+            }
+            temp["_" + this.Expression] = {};
+            Object.defineProperty(temp, this.Expression, {
+                enumerable: true,
+                set: (value) => {
+                    // 在这里setter需要处理子级的getter和setter
+                    if (value instanceof Object) {
+                        for (var p in value) {
+                            if (Object.getOwnPropertyDescriptor(temp["_" + this.Expression], p)) {
+                                // 已存在则赋值
+                                temp["_" + this.Expression][p] = value[p];
+                            } else {
+                                // 不存在则定义
+                                Object.defineProperty(temp["_" + this.Expression], p, Object.getOwnPropertyDescriptor(value, p));
+                            }
+                        }
+                    }
+                },
+                get: () => {
+                    var d = {};
+                    for (var i in temp["_" + this.Expression]) {
+                        d[i] = temp["_" + this.Expression][i];
+                    }
+                    return d;
+                }
+            });
+            temp[this.Expression] = child;
+        }
+        return temp;
+    }
+
 }
 
 /**
@@ -338,6 +447,7 @@ export class View {
         var c = this.constructor;
         var instance = this;
         var injector = c["__inject__"];
+        var dataBindingExpressions: DataBindExpressionModel[] = [];
         this.BeforeInject();
         if (injector) {
             for (var i in injector) {
@@ -359,7 +469,10 @@ export class View {
                                 } else {
                                     viewInstance.LoadView();
                                 }
-
+                                // 如果存在data bind expression 
+                                if (viewInstance.DataBindExpression()) {
+                                    dataBindingExpressions.push(new DataBindExpressionModel(viewInstance.DataBindExpression(), viewInstance));
+                                }
                                 if (viewInstance instanceof ViewG) {
                                     viewInstance.SetContext(this);
                                 }
@@ -378,18 +491,8 @@ export class View {
                             }
                             instance[view.propertyName] = viewInstance;
                         }
-                        // views注入完成后,统一处理data binding
-                        var models = temp["models"];
-                        for (var m in models) {
-                            var property = {};
-                            for (var viewProperty in instance) {
-                                var tempView = instance[viewProperty];
-                                if (tempView instanceof View && tempView.DataBind()[0] == m) {
-                                    
-                                }
-                            }
-                            Object.defineProperty(instance, m, property);
-                        }
+                        // views注入完成,根据views生成数据绑定树
+                        this.ResolveDataBinding(dataBindingExpressions);
                     }
                     // 注入服务
                     var services: serviceInjectModel[] = temp["services"];
@@ -406,37 +509,29 @@ export class View {
         this.AfterInject();
     }
 
+    /**
+     * ResolveDataBinding 解析数据绑定模版语法
+     * @param bindingExpressions 数据绑定模板 格式为 model1.property1.property2
+     */
+    protected ResolveDataBinding(bindingExpressions: DataBindExpressionModel[]) {
+        // 构造一棵数据绑定树
+        var root: TreeNode = new TreeNode();
+
+        for (var i = 0; i < bindingExpressions.length; i++) {
+            var segments = bindingExpressions[i].Expression.split('.');
+            var node = new TreeNode();
+            root.AddChild(node.Resolve(segments, bindingExpressions[i].ViewInstance));
+        }
+        // 设置root的context
+        for (var i = 0; i < root.Child.length; i++) {
+            Object.defineProperty(this, root.Child[i].Expression, Object.getOwnPropertyDescriptor(root.Child[i].BuildProxy(), root.Child[i].Expression));
+        }
+    }
+
     // hooks
     BeforeInject() { }
 
     AfterInject() { }
-}
-
-function propertySetter(value, instance, index) {
-    // 遍历属性,查找需要绑定的键
-    for (var p in value) {
-        // 遍历父view,绑定键
-        for (var property in instance) {
-            var tempView = instance[property];
-            if (tempView instanceof View) {
-                if (p == tempView.DataBind(index + 1)) {
-                    Object.defineProperty(value, p, {
-                        get: () => {
-                            return (<View>tempView).Value();
-                        },
-                        set: (value) => {
-                            if (value instanceof Object) {
-                                propertySetter(value, instance, index);
-                            } else {
-                                (<View>tempView).SetValue(value);
-                            }
-                        }
-                    });
-                    break;
-                }
-            }
-        }
-    }
 }
 
 export class ViewG<T> extends View {
