@@ -342,9 +342,10 @@ System.register("core/view", ["core/http", "core/servicepool"], function (export
             TreeNode = (function () {
                 function TreeNode() {
                     this.Child = [];
+                    this.Views = [];
                 }
                 /**
-                 * AddChild 添加子节点,如果子节点已存在,则合并子节点
+                 * AddChild 添加子节点,如果子节点已存在且非叶子节点,则合并子节点
                  * @param c 子节点
                  */
                 TreeNode.prototype.AddChild = function (c) {
@@ -362,8 +363,16 @@ System.register("core/view", ["core/http", "core/servicepool"], function (export
                  */
                 TreeNode.prototype.CombineChild = function (c) {
                     var child = mx(this.Child).where(function (it) { return it.Expression == c.Expression; }).first();
-                    for (var i = 0; i < c.Child.length; i++) {
-                        child.AddChild(c.Child[i]);
+                    if (c.Views.length > 0) {
+                        // 如果是叶子节点
+                        for (var i = 0; i < c.Views.length; i++) {
+                            child.Views.push(c.Views[i]);
+                        }
+                    }
+                    else {
+                        for (var i = 0; i < c.Child.length; i++) {
+                            child.AddChild(c.Child[i]);
+                        }
                     }
                 };
                 /**
@@ -376,9 +385,8 @@ System.register("core/view", ["core/http", "core/servicepool"], function (export
                         return null;
                     }
                     this.Expression = data[0];
-                    this.Type = type;
                     if (data.length == 1) {
-                        this.ViewInstance = view;
+                        this.Views.push({ ViewInstance: view, Type: type });
                     }
                     if (data.length > 1) {
                         var temp = (new TreeNode()).Resolve(data.slice(1), view, type);
@@ -391,41 +399,26 @@ System.register("core/view", ["core/http", "core/servicepool"], function (export
                 TreeNode.prototype.BuildProxy = function () {
                     var _this = this;
                     var temp = {};
-                    if (this.ViewInstance) {
-                        if (this.Type == BindType.OVONIC) {
-                            Object.defineProperty(temp, this.Expression, {
-                                enumerable: true,
-                                set: function (value) {
-                                    _this.ViewInstance.SetValue(value);
-                                },
-                                get: function () {
-                                    return _this.ViewInstance.Value();
+                    if (this.Views.length > 0) {
+                        Object.defineProperty(temp, this.Expression, {
+                            enumerable: true,
+                            set: function (value) {
+                                _this.Views.forEach(function (v, i, a) {
+                                    if (v.Type == BindType.OVONIC || v.Type == BindType.MODELTOVIEW) {
+                                        temp["_" + _this.Expression] = value;
+                                        v.ViewInstance.SetValue(value);
+                                    }
+                                });
+                            },
+                            get: function () {
+                                // 返回第一个双向绑定的或者ViewToModel的
+                                for (var i = 0; i < _this.Views.length; i++) {
+                                    if (_this.Views[i].Type == BindType.OVONIC || _this.Views[i].Type == BindType.VIEWTOMODEL) {
+                                        return _this.Views[i].ViewInstance.Value();
+                                    }
                                 }
-                            });
-                        }
-                        else if (this.Type == BindType.MODELTOVIEW) {
-                            temp["_" + this.Expression] = "";
-                            Object.defineProperty(temp, this.Expression, {
-                                enumerable: true,
-                                set: function (value) {
-                                    temp["_" + _this.Expression] = value;
-                                    _this.ViewInstance.SetValue(value);
-                                },
-                                get: function () {
-                                    return temp["_" + _this.Expression];
-                                }
-                            });
-                        }
-                        else if (this.Type == BindType.VIEWTOMODEL) {
-                            Object.defineProperty(temp, this.Expression, {
-                                enumerable: true,
-                                set: function (value) {
-                                },
-                                get: function () {
-                                    return _this.ViewInstance.Value();
-                                }
-                            });
-                        }
+                            }
+                        });
                     }
                     else {
                         var child = {};
@@ -1545,10 +1538,10 @@ System.register("control/button", ["control/text"], function (exports_13, contex
         }
     };
 });
-System.register("application/ts/bind_test", ["core/tinyts", "control/input", "control/button", "control/list"], function (exports_14, context_14) {
+System.register("application/ts/bind_test", ["core/tinyts", "control/input", "control/button", "control/list", "control/text"], function (exports_14, context_14) {
     "use strict";
     var __moduleName = context_14 && context_14.id;
-    var tinyts_1, input_2, button_1, list_3, DataModel, ObjectModel, BindTestModel, aa;
+    var tinyts_1, input_2, button_1, list_3, text_4, DataModel, ObjectModel, BindTestModel, aa;
     return {
         setters: [
             function (tinyts_1_1) {
@@ -1562,6 +1555,9 @@ System.register("application/ts/bind_test", ["core/tinyts", "control/input", "co
             },
             function (list_3_1) {
                 list_3 = list_3_1;
+            },
+            function (text_4_1) {
+                text_4 = text_4_1;
             }
         ],
         execute: function () {
@@ -1590,7 +1586,8 @@ System.register("application/ts/bind_test", ["core/tinyts", "control/input", "co
                         pos: {
                             x: 11,
                             y: 335
-                        }
+                        },
+                        input: "sth"
                     };
                     this.data.listData.push(new DataModel(3, "aaa"));
                     this.btnInject.OnClick(function () {
@@ -1613,6 +1610,14 @@ System.register("application/ts/bind_test", ["core/tinyts", "control/input", "co
                 tinyts_1.v(input_2.InputView),
                 __metadata("design:type", input_2.InputView)
             ], BindTestModel.prototype, "sSubName", void 0);
+            __decorate([
+                tinyts_1.v(input_2.InputView),
+                __metadata("design:type", input_2.InputView)
+            ], BindTestModel.prototype, "sInput", void 0);
+            __decorate([
+                tinyts_1.v(text_4.TextView),
+                __metadata("design:type", text_4.TextView)
+            ], BindTestModel.prototype, "oInput", void 0);
             __decorate([
                 tinyts_1.v(button_1.Button),
                 __metadata("design:type", button_1.Button)

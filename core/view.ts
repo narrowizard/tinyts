@@ -53,15 +53,18 @@ class DataBindExpressionModel {
 class TreeNode {
     Expression: string;
     Child: TreeNode[];
-    ViewInstance: View;
-    Type: BindType;
+    Views: {
+        ViewInstance: View;
+        Type: BindType;
+    }[]
 
     constructor() {
         this.Child = [];
+        this.Views = [];
     }
 
     /**
-     * AddChild 添加子节点,如果子节点已存在,则合并子节点
+     * AddChild 添加子节点,如果子节点已存在且非叶子节点,则合并子节点
      * @param c 子节点
      */
     AddChild(c: TreeNode) {
@@ -79,9 +82,17 @@ class TreeNode {
      */
     protected CombineChild(c: TreeNode) {
         var child = mx(this.Child).where(it => it.Expression == c.Expression).first();
-        for (var i = 0; i < c.Child.length; i++) {
-            child.AddChild(c.Child[i]);
+        if (c.Views.length > 0) {
+            // 如果是叶子节点
+            for (var i = 0; i < c.Views.length; i++) {
+                child.Views.push(c.Views[i]);
+            }
+        } else {
+            for (var i = 0; i < c.Child.length; i++) {
+                child.AddChild(c.Child[i]);
+            }
         }
+
     }
 
     /**
@@ -94,9 +105,8 @@ class TreeNode {
             return null;
         }
         this.Expression = data[0];
-        this.Type = type;
         if (data.length == 1) {
-            this.ViewInstance = view;
+            this.Views.push({ ViewInstance: view, Type: type });
         }
         if (data.length > 1) {
             var temp = (new TreeNode()).Resolve(data.slice(1), view, type);
@@ -109,41 +119,26 @@ class TreeNode {
 
     BuildProxy(): Object {
         var temp = {};
-        if (this.ViewInstance) {
-            if (this.Type == BindType.OVONIC) {
-                Object.defineProperty(temp, this.Expression, {
-                    enumerable: true,
-                    set: (value) => {
-                        this.ViewInstance.SetValue(value);
-                    },
-                    get: () => {
-                        return this.ViewInstance.Value();
+        if (this.Views.length > 0) {
+            Object.defineProperty(temp, this.Expression, {
+                enumerable: true,
+                set: (value) => {
+                    this.Views.forEach((v, i, a) => {
+                        if (v.Type == BindType.OVONIC || v.Type == BindType.MODELTOVIEW) {
+                            temp["_" + this.Expression] = value;
+                            v.ViewInstance.SetValue(value);
+                        }
+                    });
+                },
+                get: () => {
+                    // 返回第一个双向绑定的或者ViewToModel的
+                    for (var i = 0; i < this.Views.length; i++) {
+                        if (this.Views[i].Type == BindType.OVONIC || this.Views[i].Type == BindType.VIEWTOMODEL) {
+                            return this.Views[i].ViewInstance.Value();
+                        }
                     }
-                });
-            } else if (this.Type == BindType.MODELTOVIEW) {
-                temp["_" + this.Expression] = "";
-                Object.defineProperty(temp, this.Expression, {
-                    enumerable: true,
-                    set: (value) => {
-                        temp["_" + this.Expression] = value;
-                        this.ViewInstance.SetValue(value);
-                    },
-                    get: () => {
-                        return temp["_" + this.Expression];
-                    }
-                });
-            } else if (this.Type == BindType.VIEWTOMODEL) {
-                Object.defineProperty(temp, this.Expression, {
-                    enumerable: true,
-                    set: (value) => {
-
-                    },
-                    get: () => {
-                        return this.ViewInstance.Value();
-                    }
-                });
-            }
-
+                }
+            });
         } else {
             var child = {};
             // 存在子级
