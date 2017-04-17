@@ -120,6 +120,7 @@ class TreeNode {
     BuildProxy(): Object {
         var temp = {};
         if (this.Views.length > 0) {
+            // 叶子节点,处理与View的绑定关系
             Object.defineProperty(temp, this.Expression, {
                 enumerable: true,
                 set: (value) => {
@@ -131,7 +132,7 @@ class TreeNode {
                     });
                 },
                 get: () => {
-                    // 返回第一个双向绑定的或者ViewToModel的
+                    // 返回第一个双向绑定的或者ViewToModel的View的值
                     for (var i = 0; i < this.Views.length; i++) {
                         if (this.Views[i].Type == BindType.OVONIC || this.Views[i].Type == BindType.VIEWTOMODEL) {
                             return this.Views[i].ViewInstance.Value();
@@ -141,9 +142,19 @@ class TreeNode {
                     return temp["_" + this.Expression];
                 }
             });
+            // 查找第一个双向绑定或者ViewToModel的View,注册change事件
+            for (var i = 0; i < this.Views.length; i++) {
+                var temp_view = this.Views[i];
+                if (temp_view.ViewInstance && temp_view.Type == BindType.OVONIC || temp_view.Type == BindType.VIEWTOMODEL) {
+                    temp_view.ViewInstance.On("input", () => {
+                        temp[this.Expression] = this.Views[i].ViewInstance.Value();
+                    });
+                    break;
+                }
+            }
         } else {
             var child = {};
-            // 存在子级
+            // 非叶子节点,直接被覆盖需要处理
             for (var i = 0; i < this.Child.length; i++) {
                 Object.defineProperty(child, this.Child[i].Expression, Object.getOwnPropertyDescriptor(this.Child[i].BuildProxy(), this.Child[i].Expression));
             }
@@ -356,6 +367,9 @@ export class View {
      * @param handler: 事件处理函数
      */
     On(eventName: string, handler: (...args: any[]) => any) {
+        if (!this.eventList) {
+            this.eventList = {};
+        }
         var needBind = false;
         // 在注册事件的时候判断该事件是否已存在,如果不存在,则绑定事件
         if (this.eventList[eventName] == null) {
