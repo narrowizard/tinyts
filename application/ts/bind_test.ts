@@ -61,6 +61,7 @@ export class BindTestModel extends AncView {
         this.btnInject.OnClick(() => {
             console.log(this.data.name);
             console.log(this.data.pos.x);
+            console.log(this.data.input);
             this.data.name = "foxery";
         });
     }

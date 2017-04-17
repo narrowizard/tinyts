@@ -417,6 +417,8 @@ System.register("core/view", ["core/http", "core/servicepool"], function (export
                                         return _this.Views[i].ViewInstance.Value();
                                     }
                                 }
+                                // 如果不存在View满足条件
+                                return temp["_" + _this.Expression];
                             }
                         });
                     }
@@ -1593,6 +1595,7 @@ System.register("application/ts/bind_test", ["core/tinyts", "control/input", "co
                     this.btnInject.OnClick(function () {
                         console.log(_this.data.name);
                         console.log(_this.data.pos.x);
+                        console.log(_this.data.input);
                         _this.data.name = "foxery";
                     });
                 };

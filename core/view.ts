@@ -137,6 +137,8 @@ class TreeNode {
                             return this.Views[i].ViewInstance.Value();
                         }
                     }
+                    // 如果不存在View满足条件
+                    return temp["_" + this.Expression];
                 }
             });
         } else {
