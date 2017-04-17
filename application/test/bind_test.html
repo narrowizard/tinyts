@@ -7,13 +7,13 @@
 </head>
 
 <body>
-    <input type="text" id="sName" data-bind="data.name">
+    <input type="text" id="sName" data-bind="data.name:1">
     <ul id="mList" data-bind="data.listData">
         <li data-id="{{Id}}">{{Name}}</li>
     </ul>
-    <input type="text" id="sPhone" data-bind="model.phone">
+    <input type="text" id="sPhone" data-bind="data.pos.x:2">
     <div id="sub">
-        <input type="text" id="sSubName" data-bind="model.subname">
+        <input type="text" id="sSubName" data-bind="data.pos.y">
         <input type="text" id="Name2" data-bind="model.name2">
     </div>
     <button type="button" id="btnInject">注入</button>

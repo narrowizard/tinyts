@@ -280,7 +280,7 @@ System.register("core/servicepool", [], function (exports_4, context_4) {
 System.register("core/view", ["core/http", "core/servicepool"], function (exports_5, context_5) {
     "use strict";
     var __moduleName = context_5 && context_5.id;
-    var http_1, servicepool_1, injectModel, serviceInjectModel, ViewState, DataBindExpressionModel, TreeNode, View, ViewG, ViewV;
+    var http_1, servicepool_1, injectModel, serviceInjectModel, ViewState, BindType, DataBindExpressionModel, TreeNode, View, ViewG, ViewV;
     return {
         setters: [
             function (http_1_1) {
@@ -324,6 +324,14 @@ System.register("core/view", ["core/http", "core/servicepool"], function (export
                 ViewState[ViewState["LOADFAIL"] = 2] = "LOADFAIL";
             })(ViewState || (ViewState = {}));
             exports_5("ViewState", ViewState);
+            (function (BindType) {
+                /**
+                 * OVONIC 双向绑定
+                 */
+                BindType[BindType["OVONIC"] = 0] = "OVONIC";
+                BindType[BindType["MODELTOVIEW"] = 1] = "MODELTOVIEW";
+                BindType[BindType["VIEWTOMODEL"] = 2] = "VIEWTOMODEL";
+            })(BindType || (BindType = {}));
             DataBindExpressionModel = (function () {
                 function DataBindExpressionModel(Expression, ViewInstance) {
                     this.Expression = Expression;
@@ -363,16 +371,17 @@ System.register("core/view", ["core/http", "core/servicepool"], function (export
                  * @param data 字符串数组
                  * @param view 绑定的视图,如果存在下一级,则传递下去
                  */
-                TreeNode.prototype.Resolve = function (data, view) {
+                TreeNode.prototype.Resolve = function (data, view, type) {
                     if (data.length < 1) {
                         return null;
                     }
                     this.Expression = data[0];
+                    this.Type = type;
                     if (data.length == 1) {
                         this.ViewInstance = view;
                     }
                     if (data.length > 1) {
-                        var temp = (new TreeNode()).Resolve(data.slice(1), view);
+                        var temp = (new TreeNode()).Resolve(data.slice(1), view, type);
                         if (temp) {
                             this.Child.push(temp);
                         }
@@ -383,15 +392,40 @@ System.register("core/view", ["core/http", "core/servicepool"], function (export
                     var _this = this;
                     var temp = {};
                     if (this.ViewInstance) {
-                        Object.defineProperty(temp, this.Expression, {
-                            enumerable: true,
-                            set: function (value) {
-                                _this.ViewInstance.SetValue(value);
-                            },
-                            get: function () {
-                                return _this.ViewInstance.Value();
-                            }
-                        });
+                        if (this.Type == BindType.OVONIC) {
+                            Object.defineProperty(temp, this.Expression, {
+                                enumerable: true,
+                                set: function (value) {
+                                    _this.ViewInstance.SetValue(value);
+                                },
+                                get: function () {
+                                    return _this.ViewInstance.Value();
+                                }
+                            });
+                        }
+                        else if (this.Type == BindType.MODELTOVIEW) {
+                            temp["_" + this.Expression] = "";
+                            Object.defineProperty(temp, this.Expression, {
+                                enumerable: true,
+                                set: function (value) {
+                                    temp["_" + _this.Expression] = value;
+                                    _this.ViewInstance.SetValue(value);
+                                },
+                                get: function () {
+                                    return temp["_" + _this.Expression];
+                                }
+                            });
+                        }
+                        else if (this.Type == BindType.VIEWTOMODEL) {
+                            Object.defineProperty(temp, this.Expression, {
+                                enumerable: true,
+                                set: function (value) {
+                                },
+                                get: function () {
+                                    return _this.ViewInstance.Value();
+                                }
+                            });
+                        }
                     }
                     else {
                         var child = {};
@@ -518,7 +552,14 @@ System.register("core/view", ["core/http", "core/servicepool"], function (export
                         this.propertyName = this.target.attr("data-property");
                         this.bindingExpression = this.target.attr("data-bind");
                         if (this.bindingExpression) {
-                            this.bindings = this.bindingExpression.split('.');
+                            var temp = this.bindingExpression.split(':');
+                            if (temp[1]) {
+                                this.bindType = +temp[1];
+                            }
+                            else {
+                                this.bindType = 0;
+                            }
+                            this.bindings = temp[0].split('.');
                         }
                         if (matchedElementLength > 1) {
                             // 绑定了多个元素
@@ -765,11 +806,18 @@ System.register("core/view", ["core/http", "core/servicepool"], function (export
                     // 构造一棵数据绑定树
                     var root = new TreeNode();
                     for (var i = 0; i < bindingExpressions.length; i++) {
-                        var segments = bindingExpressions[i].Expression.split('.');
+                        var temp = bindingExpressions[i].Expression.split(':');
+                        var type;
+                        if (temp[1]) {
+                            type = +temp[1];
+                        }
+                        else {
+                            type = BindType.OVONIC;
+                        }
+                        var segments = temp[0].split('.');
                         var node = new TreeNode();
-                        root.AddChild(node.Resolve(segments, bindingExpressions[i].ViewInstance));
+                        root.AddChild(node.Resolve(segments, bindingExpressions[i].ViewInstance, type));
                     }
-                    // 设置root的context
                     for (var i = 0; i < root.Child.length; i++) {
                         Object.defineProperty(this, root.Child[i].Expression, Object.getOwnPropertyDescriptor(root.Child[i].BuildProxy(), root.Child[i].Expression));
                     }
@@ -1538,10 +1586,16 @@ System.register("application/ts/bind_test", ["core/tinyts", "control/input", "co
                     var _this = this;
                     this.data = {
                         name: "narro",
-                        listData: [new DataModel(2, "bbb")]
+                        listData: [new DataModel(2, "bbb")],
+                        pos: {
+                            x: 11,
+                            y: 335
+                        }
                     };
+                    this.data.listData.push(new DataModel(3, "aaa"));
                     this.btnInject.OnClick(function () {
                         console.log(_this.data.name);
+                        console.log(_this.data.pos.x);
                         _this.data.name = "foxery";
                     });
                 };
@@ -1551,6 +1605,14 @@ System.register("application/ts/bind_test", ["core/tinyts", "control/input", "co
                 tinyts_1.v(input_2.InputView),
                 __metadata("design:type", input_2.InputView)
             ], BindTestModel.prototype, "sName", void 0);
+            __decorate([
+                tinyts_1.v(input_2.InputView),
+                __metadata("design:type", input_2.InputView)
+            ], BindTestModel.prototype, "sPhone", void 0);
+            __decorate([
+                tinyts_1.v(input_2.InputView),
+                __metadata("design:type", input_2.InputView)
+            ], BindTestModel.prototype, "sSubName", void 0);
             __decorate([
                 tinyts_1.v(button_1.Button),
                 __metadata("design:type", button_1.Button)

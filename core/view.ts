@@ -36,6 +36,15 @@ export enum ViewState {
     LOADFAIL
 }
 
+enum BindType {
+    /**
+     * OVONIC 双向绑定
+     */
+    OVONIC,
+    MODELTOVIEW,
+    VIEWTOMODEL
+}
+
 class DataBindExpressionModel {
     constructor(public Expression: string,
         public ViewInstance: View) { }
@@ -45,6 +54,7 @@ class TreeNode {
     Expression: string;
     Child: TreeNode[];
     ViewInstance: View;
+    Type: BindType;
 
     constructor() {
         this.Child = [];
@@ -79,16 +89,17 @@ class TreeNode {
      * @param data 字符串数组
      * @param view 绑定的视图,如果存在下一级,则传递下去
      */
-    Resolve(data: string[], view: View): TreeNode {
+    Resolve(data: string[], view: View, type: BindType): TreeNode {
         if (data.length < 1) {
             return null;
         }
         this.Expression = data[0];
+        this.Type = type;
         if (data.length == 1) {
             this.ViewInstance = view;
         }
         if (data.length > 1) {
-            var temp = (new TreeNode()).Resolve(data.slice(1), view);
+            var temp = (new TreeNode()).Resolve(data.slice(1), view, type);
             if (temp) {
                 this.Child.push(temp);
             }
@@ -99,15 +110,40 @@ class TreeNode {
     BuildProxy(): Object {
         var temp = {};
         if (this.ViewInstance) {
-            Object.defineProperty(temp, this.Expression, {
-                enumerable: true,
-                set: (value) => {
-                    this.ViewInstance.SetValue(value);
-                },
-                get: () => {
-                    return this.ViewInstance.Value();
-                }
-            });
+            if (this.Type == BindType.OVONIC) {
+                Object.defineProperty(temp, this.Expression, {
+                    enumerable: true,
+                    set: (value) => {
+                        this.ViewInstance.SetValue(value);
+                    },
+                    get: () => {
+                        return this.ViewInstance.Value();
+                    }
+                });
+            } else if (this.Type == BindType.MODELTOVIEW) {
+                temp["_" + this.Expression] = "";
+                Object.defineProperty(temp, this.Expression, {
+                    enumerable: true,
+                    set: (value) => {
+                        temp["_" + this.Expression] = value;
+                        this.ViewInstance.SetValue(value);
+                    },
+                    get: () => {
+                        return temp["_" + this.Expression];
+                    }
+                });
+            } else if (this.Type == BindType.VIEWTOMODEL) {
+                Object.defineProperty(temp, this.Expression, {
+                    enumerable: true,
+                    set: (value) => {
+                        
+                    },
+                    get: () => {
+                        return this.ViewInstance.Value();
+                    }
+                });
+            }
+
         } else {
             var child = {};
             // 存在子级
@@ -169,7 +205,15 @@ export class View {
     // 事件列表
     protected eventList: { [eventName: string]: ((eventObj: JQueryEventObject, ...args: any[]) => any)[] };
 
+    /**
+     * bindExpression绑定模版 格式 model.property[:paramType]
+     * paramType 0 default 双向绑定
+     * paramType 1 从model渲染到view
+     * paramType 2 从view绑定到model
+     */
     protected bindingExpression: string;
+
+    protected bindType: BindType;
 
     protected bindings: string[];
 
@@ -265,7 +309,13 @@ export class View {
             this.propertyName = this.target.attr("data-property");
             this.bindingExpression = this.target.attr("data-bind");
             if (this.bindingExpression) {
-                this.bindings = this.bindingExpression.split('.');
+                var temp = this.bindingExpression.split(':');
+                if (temp[1]) {
+                    this.bindType = +temp[1];
+                } else {
+                    this.bindType = 0;
+                }
+                this.bindings = temp[0].split('.');
             }
             if (matchedElementLength > 1) {
                 // 绑定了多个元素
@@ -514,11 +564,18 @@ export class View {
         var root: TreeNode = new TreeNode();
 
         for (var i = 0; i < bindingExpressions.length; i++) {
-            var segments = bindingExpressions[i].Expression.split('.');
+            var temp = bindingExpressions[i].Expression.split(':');
+            var type: BindType;
+            if (temp[1]) {
+                type = +temp[1];
+            } else {
+                type = BindType.OVONIC;
+            }
+            var segments = temp[0].split('.');
             var node = new TreeNode();
-            root.AddChild(node.Resolve(segments, bindingExpressions[i].ViewInstance));
+            root.AddChild(node.Resolve(segments, bindingExpressions[i].ViewInstance, type));
         }
-        // 设置root的context
+
         for (var i = 0; i < root.Child.length; i++) {
             Object.defineProperty(this, root.Child[i].Expression, Object.getOwnPropertyDescriptor(root.Child[i].BuildProxy(), root.Child[i].Expression));
         }
