@@ -136,7 +136,7 @@ class TreeNode {
                 Object.defineProperty(temp, this.Expression, {
                     enumerable: true,
                     set: (value) => {
-                        
+
                     },
                     get: () => {
                         return this.ViewInstance.Value();
@@ -311,9 +311,9 @@ export class View {
             if (this.bindingExpression) {
                 var temp = this.bindingExpression.split(':');
                 if (temp[1]) {
-                    this.bindType = +temp[1];
+                    this.bindType = temp[1].toLowerCase() == "tov" ? BindType.MODELTOVIEW : temp[1].toLowerCase() == "tom" ? BindType.VIEWTOMODEL : BindType.OVONIC;
                 } else {
-                    this.bindType = 0;
+                    this.bindType = BindType.OVONIC;
                 }
                 this.bindings = temp[0].split('.');
             }
@@ -567,7 +567,7 @@ export class View {
             var temp = bindingExpressions[i].Expression.split(':');
             var type: BindType;
             if (temp[1]) {
-                type = +temp[1];
+                type = temp[1].toLowerCase() == "tov" ? BindType.MODELTOVIEW : temp[1].toLowerCase() == "tom" ? BindType.VIEWTOMODEL : BindType.OVONIC;
             } else {
                 type = BindType.OVONIC;
             }
