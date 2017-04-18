@@ -1355,6 +1355,25 @@ System.register("model/injector", ["control/input", "control/choice", "control/t
         });
     }
     exports_11("Inject", Inject);
+    function ValidateData(TClass, data) {
+        return new Promise(function (resolve, reject) {
+            var temp = new TClass();
+            for (var property in data) {
+                temp[property] = data[property];
+            }
+            // 注入完成,验证
+            class_validator_2.validate(temp).then(function (errors) {
+                if (errors.length == 0) {
+                    // 验证通过
+                    resolve(temp);
+                }
+                else {
+                    reject(errors);
+                }
+            });
+        });
+    }
+    exports_11("ValidateData", ValidateData);
     var input_1, choice_1, text_2, list_2, view_3, class_validator_2;
     return {
         setters: [
@@ -1554,10 +1573,10 @@ System.register("control/button", ["control/text"], function (exports_13, contex
         }
     };
 });
-System.register("application/ts/bind_test", ["core/tinyts", "control/input", "control/button", "control/list", "control/text"], function (exports_14, context_14) {
+System.register("application/ts/bind_test", ["core/tinyts", "control/input", "control/button", "control/list", "control/text", "class-validator", "model/injector"], function (exports_14, context_14) {
     "use strict";
     var __moduleName = context_14 && context_14.id;
-    var tinyts_1, input_2, button_1, list_3, text_4, DataModel, ObjectModel, BindTestModel, aa;
+    var tinyts_1, input_2, button_1, list_3, text_4, class_validator_3, injector_1, DataModel, ObjectModel, BindTestModel, aa;
     return {
         setters: [
             function (tinyts_1_1) {
@@ -1574,6 +1593,12 @@ System.register("application/ts/bind_test", ["core/tinyts", "control/input", "co
             },
             function (text_4_1) {
                 text_4 = text_4_1;
+            },
+            function (class_validator_3_1) {
+                class_validator_3 = class_validator_3_1;
+            },
+            function (injector_1_1) {
+                injector_1 = injector_1_1;
             }
         ],
         execute: function () {
@@ -1589,6 +1614,10 @@ System.register("application/ts/bind_test", ["core/tinyts", "control/input", "co
                 }
                 return ObjectModel;
             }());
+            __decorate([
+                class_validator_3.Length(0, 2),
+                __metadata("design:type", String)
+            ], ObjectModel.prototype, "name", void 0);
             BindTestModel = (function (_super) {
                 __extends(BindTestModel, _super);
                 function BindTestModel() {
@@ -1607,10 +1636,11 @@ System.register("application/ts/bind_test", ["core/tinyts", "control/input", "co
                     };
                     this.data.listData.push(new DataModel(3, "aaa"));
                     this.btnInject.OnClick(function () {
-                        console.log(_this.data.name);
-                        console.log(_this.data.pos.x);
-                        console.log(_this.data.input);
-                        _this.data.name = "foxery";
+                        injector_1.ValidateData(ObjectModel, _this.data).then(function (ot) {
+                            console.log("validate success");
+                        }).catch(function (it) {
+                            console.log(it);
+                        });
                     });
                 };
                 return BindTestModel;
@@ -1671,7 +1701,7 @@ System.register("application/ts/http_test", ["core/http"], function (exports_15,
 System.register("application/ts/injector_test", ["control/input", "core/tinyts", "model/injector", "application/model/validator_test", "control/button", "core/view"], function (exports_16, context_16) {
     "use strict";
     var __moduleName = context_16 && context_16.id;
-    var input_3, tinyts_2, injector_1, validator_test_1, button_2, view_5, Name2Model, SubModel, InjectorTestModel, aa;
+    var input_3, tinyts_2, injector_2, validator_test_1, button_2, view_5, Name2Model, SubModel, InjectorTestModel, aa;
     return {
         setters: [
             function (input_3_1) {
@@ -1680,8 +1710,8 @@ System.register("application/ts/injector_test", ["control/input", "core/tinyts",
             function (tinyts_2_1) {
                 tinyts_2 = tinyts_2_1;
             },
-            function (injector_1_1) {
-                injector_1 = injector_1_1;
+            function (injector_2_1) {
+                injector_2 = injector_2_1;
             },
             function (validator_test_1_1) {
                 validator_test_1 = validator_test_1_1;
@@ -1728,7 +1758,7 @@ System.register("application/ts/injector_test", ["control/input", "core/tinyts",
                 InjectorTestModel.prototype.AfterInject = function () {
                     var me = this;
                     me.btnInject.OnClick(function () {
-                        injector_1.Inject(validator_test_1.TestModel, me).then(function (data) {
+                        injector_2.Inject(validator_test_1.TestModel, me).then(function (data) {
                             console.log(data);
                         }).catch(function (errors) {
                             console.log(errors);
@@ -1838,14 +1868,14 @@ System.register("application/ts/service_test", ["core/tinyts", "application/serv
 System.register("application/ts/validator_test", ["application/model/validator_test", "class-validator"], function (exports_19, context_19) {
     "use strict";
     var __moduleName = context_19 && context_19.id;
-    var validator_test_2, class_validator_3, ValidatorTestModel, aa;
+    var validator_test_2, class_validator_4, ValidatorTestModel, aa;
     return {
         setters: [
             function (validator_test_2_1) {
                 validator_test_2 = validator_test_2_1;
             },
-            function (class_validator_3_1) {
-                class_validator_3 = class_validator_3_1;
+            function (class_validator_4_1) {
+                class_validator_4 = class_validator_4_1;
             }
         ],
         execute: function () {
@@ -1854,7 +1884,7 @@ System.register("application/ts/validator_test", ["application/model/validator_t
                     var aa = new validator_test_2.TestModel();
                     aa.name = "aa1111a";
                     aa.phone = "15958049371";
-                    class_validator_3.validate(aa).then(function (errors) {
+                    class_validator_4.validate(aa).then(function (errors) {
                         if (errors.length > 0) {
                             console.log("validate error!");
                             console.log(errors);

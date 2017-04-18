@@ -7,7 +7,7 @@
 </head>
 
 <body>
-    <input type="text" id="sName" data-bind="data.name:tov">
+    <input type="text" id="sName" data-bind="data.name">
     <ul id="mList" data-bind="data.listData">
         <li data-id="{{Id}}">{{Name}}</li>
     </ul>
@@ -29,6 +29,16 @@
 
     <script src="../js/test.js"></script>
     <script>
+        System.config({
+            map: {
+                'class-validator': '/node_modules/class-validator',
+                'validator': '/node_modules/validator'
+            },
+            packages: {
+                'class-validator': { 'defaultExtension': 'js', 'main': 'index.js' },
+                'validator': { 'defaultExtension': 'js', 'main': 'validator.js' },
+            }
+        });
         System.import('application/ts/bind_test');
         // var data = [{ Expression: "model" }, { Expression: "data" }];
         // var c = mx(data).where(function (it) { return it.Expression == "data" }).count();

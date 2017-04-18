@@ -111,3 +111,21 @@ export function Inject<T>(TClass: { new (...args: any[]): T }, context): Promise
         });
     });
 }
+
+export function ValidateData<T>(TClass: { new (...args: any[]): T }, data): Promise<T> {
+    return new Promise<T>((resolve, reject) => {
+        var temp = new TClass();
+        for (var property in data) {
+            temp[property] = data[property];
+        }
+        // 注入完成,验证
+        validate(temp).then((errors) => {
+            if (errors.length == 0) {
+                // 验证通过
+                resolve(temp);
+            } else {
+                reject(errors);
+            }
+        });
+    });
+}

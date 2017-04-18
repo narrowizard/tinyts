@@ -5,6 +5,8 @@ import { Button } from '../../control/button';
 import { ListView } from '../../control/list';
 import { Meta } from '../../core/meta';
 import { TextView } from '../../control/text';
+import { Length } from 'class-validator'
+import { ValidateData } from '../../model/injector';
 
 class DataModel {
 
@@ -14,6 +16,7 @@ class DataModel {
 }
 
 class ObjectModel {
+    @Length(0, 2)
     name: string;
     listData: DataModel[];
     pos: { x: number, y: number };
@@ -59,10 +62,11 @@ export class BindTestModel extends AncView {
         this.data.listData.push(new DataModel(3, "aaa"));
 
         this.btnInject.OnClick(() => {
-            console.log(this.data.name);
-            console.log(this.data.pos.x);
-            console.log(this.data.input);
-            this.data.name = "foxery";
+            ValidateData(ObjectModel, this.data).then(ot => {
+                console.log("validate success");
+            }).catch(it => {
+                console.log(it);
+            });
         });
     }
 
