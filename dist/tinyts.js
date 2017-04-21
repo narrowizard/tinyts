@@ -166,26 +166,89 @@ System.register("tinyts/core/http", [], function (exports_1, context_1) {
         }
     };
 });
-System.register("tinyts/core/view", ["tinyts/core/http"], function (exports_2, context_2) {
+System.register("tinyts/core/servicepool", [], function (exports_2, context_2) {
     "use strict";
     var __moduleName = context_2 && context_2.id;
-    var http_1, injectModel, ViewState, View, ViewG, ViewV;
+    var ServicePool, ServicePoolInstance;
+    return {
+        setters: [],
+        execute: function () {
+            /**
+             * ServicePool 服务池
+             *
+             * 为了解决不同的视图模型(ViewModel)中对Service引用(以及初始化)的繁琐
+             * 引入了服务池(ServicePool),服务池是一个单例(Single Instance).
+             * 并且已经在引入该文件的时候实例化了这个单例(ServicePoolInstance).
+             * methods:
+             * GetService(T extends IService):T 得到某个服务的实例
+             * ReleaseService 释放服务(未实现)
+                * 释放服务应该提供两种接口:
+                * 一、手动调用ReleaseService方法释放服务
+                * 二、引用某种算法自动释放服务（LRU）
+             *
+             */
+            ServicePool = (function () {
+                function ServicePool() {
+                    this.instances = {};
+                }
+                /**
+                 * GetService 获取某个服务的实例
+                 * @param Class 某服务类的构造函数
+                 * @return 该服务实例对象
+                 */
+                ServicePool.prototype.GetService = function (Class) {
+                    var name = Class.prototype.constructor.name;
+                    if (!name) {
+                        //IE不支持name属性
+                        name = Class.toString().match(/^function\s*([^\s(]+)/)[1];
+                    }
+                    if (this.instances[name]) {
+                    }
+                    else {
+                        this.instances[name] = new Class();
+                    }
+                    return this.instances[name];
+                };
+                ServicePool.prototype.ReleaseService = function () {
+                };
+                return ServicePool;
+            }());
+            exports_2("ServicePoolInstance", ServicePoolInstance = new ServicePool());
+        }
+    };
+});
+System.register("tinyts/core/view", ["tinyts/core/http", "tinyts/core/servicepool"], function (exports_3, context_3) {
+    "use strict";
+    var __moduleName = context_3 && context_3.id;
+    var http_1, servicepool_1, injectModel, serviceInjectModel, ViewState, BindType, DataBindExpressionModel, TreeNode, View, ViewG, ViewV;
     return {
         setters: [
             function (http_1_1) {
                 http_1 = http_1_1;
+            },
+            function (servicepool_1_1) {
+                servicepool_1 = servicepool_1_1;
             }
         ],
         execute: function () {
             /**
-             * injectModel 注入模型
+             * injectModel 视图注入模型
              */
             injectModel = (function () {
                 function injectModel() {
                 }
                 return injectModel;
             }());
-            exports_2("injectModel", injectModel);
+            exports_3("injectModel", injectModel);
+            /**
+             * serviceInjectModel 服务注入模型
+             */
+            serviceInjectModel = (function () {
+                function serviceInjectModel() {
+                }
+                return serviceInjectModel;
+            }());
+            exports_3("serviceInjectModel", serviceInjectModel);
             (function (ViewState) {
                 /**
                  * UNLOAD 尚未加载(未调用LoadView)
@@ -200,13 +263,167 @@ System.register("tinyts/core/view", ["tinyts/core/http"], function (exports_2, c
                  */
                 ViewState[ViewState["LOADFAIL"] = 2] = "LOADFAIL";
             })(ViewState || (ViewState = {}));
-            exports_2("ViewState", ViewState);
+            exports_3("ViewState", ViewState);
+            (function (BindType) {
+                /**
+                 * OVONIC 双向绑定
+                 */
+                BindType[BindType["OVONIC"] = 0] = "OVONIC";
+                BindType[BindType["MODELTOVIEW"] = 1] = "MODELTOVIEW";
+                BindType[BindType["VIEWTOMODEL"] = 2] = "VIEWTOMODEL";
+            })(BindType || (BindType = {}));
+            DataBindExpressionModel = (function () {
+                function DataBindExpressionModel(Expression, ViewInstance) {
+                    this.Expression = Expression;
+                    this.ViewInstance = ViewInstance;
+                }
+                return DataBindExpressionModel;
+            }());
+            TreeNode = (function () {
+                function TreeNode() {
+                    this.Child = [];
+                    this.Views = [];
+                }
+                /**
+                 * AddChild 添加子节点,如果子节点已存在且非叶子节点,则合并子节点
+                 * @param c 子节点
+                 */
+                TreeNode.prototype.AddChild = function (c) {
+                    // 遍历检查是否已存在
+                    var count = mx(this.Child).where(function (it) { return it.Expression == c.Expression; }).count();
+                    if (count == 1) {
+                        this.CombineChild(c);
+                    }
+                    else {
+                        this.Child.push(c);
+                    }
+                };
+                /**
+                 * CombineChild 合并两个子节点
+                 */
+                TreeNode.prototype.CombineChild = function (c) {
+                    var child = mx(this.Child).where(function (it) { return it.Expression == c.Expression; }).first();
+                    if (c.Views.length > 0) {
+                        // 如果是叶子节点
+                        for (var i = 0; i < c.Views.length; i++) {
+                            child.Views.push(c.Views[i]);
+                        }
+                    }
+                    else {
+                        for (var i = 0; i < c.Child.length; i++) {
+                            child.AddChild(c.Child[i]);
+                        }
+                    }
+                };
+                /**
+                 * Resolve 解析字符串数组成TreeNode
+                 * @param data 字符串数组
+                 * @param view 绑定的视图,如果存在下一级,则传递下去
+                 */
+                TreeNode.prototype.Resolve = function (data, view, type) {
+                    if (data.length < 1) {
+                        return null;
+                    }
+                    this.Expression = data[0];
+                    if (data.length == 1) {
+                        this.Views.push({ ViewInstance: view, Type: type });
+                    }
+                    if (data.length > 1) {
+                        var temp = (new TreeNode()).Resolve(data.slice(1), view, type);
+                        if (temp) {
+                            this.Child.push(temp);
+                        }
+                    }
+                    return this;
+                };
+                TreeNode.prototype.BuildProxy = function () {
+                    var _this = this;
+                    var temp = {};
+                    if (this.Views.length > 0) {
+                        // 叶子节点,处理与View的绑定关系
+                        Object.defineProperty(temp, this.Expression, {
+                            enumerable: true,
+                            set: function (value) {
+                                _this.Views.forEach(function (v, i, a) {
+                                    if (v.Type == BindType.OVONIC || v.Type == BindType.MODELTOVIEW) {
+                                        temp["_" + _this.Expression] = value;
+                                        v.ViewInstance.SetValue(value);
+                                    }
+                                });
+                            },
+                            get: function () {
+                                // 返回第一个双向绑定的或者ViewToModel的View的值
+                                for (var i = 0; i < _this.Views.length; i++) {
+                                    if (_this.Views[i].Type == BindType.OVONIC || _this.Views[i].Type == BindType.VIEWTOMODEL) {
+                                        return _this.Views[i].ViewInstance.Value();
+                                    }
+                                }
+                                // 如果不存在View满足条件
+                                return temp["_" + _this.Expression];
+                            }
+                        });
+                        // 查找第一个双向绑定或者ViewToModel的View,注册change事件
+                        for (var i = 0; i < this.Views.length; i++) {
+                            var temp_view = this.Views[i];
+                            if (temp_view.ViewInstance && temp_view.Type == BindType.OVONIC || temp_view.Type == BindType.VIEWTOMODEL) {
+                                temp_view.ViewInstance.On("input", function () {
+                                    temp[_this.Expression] = _this.Views[i].ViewInstance.Value();
+                                });
+                                break;
+                            }
+                        }
+                    }
+                    else {
+                        var child = {};
+                        // 非叶子节点,直接被覆盖需要处理
+                        for (var i = 0; i < this.Child.length; i++) {
+                            Object.defineProperty(child, this.Child[i].Expression, Object.getOwnPropertyDescriptor(this.Child[i].BuildProxy(), this.Child[i].Expression));
+                        }
+                        temp["_" + this.Expression] = {};
+                        Object.defineProperty(temp, this.Expression, {
+                            enumerable: true,
+                            set: function (value) {
+                                // 在这里setter需要处理子级的getter和setter
+                                if (value instanceof Object) {
+                                    for (var p in value) {
+                                        if (Object.getOwnPropertyDescriptor(temp["_" + _this.Expression], p)) {
+                                            // 已存在则赋值
+                                            temp["_" + _this.Expression][p] = value[p];
+                                        }
+                                        else {
+                                            // 不存在则定义
+                                            Object.defineProperty(temp["_" + _this.Expression], p, Object.getOwnPropertyDescriptor(value, p));
+                                        }
+                                    }
+                                }
+                            },
+                            get: function () {
+                                return temp["_" + _this.Expression];
+                            }
+                        });
+                        temp[this.Expression] = child;
+                    }
+                    return temp;
+                };
+                return TreeNode;
+            }());
             /**
              * View 视图基类
              */
             View = (function () {
                 function View() {
                 }
+                /**
+                 * Value 获取控件值,请在子类重写此方法
+                 */
+                View.prototype.Value = function () {
+                    return this.name;
+                };
+                /**
+                 * SetValue 设置控件值,请在子类重写此方法
+                 */
+                View.prototype.SetValue = function (value) {
+                };
                 /**
                  * Name 设置当前视图在viewmodel的属性名
                  */
@@ -279,6 +496,17 @@ System.register("tinyts/core/view", ["tinyts/core/http"], function (exports_2, c
                         this.state = ViewState.LOADSUCC;
                         // 绑定成功
                         this.propertyName = this.target.attr("data-property");
+                        this.bindingExpression = this.target.attr("data-bind");
+                        if (this.bindingExpression) {
+                            var temp = this.bindingExpression.split(':');
+                            if (temp[1]) {
+                                this.bindType = temp[1].toLowerCase() == "tov" ? BindType.MODELTOVIEW : temp[1].toLowerCase() == "tom" ? BindType.VIEWTOMODEL : BindType.OVONIC;
+                            }
+                            else {
+                                this.bindType = BindType.OVONIC;
+                            }
+                            this.bindings = temp[0].split('.');
+                        }
                         if (matchedElementLength > 1) {
                             // 绑定了多个元素
                             this.multipart = true;
@@ -320,6 +548,9 @@ System.register("tinyts/core/view", ["tinyts/core/http"], function (exports_2, c
                  */
                 View.prototype.On = function (eventName, handler) {
                     var _this = this;
+                    if (!this.eventList) {
+                        this.eventList = {};
+                    }
                     var needBind = false;
                     // 在注册事件的时候判断该事件是否已存在,如果不存在,则绑定事件
                     if (this.eventList[eventName] == null) {
@@ -435,6 +666,16 @@ System.register("tinyts/core/view", ["tinyts/core/http"], function (exports_2, c
                 View.prototype.Enable = function () {
                     this.target.removeAttr("disabled");
                 };
+                View.prototype.DataBindExpression = function () {
+                    return this.bindingExpression;
+                };
+                /**
+                 * DataBind 返回数据绑定第index级属性
+                 * @param index
+                 */
+                View.prototype.DataBind = function () {
+                    return this.bindings;
+                };
                 /**
                  * Inject 将@v装饰的属性注入到View中,
                  * 当当前视图绑定DOM元素成功,并且是单元素绑定模式时,下一级注入会限制在当前DOM元素之内进行
@@ -443,49 +684,91 @@ System.register("tinyts/core/view", ["tinyts/core/http"], function (exports_2, c
                     var c = this.constructor;
                     var instance = this;
                     var injector = c["__inject__"];
+                    var dataBindingExpressions = [];
+                    this.BeforeInject();
                     if (injector) {
-                        this.BeforeInject();
                         for (var i in injector) {
                             // 查找构造函数
                             var temp = injector[i];
                             if (instance instanceof temp["constructor"]) {
+                                // 注入视图
                                 var views = temp["views"];
-                                for (var j = 0; j < views.length; j++) {
-                                    var view = views[j];
-                                    var viewInstance = new view.creator();
-                                    if (viewInstance instanceof View) {
-                                        viewInstance.SetSelector(view.selector);
-                                        viewInstance.SetName(view.propertyName);
-                                        // 检测当前视图是否存在,如果不存在,则不限制下一级视图注入时的parent属性
-                                        if (this.state == ViewState.LOADSUCC && !this.multipart) {
-                                            viewInstance.LoadView(this.selector);
+                                if (views) {
+                                    for (var j = 0; j < views.length; j++) {
+                                        var view = views[j];
+                                        var viewInstance = new view.creator();
+                                        if (viewInstance instanceof View) {
+                                            viewInstance.SetSelector(view.selector);
+                                            viewInstance.SetName(view.propertyName);
+                                            // 检测当前视图是否存在,如果不存在,则不限制下一级视图注入时的parent属性
+                                            if (this.state == ViewState.LOADSUCC && !this.multipart) {
+                                                viewInstance.LoadView(this.selector);
+                                            }
+                                            else {
+                                                viewInstance.LoadView();
+                                            }
+                                            // 如果存在data bind expression 
+                                            if (viewInstance.DataBindExpression()) {
+                                                dataBindingExpressions.push(new DataBindExpressionModel(viewInstance.DataBindExpression(), viewInstance));
+                                            }
+                                            if (viewInstance instanceof ViewG) {
+                                                viewInstance.SetContext(this);
+                                            }
+                                            if (viewInstance instanceof ViewV) {
+                                                // 默认虚拟视图为耗时操作
+                                                (function () {
+                                                    // 在循环中会出现引用出错的问题,在这里用一个闭包隐藏作用域
+                                                    var temp = viewInstance;
+                                                    temp.SetTemplateView().then(function () {
+                                                        temp.Inject();
+                                                    });
+                                                })();
+                                            }
+                                            else {
+                                                viewInstance.Inject();
+                                            }
                                         }
-                                        else {
-                                            viewInstance.LoadView();
-                                        }
-                                        if (viewInstance instanceof ViewG) {
-                                            viewInstance.SetContext(this);
-                                        }
-                                        if (viewInstance instanceof ViewV) {
-                                            // 默认虚拟视图为耗时操作
-                                            (function () {
-                                                // 在循环中会出现引用出错的问题,在这里用一个闭包隐藏作用域
-                                                var temp = viewInstance;
-                                                temp.SetTemplateView().then(function () {
-                                                    temp.Inject();
-                                                });
-                                            })();
-                                        }
-                                        else {
-                                            viewInstance.Inject();
-                                        }
+                                        instance[view.propertyName] = viewInstance;
                                     }
-                                    instance[view.propertyName] = viewInstance;
+                                    // views注入完成,根据views生成数据绑定树
+                                    this.ResolveDataBinding(dataBindingExpressions);
+                                }
+                                // 注入服务
+                                var services = temp["services"];
+                                if (services) {
+                                    for (var j = 0; j < services.length; j++) {
+                                        var service = services[j];
+                                        instance[service.propertyName] = servicepool_1.ServicePoolInstance.GetService(service.creator);
+                                    }
                                 }
                                 break;
                             }
                         }
-                        this.AfterInject();
+                    }
+                    this.AfterInject();
+                };
+                /**
+                 * ResolveDataBinding 解析数据绑定模版语法
+                 * @param bindingExpressions 数据绑定模板 格式为 model1.property1.property2
+                 */
+                View.prototype.ResolveDataBinding = function (bindingExpressions) {
+                    // 构造一棵数据绑定树
+                    var root = new TreeNode();
+                    for (var i = 0; i < bindingExpressions.length; i++) {
+                        var temp = bindingExpressions[i].Expression.split(':');
+                        var type;
+                        if (temp[1]) {
+                            type = temp[1].toLowerCase() == "tov" ? BindType.MODELTOVIEW : temp[1].toLowerCase() == "tom" ? BindType.VIEWTOMODEL : BindType.OVONIC;
+                        }
+                        else {
+                            type = BindType.OVONIC;
+                        }
+                        var segments = temp[0].split('.');
+                        var node = new TreeNode();
+                        root.AddChild(node.Resolve(segments, bindingExpressions[i].ViewInstance, type));
+                    }
+                    for (var i = 0; i < root.Child.length; i++) {
+                        Object.defineProperty(this, root.Child[i].Expression, Object.getOwnPropertyDescriptor(root.Child[i].BuildProxy(), root.Child[i].Expression));
                     }
                 };
                 // hooks
@@ -493,7 +776,7 @@ System.register("tinyts/core/view", ["tinyts/core/http"], function (exports_2, c
                 View.prototype.AfterInject = function () { };
                 return View;
             }());
-            exports_2("View", View);
+            exports_3("View", View);
             ViewG = (function (_super) {
                 __extends(ViewG, _super);
                 function ViewG() {
@@ -504,7 +787,7 @@ System.register("tinyts/core/view", ["tinyts/core/http"], function (exports_2, c
                 };
                 return ViewG;
             }(View));
-            exports_2("ViewG", ViewG);
+            exports_3("ViewG", ViewG);
             /**
              * ViewV 虚拟视图,支持同步跟异步两种模式
              * 同步模式下,html string直接通过GetViewString方法返回
@@ -536,13 +819,13 @@ System.register("tinyts/core/view", ["tinyts/core/http"], function (exports_2, c
                 };
                 return ViewV;
             }(ViewG));
-            exports_2("ViewV", ViewV);
+            exports_3("ViewV", ViewV);
         }
     };
 });
-System.register("tinyts/control/text", ["tinyts/core/view"], function (exports_3, context_3) {
+System.register("tinyts/control/text", ["tinyts/core/view"], function (exports_4, context_4) {
     "use strict";
-    var __moduleName = context_3 && context_3.id;
+    var __moduleName = context_4 && context_4.id;
     var view_1, TextView;
     return {
         setters: [
@@ -554,28 +837,39 @@ System.register("tinyts/control/text", ["tinyts/core/view"], function (exports_3
             /**
              * TextView 用于文本显示的控件
              * 这里的文本指<tag>文本内容</tag>中的文本内容
-             * 所以button也继承自该类
              */
             TextView = (function (_super) {
                 __extends(TextView, _super);
                 function TextView() {
                     return _super !== null && _super.apply(this, arguments) || this;
                 }
-                TextView.prototype.Text = function () {
+                /**
+                 * Value 取值
+                 */
+                TextView.prototype.Value = function () {
                     return this.target.text();
                 };
-                TextView.prototype.SetText = function (v) {
+                /**
+                 * SetValue 设置值
+                 */
+                TextView.prototype.SetValue = function (v) {
                     this.target.text(v);
+                };
+                /**
+                 * Clear 清空值
+                 */
+                TextView.prototype.Clear = function () {
+                    this.target.text("");
                 };
                 return TextView;
             }(view_1.View));
-            exports_3("TextView", TextView);
+            exports_4("TextView", TextView);
         }
     };
 });
-System.register("tinyts/control/button", ["tinyts/control/text"], function (exports_4, context_4) {
+System.register("tinyts/control/button", ["tinyts/control/text"], function (exports_5, context_5) {
     "use strict";
-    var __moduleName = context_4 && context_4.id;
+    var __moduleName = context_5 && context_5.id;
     var text_1, Button;
     return {
         setters: [
@@ -605,20 +899,18 @@ System.register("tinyts/control/button", ["tinyts/control/text"], function (expo
                 };
                 return Button;
             }(text_1.TextView));
-            exports_4("Button", Button);
+            exports_5("Button", Button);
         }
     };
 });
-/**
- * Meta 实现一个模版语法解析的类
- */
-System.register("tinyts/core/meta", [], function (exports_5, context_5) {
+System.register("tinyts/core/meta", [], function (exports_6, context_6) {
     "use strict";
-    var __moduleName = context_5 && context_5.id;
+    var __moduleName = context_6 && context_6.id;
     var Meta;
     return {
         setters: [],
-        execute: function () {/**
+        execute: function () {
+            /**
              * Meta 实现一个模版语法解析的类
              */
             Meta = (function () {
@@ -637,13 +929,13 @@ System.register("tinyts/core/meta", [], function (exports_5, context_5) {
                 };
                 return Meta;
             }());
-            exports_5("Meta", Meta);
+            exports_6("Meta", Meta);
         }
     };
 });
-System.register("tinyts/control/list", ["tinyts/core/view", "tinyts/core/meta"], function (exports_6, context_6) {
+System.register("tinyts/control/list", ["tinyts/core/view", "tinyts/core/meta"], function (exports_7, context_7) {
     "use strict";
-    var __moduleName = context_6 && context_6.id;
+    var __moduleName = context_7 && context_7.id;
     var view_2, meta_1, ListView;
     return {
         setters: [
@@ -732,6 +1024,12 @@ System.register("tinyts/control/list", ["tinyts/core/view", "tinyts/core/meta"],
                     }
                     this.mData = data;
                     this.RefreshView();
+                };
+                ListView.prototype.SetValue = function (data) {
+                    this.SetData(data);
+                };
+                ListView.prototype.Value = function () {
+                    return this.mData;
                 };
                 /**
                  * RefreshView 刷新列表部分视图
@@ -854,38 +1152,32 @@ System.register("tinyts/control/list", ["tinyts/core/view", "tinyts/core/meta"],
                 };
                 return ListView;
             }(view_2.View));
-            exports_6("ListView", ListView);
+            exports_7("ListView", ListView);
         }
     };
 });
-System.register("tinyts/control/input", ["tinyts/core/view"], function (exports_7, context_7) {
+System.register("tinyts/control/input", ["tinyts/control/text"], function (exports_8, context_8) {
     "use strict";
-    var __moduleName = context_7 && context_7.id;
-    var view_3, InputView;
+    var __moduleName = context_8 && context_8.id;
+    var text_2, InputView;
     return {
         setters: [
-            function (view_3_1) {
-                view_3 = view_3_1;
+            function (text_2_1) {
+                text_2 = text_2_1;
             }
         ],
         execute: function () {
             /**
-             * InputView 文本输入控件,作为输入框的基类
+             * InputView 文本输入控件,作为输入框的基类,重载了TextView中的方法
              */
             InputView = (function (_super) {
                 __extends(InputView, _super);
                 function InputView() {
                     return _super !== null && _super.apply(this, arguments) || this;
                 }
-                /**
-                 * Value 取值
-                 */
                 InputView.prototype.Value = function () {
                     return this.target.val();
                 };
-                /**
-                 * SetValue 设置值
-                 */
                 InputView.prototype.SetValue = function (v) {
                     this.target.val(v);
                 };
@@ -896,14 +1188,14 @@ System.register("tinyts/control/input", ["tinyts/core/view"], function (exports_
                     this.target.val("");
                 };
                 return InputView;
-            }(view_3.View));
-            exports_7("InputView", InputView);
+            }(text_2.TextView));
+            exports_8("InputView", InputView);
         }
     };
 });
-System.register("tinyts/control/choice", ["tinyts/control/list"], function (exports_8, context_8) {
+System.register("tinyts/control/choice", ["tinyts/control/list"], function (exports_9, context_9) {
     "use strict";
-    var __moduleName = context_8 && context_8.id;
+    var __moduleName = context_9 && context_9.id;
     var list_1, ChoiceView;
     return {
         setters: [
@@ -919,13 +1211,13 @@ System.register("tinyts/control/choice", ["tinyts/control/list"], function (expo
                 }
                 return ChoiceView;
             }(list_1.ListView));
-            exports_8("ChoiceView", ChoiceView);
+            exports_9("ChoiceView", ChoiceView);
         }
     };
 });
-System.register("tinyts/control/table", ["tinyts/control/list"], function (exports_9, context_9) {
+System.register("tinyts/control/table", ["tinyts/control/list"], function (exports_10, context_10) {
     "use strict";
-    var __moduleName = context_9 && context_9.id;
+    var __moduleName = context_10 && context_10.id;
     var list_2, Table;
     return {
         setters: [
@@ -941,52 +1233,11 @@ System.register("tinyts/control/table", ["tinyts/control/list"], function (expor
                 }
                 return Table;
             }(list_2.ListView));
-            exports_9("Table", Table);
+            exports_10("Table", Table);
         }
     };
 });
-System.register("tinyts/core/container", [], function (exports_10, context_10) {
-    "use strict";
-    var __moduleName = context_10 && context_10.id;
-    var ValueContainer;
-    return {
-        setters: [],
-        execute: function () {
-            /**
-             * ValueContainer 依赖注入容器
-             */
-            ValueContainer = (function () {
-                function ValueContainer() {
-                }
-                /**
-                 * RegisterViewContainer 注册View容器
-                 * @param name View名称
-                 * @param constructor View的构造函数
-                 */
-                ValueContainer.prototype.RegisterViewContainer = function (name, constructor) {
-                    if (ValueContainer.viewContainer[name]) {
-                        console.warn(name + " already registed!");
-                        return;
-                    }
-                    ValueContainer.viewContainer[name] = constructor;
-                };
-                /**
-                 * GetView 根据View名称获取View对象
-                 * @param viewName View名称
-                 */
-                ValueContainer.prototype.GetView = function (viewName) {
-                    var constructor = ValueContainer.viewContainer[viewName];
-                    if (constructor != null) {
-                        return new constructor();
-                    }
-                };
-                return ValueContainer;
-            }());
-            exports_10("ValueContainer", ValueContainer);
-        }
-    };
-});
-System.register("tinyts/model/injector", ["tinyts/control/input", "tinyts/control/choice", "tinyts/control/text", "tinyts/control/list", "tinyts/core/view"], function (exports_11, context_11) {
+System.register("tinyts/model/injector", ["tinyts/control/input", "tinyts/control/choice", "tinyts/control/text", "tinyts/control/list", "tinyts/core/view", "class-validator"], function (exports_11, context_11) {
     "use strict";
     var __moduleName = context_11 && context_11.id;
     /**
@@ -999,14 +1250,11 @@ System.register("tinyts/model/injector", ["tinyts/control/input", "tinyts/contro
             // 清空context
             for (var prop in context) {
                 var target = context[prop];
-                if (target instanceof view_4.View) {
+                if (target instanceof view_3.View) {
                     var propName = target.PropertyName();
                     if (propName) {
-                        if (target instanceof input_1.InputView || target instanceof choice_1.ChoiceView) {
+                        if (target instanceof text_3.TextView || target instanceof choice_1.ChoiceView) {
                             target.Clear();
-                        }
-                        else if (target instanceof text_2.TextView) {
-                            target.SetText("");
                         }
                         else if (target instanceof list_3.ListView) {
                             target.SetData([]);
@@ -1021,17 +1269,14 @@ System.register("tinyts/model/injector", ["tinyts/control/input", "tinyts/contro
         }
         for (var prop in context) {
             var target = context[prop];
-            if (target instanceof view_4.View) {
+            if (target instanceof view_3.View) {
                 var propName = target.PropertyName();
                 if (propName) {
                     var value = model[propName];
                     if (value) {
                         // 注入
-                        if (target instanceof input_1.InputView || target instanceof choice_1.ChoiceView) {
+                        if (target instanceof text_3.TextView || target instanceof choice_1.ChoiceView) {
                             target.SetValue(value);
-                        }
-                        else if (target instanceof text_2.TextView) {
-                            target.SetText(value);
                         }
                         else if (target instanceof list_3.ListView && $.isArray(value)) {
                             target.SetData(value);
@@ -1048,13 +1293,86 @@ System.register("tinyts/model/injector", ["tinyts/control/input", "tinyts/contro
         }
     }
     exports_11("Resolve", Resolve);
+    function InjectWithoutValidate(TClass, context) {
+        var temp = new TClass();
+        for (var property in context) {
+            if (property == "context") {
+                // 上下文,跳过
+                continue;
+            }
+            var target = context[property];
+            if (target instanceof view_3.View) {
+                if (target instanceof view_3.ViewG || target instanceof view_3.ViewV) {
+                    // nest inject
+                    var tt = InjectWithoutValidate(TClass, target);
+                    // 合并temp和tt
+                    temp = $.extend({}, temp, tt);
+                }
+                var propName = target.PropertyName();
+                if (propName) {
+                    var value;
+                    if (target instanceof input_1.InputView || target instanceof choice_1.ChoiceView) {
+                        value = target.Value();
+                    }
+                    else if (target instanceof list_3.ListView) {
+                        // 暂时不注入列表数据
+                    }
+                    //如果model中存在,优先注入
+                    if (TClass.prototype.hasOwnProperty(propName)) {
+                        temp[propName] = value;
+                    }
+                    else if (value != null) {
+                        //注入model中不存在,但是value不为null的值
+                        temp[propName] = value;
+                    }
+                }
+            }
+        }
+        return temp;
+    }
     /**
      * Inject 将context中的control的值注入到model中
      */
-    function Inject(context) {
+    function Inject(TClass, context) {
+        return new Promise(function (resolve, reject) {
+            var data = InjectWithoutValidate(TClass, context);
+            var temp = new TClass();
+            for (var property in data) {
+                temp[property] = data[property];
+            }
+            // 注入完成,验证
+            class_validator_1.validate(temp).then(function (errors) {
+                if (errors.length == 0) {
+                    // 验证通过
+                    resolve(temp);
+                }
+                else {
+                    reject(errors);
+                }
+            });
+        });
     }
     exports_11("Inject", Inject);
-    var input_1, choice_1, text_2, list_3, view_4;
+    function ValidateData(TClass, data) {
+        return new Promise(function (resolve, reject) {
+            var temp = new TClass();
+            for (var property in data) {
+                temp[property] = data[property];
+            }
+            // 注入完成,验证
+            class_validator_1.validate(temp).then(function (errors) {
+                if (errors.length == 0) {
+                    // 验证通过
+                    resolve(temp);
+                }
+                else {
+                    reject(errors);
+                }
+            });
+        });
+    }
+    exports_11("ValidateData", ValidateData);
+    var input_1, choice_1, text_3, list_3, view_3, class_validator_1;
     return {
         setters: [
             function (input_1_1) {
@@ -1063,14 +1381,17 @@ System.register("tinyts/model/injector", ["tinyts/control/input", "tinyts/contro
             function (choice_1_1) {
                 choice_1 = choice_1_1;
             },
-            function (text_2_1) {
-                text_2 = text_2_1;
+            function (text_3_1) {
+                text_3 = text_3_1;
             },
             function (list_3_1) {
                 list_3 = list_3_1;
             },
-            function (view_4_1) {
-                view_4 = view_4_1;
+            function (view_3_1) {
+                view_3 = view_3_1;
+            },
+            function (class_validator_1_1) {
+                class_validator_1 = class_validator_1_1;
             }
         ],
         execute: function () {
@@ -1088,13 +1409,13 @@ System.register("tinyts/core/tinyts", ["tinyts/core/view"], function (exports_12
      */
     function v(c, selector) {
         /**
-         * 该函数运行在ViewModel上
-         * @param target ViewModel实例
+         * 该函数运行在View上
+         * @param target View实例
          * @param decoratedPropertyName 属性名
          */
         return function (target, decoratedPropertyName) {
             var targetType = target.constructor;
-            // 目标viewmodel的名称
+            // 目标view的名称
             var name = target.constructor.toString().match(/^function\s*([^\s(]+)/)[1];
             if (!targetType.hasOwnProperty("__inject__")) {
                 targetType["__inject__"] = {};
@@ -1107,7 +1428,7 @@ System.register("tinyts/core/tinyts", ["tinyts/core/view"], function (exports_12
             if (!targetType["__inject__"][name]["views"]) {
                 targetType["__inject__"][name]["views"] = [];
             }
-            var temp = new view_5.injectModel();
+            var temp = new view_4.injectModel();
             temp.creator = c;
             temp.propertyName = decoratedPropertyName;
             temp.selector = selector == null ? "#" + decoratedPropertyName : selector;
@@ -1129,11 +1450,43 @@ System.register("tinyts/core/tinyts", ["tinyts/core/view"], function (exports_12
         };
     }
     exports_12("f", f);
-    var view_5, AncView;
+    /**
+     * 用于声明需要注入的service
+     * @param s service的构造函数
+     */
+    function s(s) {
+        /**
+         * 该函数运行在View上
+         * @param target View实例
+         * @param decoratedPropertyName 属性名
+         */
+        return function (target, decoratedPropertyName) {
+            var targetType = target.constructor;
+            // 目标view的名称
+            var name = target.constructor.toString().match(/^function\s*([^\s(]+)/)[1];
+            if (!targetType.hasOwnProperty("__inject__")) {
+                targetType["__inject__"] = {};
+            }
+            if (!targetType["__inject__"][name]) {
+                targetType["__inject__"][name] = {
+                    constructor: target.constructor
+                };
+            }
+            if (!targetType["__inject__"][name]["services"]) {
+                targetType["__inject__"][name]["services"] = [];
+            }
+            var temp = new view_4.serviceInjectModel();
+            temp.creator = s;
+            temp.propertyName = decoratedPropertyName;
+            targetType["__inject__"][name]["services"].push(temp);
+        };
+    }
+    exports_12("s", s);
+    var view_4, AncView;
     return {
         setters: [
-            function (view_5_1) {
-                view_5 = view_5_1;
+            function (view_4_1) {
+                view_4 = view_4_1;
             }
         ],
         execute: function () {
@@ -1143,7 +1496,7 @@ System.register("tinyts/core/tinyts", ["tinyts/core/view"], function (exports_12
              * tinyts的异步加载过程会导致页面元素的变化,给用户带来不好的体验
              * 因此需要在加载之前将tinyts托管的部分隐藏,请在container元素上加上style="display:none"
              * tinyts在完成注入后,会去除这个style以显示container的内容
-             * 注意:请尽量不要在container上加上display:none意外的style属性,可能会引起不可预知的错误
+             * 注意:请尽量不要在container上加上display:none以外的style属性,可能会引起不可预知的错误
              */
             AncView = (function (_super) {
                 __extends(AncView, _super);
@@ -1169,7 +1522,7 @@ System.register("tinyts/core/tinyts", ["tinyts/core/view"], function (exports_12
                  * Show 移除style中的display:none
                  */
                 AncView.prototype.Show = function () {
-                    if (this.state == view_5.ViewState.LOADSUCC) {
+                    if (this.state == view_4.ViewState.LOADSUCC) {
                         var style = this.target.attr("style");
                         var aa = /display\s*:\s*none;?/;
                         style = style.replace(aa, "");
@@ -1177,8 +1530,344 @@ System.register("tinyts/core/tinyts", ["tinyts/core/view"], function (exports_12
                     }
                 };
                 return AncView;
-            }(view_5.View));
+            }(view_4.View));
             exports_12("AncView", AncView);
+        }
+    };
+});
+System.register("tinyts/utils/cookie", [], function (exports_13, context_13) {
+    "use strict";
+    var __moduleName = context_13 && context_13.id;
+    var Cookie, CookieInstance;
+    return {
+        setters: [],
+        execute: function () {
+            /**
+             * refrence to jquery.cookie
+             */
+            Cookie = (function () {
+                function Cookie() {
+                }
+                /**
+                 * Get 获取指定键值
+                 * @param key 键名
+                 */
+                Cookie.prototype.Get = function (key) {
+                    var cookieValue = null;
+                    if (document.cookie && document.cookie != '') {
+                        var cookies = document.cookie.split(';');
+                        for (var i = 0; i < cookies.length; i++) {
+                            var cookie = jQuery.trim(cookies[i]);
+                            // Does this cookie string begin with the name we want?
+                            if (cookie.substring(0, key.length + 1) == (key + '=')) {
+                                cookieValue = decodeURIComponent(cookie.substring(key.length + 1));
+                                break;
+                            }
+                        }
+                    }
+                    return cookieValue;
+                };
+                /**
+                 * Remove 移除指定键
+                 * @param key 键名
+                 */
+                Cookie.prototype.Remove = function (key) {
+                    this.Set(key, null);
+                };
+                /**
+                 * Set 设置指定键
+                 * @param key 键名
+                 * @param value 值
+                 */
+                Cookie.prototype.Set = function (key, value, options) {
+                    options = options || {};
+                    if (value === null) {
+                        value = '';
+                        options = $.extend({}, options); // clone object since it's unexpected behavior if the expired property were changed
+                        options.expires = -1;
+                    }
+                    var expires = '';
+                    if (options.expires && (typeof options.expires == 'number' || options.expires.toUTCString)) {
+                        var date;
+                        if (typeof options.expires == 'number') {
+                            date = new Date();
+                            date.setTime(date.getTime() + (options.expires * 24 * 60 * 60 * 1000));
+                        }
+                        else {
+                            date = options.expires;
+                        }
+                        expires = '; expires=' + date.toUTCString(); // use expires attribute, max-age is not supported by IE
+                    }
+                    // NOTE Needed to parenthesize options.path and options.domain
+                    // in the following expressions, otherwise they evaluate to undefined
+                    // in the packed version for some reason...
+                    var path = options.path ? '; path=' + (options.path) : '';
+                    var domain = options.domain ? '; domain=' + (options.domain) : '';
+                    var secure = options.secure ? '; secure' : '';
+                    document.cookie = [key, '=', encodeURIComponent(value), expires, path, domain, secure].join('');
+                };
+                return Cookie;
+            }());
+            exports_13("CookieInstance", CookieInstance = new Cookie());
+        }
+    };
+});
+System.register("tinyts/utils/date", [], function (exports_14, context_14) {
+    "use strict";
+    var __moduleName = context_14 && context_14.id;
+    var TsDate;
+    return {
+        setters: [],
+        execute: function () {
+            TsDate = (function () {
+                function TsDate(dateString) {
+                    if (!dateString) {
+                        // 获取当前时间
+                        this.date = new Date();
+                        return this;
+                    }
+                    var D = new Date('2011-06-02T09:34:29+02:00');
+                    if (!D || +D !== 1307000069000) {
+                        //不支持ISO格式的js引擎
+                        var day, tz, rx = /^(\d{4}\-\d\d\-\d\d([tT ][\d:\.]*)?)([zZ]|([+\-])(\d\d):(\d\d))?$/, p = rx.exec(dateString) || [];
+                        if (p[1]) {
+                            day = p[1].split(/\D/);
+                            for (var i = 0, L = day.length; i < L; i++) {
+                                day[i] = parseInt(day[i], 10) || 0;
+                            }
+                            ;
+                            day[1] -= 1;
+                            day = new Date(Date.UTC.apply(Date, day));
+                            if (!day.getDate())
+                                this.date = null;
+                            if (p[5]) {
+                                tz = (parseInt(p[5], 10) * 60);
+                                if (p[6])
+                                    tz += parseInt(p[6], 10);
+                                if (p[4] == '+')
+                                    tz *= -1;
+                                if (tz)
+                                    day.setUTCMinutes(day.getUTCMinutes() + tz);
+                            }
+                            this.date = day;
+                        }
+                        this.date = null;
+                    }
+                    else {
+                        this.date = new Date(dateString);
+                    }
+                }
+                /**
+                 * fromISO 由ISO对象生成一个TsDate对象
+                 * @param s ISO格式的Date字符串
+                 * @return 若参数为空,返回null
+                 */
+                TsDate.fromISO = function (s) {
+                    var temp = new TsDate(s);
+                    if (!s) {
+                        temp.date = null;
+                    }
+                    return temp;
+                };
+                /**
+                 * Format 按照指定格式格式化Date String
+                 * @param fmt 月(M)、日(d)、小时(h)、分(m)、秒(s)、季度(q) 可以用 1-2 个占位符，年(y)可以用 1-4 个占位符，毫秒(S)只能用 1 个占位符(是 1-3 位的数字)
+                 */
+                TsDate.prototype.Format = function (fmt) {
+                    var o = {
+                        "M+": this.date.getMonth() + 1,
+                        "d+": this.date.getDate(),
+                        "h+": this.date.getHours(),
+                        "m+": this.date.getMinutes(),
+                        "s+": this.date.getSeconds(),
+                        "q+": Math.floor((this.date.getMonth() + 3) / 3),
+                        "S": this.date.getMilliseconds() //毫秒
+                    };
+                    if (/(y+)/.test(fmt))
+                        fmt = fmt.replace(RegExp.$1, (this.date.getFullYear() + "").substr(4 - RegExp.$1.length));
+                    for (var k in o)
+                        if (new RegExp("(" + k + ")").test(fmt))
+                            fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+                    return fmt;
+                };
+                return TsDate;
+            }());
+            exports_14("TsDate", TsDate);
+        }
+    };
+});
+System.register("tinyts/utils/time", [], function (exports_15, context_15) {
+    "use strict";
+    var __moduleName = context_15 && context_15.id;
+    var Time, CountDown;
+    return {
+        setters: [],
+        execute: function () {
+            /**
+             * Time 时间转换
+             */
+            Time = (function () {
+                function Time() {
+                }
+                Time.prototype.SetDay = function (d) {
+                    this._day = d;
+                    return this;
+                };
+                Time.prototype.SetHour = function (h) {
+                    this._hour = h;
+                    return this;
+                };
+                Time.prototype.SetMinute = function (m) {
+                    this._minute = m;
+                    return this;
+                };
+                Time.prototype.SetSecond = function (s) {
+                    this._second = s;
+                    return this;
+                };
+                Time.prototype.Reset = function () {
+                    this._day = this._hour = this._minute = this._second = 0;
+                };
+                Time.prototype.GetSeconds = function () {
+                    return this._second + this._minute * 60 + this._hour * 60 * 60 + this._day * 24 * 60 * 60;
+                };
+                Time.prototype.GetDateTime = function () {
+                    var ss = this.GetSeconds();
+                    var d = Math.floor(ss / 86400);
+                    ss = ss - d * 86400;
+                    var h = Math.floor(ss / 3600);
+                    ss = ss - h * 3600;
+                    var m = Math.floor(ss / 60);
+                    ss = ss - m * 60;
+                    var s = ss;
+                    return {
+                        s: s,
+                        m: m,
+                        h: h,
+                        d: d
+                    };
+                };
+                return Time;
+            }());
+            exports_15("Time", Time);
+            /**
+             * CountDown 倒计时
+             */
+            CountDown = (function () {
+                function CountDown() {
+                }
+                /**
+                 * SetTime 设置倒计时时间
+                 * @param
+                 */
+                CountDown.prototype.SetTime = function (s, m, h, d) {
+                    var t = new Time();
+                    if (!m) {
+                        m = 0;
+                    }
+                    if (!h) {
+                        h = 0;
+                    }
+                    if (!d) {
+                        d = 0;
+                    }
+                    this._seconds = t.SetDay(d).SetHour(h).SetMinute(m).SetSecond(s).GetSeconds() + 1;
+                };
+                CountDown.prototype.setInterval = function () {
+                    var me = this;
+                    this._running = true;
+                    me.tick();
+                    this._interval = setInterval(function () {
+                        me.tick();
+                    }, 1000);
+                };
+                CountDown.prototype.clearInterval = function () {
+                    this._running = false;
+                    if (this._interval) {
+                        clearInterval(this._interval);
+                        this._interval = null;
+                    }
+                };
+                CountDown.prototype.tick = function () {
+                    var me = this;
+                    //停止状态
+                    if (!me._running) {
+                        me.clearInterval();
+                        return;
+                    }
+                    //倒计时处理函数
+                    me._cur--;
+                    if (me._cur == 0) {
+                        if (me.onFinished) {
+                            me.onFinished(0);
+                            me.clearInterval();
+                        }
+                    }
+                    else {
+                        if (me.onTick) {
+                            var t = new Time();
+                            t.SetSecond(me._cur);
+                            var dd = t.GetDateTime();
+                            me.onTick(me._cur, dd);
+                        }
+                    }
+                };
+                /**
+                 * Start 开始倒计时
+                 */
+                CountDown.prototype.Start = function () {
+                    if (this._running) {
+                        return;
+                    }
+                    var me = this;
+                    if (!me.onTick && !me.onFinished) {
+                        console.error("both onTick and onFinished undefined!");
+                        return;
+                    }
+                    this._cur = this._seconds;
+                    me.setInterval();
+                };
+                /**
+                 * Stop 停止计时,并清空计时时间
+                 */
+                CountDown.prototype.Stop = function () {
+                    if (!this._running) {
+                        return;
+                    }
+                    this.clearInterval();
+                    if (this.onFinished) {
+                        this.onFinished(this._cur);
+                    }
+                    this._cur = 0;
+                };
+                /**
+                 * Pause 暂停计时
+                 */
+                CountDown.prototype.Pause = function () {
+                    this.clearInterval();
+                };
+                /**
+                 * Recover 恢复计时
+                 */
+                CountDown.prototype.Recover = function () {
+                    if (this._running) {
+                        return;
+                    }
+                    var me = this;
+                    this._running = true;
+                    this.setInterval();
+                };
+                /**
+                 * Reset 重置计时器,清空时间参数
+                 */
+                CountDown.prototype.Reset = function () {
+                    this.clearInterval();
+                    this._cur = 0;
+                    this._seconds = 0;
+                };
+                return CountDown;
+            }());
+            exports_15("CountDown", CountDown);
         }
     };
 });
