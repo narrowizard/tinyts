@@ -11,7 +11,7 @@ var __extends = (this && this.__extends) || (function () {
 System.register("tinyts/core/http", [], function (exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
-    var UrlComparison, UrlParser, HttpResponse, HttpUtils;
+    var UrlComparison, UrlParser, HttpResponse, HttpUtils, Router, routerInstance;
     return {
         setters: [],
         execute: function () {
@@ -163,6 +163,80 @@ System.register("tinyts/core/http", [], function (exports_1, context_1) {
                 return HttpUtils;
             }());
             exports_1("HttpUtils", HttpUtils);
+            Router = (function () {
+                function Router() {
+                    var me = this;
+                    window.onpopstate = function (event) {
+                        var state = event.state;
+                        me.context.OnRoutePopState(state);
+                    };
+                }
+                /**
+                 * SetContext 设置上下文
+                 * @param context.OnRouteSucc 路由完成回调
+                 * @param context.OnRouteError 路由错误回调
+                 */
+                Router.prototype.SetContext = function (context) {
+                    this.context = context;
+                };
+                /**
+                 * GoBack 返回上一页
+                 */
+                Router.prototype.GoBack = function () {
+                    window.history.back();
+                };
+                /**
+                 * GoForward 前往下一页
+                 */
+                Router.prototype.GoForward = function () {
+                    window.history.forward();
+                };
+                /**
+                 * GoTo 修改当前url为指定url,并触发context的OnRouteChange事件
+                 * @param url 指定url
+                 * @param data 可能存在的参数
+                 */
+                Router.prototype.GoTo = function (url, data, param) {
+                    //首先判断路由是否有变化,如果没有变化,则不作跳转
+                    var res = UrlParser.CompareUrls(window.location.href, url);
+                    if (res.Complete) {
+                        return;
+                    }
+                    var me = this;
+                    var stateData = { url: url, data: data, param: param };
+                    window.history.pushState(stateData, "", url);
+                    me.context.OnRouteChange(url, data);
+                };
+                /**
+                 * ReplaceCurrentState 修改当前router的状态(无历史记录)
+                 * @param url 指定的url
+                 * @param data 当前router的数据
+                 */
+                Router.prototype.ReplaceCurrentState = function (url, data, param) {
+                    var me = this;
+                    var stateData = { url: url, data: data, param: param };
+                    window.history.replaceState(stateData, "", url);
+                    me.context.OnRouteChange(url, data);
+                };
+                /**
+                 * ReplaceCurrentStateWithParam 修改当前router的状态,并将data存储在url中
+                 */
+                Router.prototype.ReplaceCurrentStateWithParam = function (url, data, changeRoute) {
+                    var me = this;
+                    // 将data添加到url中
+                    var xx = new UrlParser();
+                    xx.Parse(url);
+                    xx.searchObject = $.extend(xx.searchObject, data);
+                    var url2 = xx.Generate();
+                    var stateData = { url: url, data: {} };
+                    window.history.replaceState(stateData, "", url2);
+                    if (changeRoute) {
+                        me.context.OnRouteChange(url2, stateData);
+                    }
+                };
+                return Router;
+            }());
+            exports_1("routerInstance", routerInstance = new Router());
         }
     };
 });
@@ -936,7 +1010,7 @@ System.register("tinyts/core/meta", [], function (exports_6, context_6) {
 System.register("tinyts/control/list", ["tinyts/core/view", "tinyts/core/meta"], function (exports_7, context_7) {
     "use strict";
     var __moduleName = context_7 && context_7.id;
-    var view_2, meta_1, ListView;
+    var view_2, meta_1, ArrayProxy, ListView, PAGEMODE, PageManager;
     return {
         setters: [
             function (view_2_1) {
@@ -947,6 +1021,66 @@ System.register("tinyts/control/list", ["tinyts/core/view", "tinyts/core/meta"],
             }
         ],
         execute: function () {
+            /**
+             * ArrayProxy<T> 列表数据操作接口
+             */
+            ArrayProxy = (function (_super) {
+                __extends(ArrayProxy, _super);
+                function ArrayProxy(data, context) {
+                    var _this = _super.apply(this, data) || this;
+                    Object.setPrototypeOf(_this, ArrayProxy.prototype);
+                    _this.context = context;
+                    return _this;
+                }
+                ArrayProxy.prototype.push = function () {
+                    var items = [];
+                    for (var _i = 0; _i < arguments.length; _i++) {
+                        items[_i] = arguments[_i];
+                    }
+                    var res = _super.prototype.push.apply(this, items);
+                    this.context.RefreshView();
+                    return res;
+                };
+                ArrayProxy.prototype.pop = function () {
+                    var res = _super.prototype.pop.call(this);
+                    this.context.RefreshView();
+                    return res;
+                };
+                ArrayProxy.prototype.concat = function () {
+                    var items = [];
+                    for (var _i = 0; _i < arguments.length; _i++) {
+                        items[_i] = arguments[_i];
+                    }
+                    var res = _super.prototype.concat.apply(this, items);
+                    this.context.RefreshView();
+                    return res;
+                };
+                ArrayProxy.prototype.shift = function () {
+                    var res = _super.prototype.shift.call(this);
+                    this.context.RefreshView();
+                    return res;
+                };
+                ArrayProxy.prototype.splice = function (start, deleteCount) {
+                    var items = [];
+                    for (var _i = 2; _i < arguments.length; _i++) {
+                        items[_i - 2] = arguments[_i];
+                    }
+                    var res = _super.prototype.splice.apply(this, [start, deleteCount].concat(items));
+                    this.context.RefreshView();
+                    return res;
+                };
+                ArrayProxy.prototype.unshift = function () {
+                    var items = [];
+                    for (var _i = 0; _i < arguments.length; _i++) {
+                        items[_i] = arguments[_i];
+                    }
+                    var res = _super.prototype.unshift.call(this);
+                    this.context.RefreshView();
+                    return res;
+                };
+                return ArrayProxy;
+            }(Array));
+            exports_7("ArrayProxy", ArrayProxy);
             ListView = (function (_super) {
                 __extends(ListView, _super);
                 function ListView() {
@@ -1011,7 +1145,7 @@ System.register("tinyts/control/list", ["tinyts/core/view", "tinyts/core/meta"],
                     }
                 };
                 /**
-                 * SetData 设置数据
+                 * SetData 设置数据,在这里作列表数据代理
                  * @param data 数据
                  */
                 ListView.prototype.SetData = function (data) {
@@ -1022,8 +1156,11 @@ System.register("tinyts/control/list", ["tinyts/core/view", "tinyts/core/meta"],
                         console.error(this.name + " load error!");
                         return;
                     }
-                    this.mData = data;
+                    this.mData = new ArrayProxy(data, this);
                     this.RefreshView();
+                };
+                ListView.prototype.GetData = function () {
+                    return this.mData;
                 };
                 ListView.prototype.SetValue = function (data) {
                     this.SetData(data);
@@ -1039,7 +1176,7 @@ System.register("tinyts/control/list", ["tinyts/core/view", "tinyts/core/meta"],
                     if (!this.mData) {
                         return;
                     }
-                    for (var i = 0; i < this.Count(); i++) {
+                    for (var i = 0; i < this.mData.length; i++) {
                         this.createView(i);
                     }
                     this.RegisterEvents();
@@ -1125,34 +1262,207 @@ System.register("tinyts/control/list", ["tinyts/core/view", "tinyts/core/meta"],
                     }
                 };
                 /**
-                 * Count 获取列表长度
+                 * GetPageManager 获取分页器,仅当data-pagable为sync或async时有效
                  */
-                ListView.prototype.Count = function () {
-                    return this.mData.length;
+                ListView.prototype.GetPageManager = function () {
+                    if (!this.pageManager) {
+                        console.error("data-pagable has not defined!");
+                    }
+                    return this.pageManager;
                 };
                 /**
-                 * Add 添加数据，该方法不会刷新整个列表
-                 * @param model 待添加的数据
+                 * SetPageSize 设置每页条数,显示到页面上
                  */
-                ListView.prototype.AppendItems = function () {
-                    var model = [];
-                    for (var _i = 0; _i < arguments.length; _i++) {
-                        model[_i] = arguments[_i];
-                    }
-                    (_a = this.mData).push.apply(_a, model);
-                    var _a;
+                ListView.prototype.SetPageSize = function (pagesize) {
                 };
                 /**
-                 * CheckView 检验当前视图是否与数据一直,如不一致,则刷新不一致的部分
+                 * SetCurPage 设置当前页(用于展示)
                  */
-                ListView.prototype.CheckView = function () {
-                    for (var i = 0; i < this.mData.length; i++) {
-                        var t = this.GetChildren().eq(i).html();
-                    }
+                ListView.prototype.SetCurPage = function (page) {
+                };
+                /**
+                 * SetPageCount 设置总页数(用于展示)
+                 */
+                ListView.prototype.SetPageCount = function (count) {
+                };
+                /**
+                 * GetPageSize 获取每页条数
+                 */
+                ListView.prototype.GetPageSize = function () {
+                    return 0;
                 };
                 return ListView;
             }(view_2.View));
             exports_7("ListView", ListView);
+            // PAGEMODE 分页模式
+            // SYNC 同步分页
+            // ASYNC 异步分页
+            (function (PAGEMODE) {
+                PAGEMODE[PAGEMODE["SYNC"] = 0] = "SYNC";
+                PAGEMODE[PAGEMODE["ASYNC"] = 1] = "ASYNC";
+            })(PAGEMODE || (PAGEMODE = {}));
+            ;
+            PageManager = (function () {
+                /**
+                 * @param instance 同步模式时,数据会被设置到该instance
+                 */
+                function PageManager(instance) {
+                    this.curPage = 1;
+                }
+                /**
+                 * SetData 设置数据,当模式为同步分页模式时,可以直接调用该函数将数据交给PageManager
+                 * @param data 数据,同时会更新total和pageCount
+                 */
+                PageManager.prototype.SetData = function (data) {
+                    if (!data) {
+                        return;
+                    }
+                    this.mData = data;
+                    this.SetRecordCount(this.mData.length);
+                };
+                /**
+                 * SetContext 设置上下文
+                 * @param context 数据获取器
+                 */
+                PageManager.prototype.SetContext = function (context) {
+                    this.context = context;
+                };
+                /**
+                 * SetPageMode 设置分页模式
+                 * 同步模式时,需要在构造函数中传入目标ListView的实例
+                 * 异步模式时,需要设置用于获取异步数据的context
+                 * @param mode 分页模式
+                 */
+                PageManager.prototype.SetPageMode = function (mode) {
+                    this.pageMode = mode;
+                };
+                /**
+                 * SetCurPage 强行设置当前页,不跳转
+                 * 注意,调用此函数会引起分页器的奔溃,请谨慎使用
+                 * @param index 页码
+                 */
+                PageManager.prototype.ForceSetCurPage = function (index) {
+                    this.curPage = index;
+                };
+                /**
+                 * CurPage 获取当前页码
+                 */
+                PageManager.prototype.CurPage = function () {
+                    return this.curPage;
+                };
+                /**
+                 * SetPageSize 设置每页条数
+                 * @param pagesize 每页条数
+                 */
+                PageManager.prototype.SetPageSize = function (pagesize) {
+                    this.pageSize = pagesize;
+                };
+                /**
+                 * RecordCount 返回记录总条数,仅在通过SetRecordCount方法设置总条数后才有效
+                 */
+                PageManager.prototype.RecordCount = function () {
+                    return this.total;
+                };
+                /**
+                 * SetRecordCount 设置记录总条数,同时设置pageCount
+                 * @param count 记录总数量
+                 */
+                PageManager.prototype.SetRecordCount = function (count) {
+                    this.total = count;
+                    this.SetPageCount(Math.ceil(this.total / this.pageSize));
+                };
+                /**
+                 * SetPageCount 设置总页数
+                 * @param count 总页数
+                 */
+                PageManager.prototype.SetPageCount = function (count) {
+                    //在列表上展示总页数
+                    this.context.SetPageCount(count);
+                    this.pageCount = count;
+                };
+                /**
+                 * ResetCurPage 重置当前页为第一页
+                 */
+                PageManager.prototype.ResetCurPage = function () {
+                    this.curPage = 1;
+                };
+                /**
+                 * GetCurPage 获取当前页的数据
+                 */
+                PageManager.prototype.GetCurPage = function () {
+                    //在列表上展示当前页
+                    this.context.SetCurPage(this.curPage);
+                    //获取每页条数
+                    var pagesize = this.context.GetPageSize();
+                    if (!pagesize) {
+                        console.error("pagesize is wrong!");
+                        return;
+                    }
+                    this.SetPageSize(pagesize);
+                    if (this.pageMode == PAGEMODE.SYNC) {
+                        //同步分页模式,直接将数据交给ListView
+                        this.context.SetData(mx(this.mData).skip((this.curPage - 1) * this.pageSize).take(this.pageSize).toArray());
+                    }
+                    else if (this.pageMode == PAGEMODE.ASYNC) {
+                        if (!this.context) {
+                            throw "context has not been set!";
+                        }
+                        //异步分页模式,请求服务器
+                        this.getData(this.curPage, this.pageSize);
+                    }
+                };
+                /**
+                 * FirstPage 首页
+                 */
+                PageManager.prototype.FirstPage = function () {
+                    this.curPage = 1;
+                    this.GetCurPage();
+                };
+                /**
+                 * PrevPage 上一页
+                 */
+                PageManager.prototype.PrevPage = function () {
+                    if (this.curPage <= 1) {
+                        return;
+                    }
+                    this.curPage--;
+                    this.GetCurPage();
+                };
+                /**
+                 * NextPage 下一页
+                 */
+                PageManager.prototype.NextPage = function () {
+                    var nPageSize = this.context.GetPageSize();
+                    if (nPageSize >= this.pageSize && this.curPage >= this.pageCount) {
+                        return;
+                    }
+                    this.curPage++;
+                    this.GetCurPage();
+                };
+                /**
+                 * LastPage 末页
+                 */
+                PageManager.prototype.LastPage = function () {
+                    if (this.pageCount < 1) {
+                        return;
+                    }
+                    this.curPage = this.pageCount;
+                    this.GetCurPage();
+                };
+                /**
+                 * TurnToPage 跳转到某页
+                 * @param index 页码
+                 */
+                PageManager.prototype.TurnToPage = function (index) {
+                    var nPageSize = this.context.GetPageSize();
+                    if (index < 1 || (nPageSize >= this.pageSize && index > this.pageCount)) {
+                        return;
+                    }
+                    this.curPage = index;
+                    this.GetCurPage();
+                };
+                return PageManager;
+            }());
         }
     };
 });
@@ -1193,14 +1503,14 @@ System.register("tinyts/control/input", ["tinyts/control/text"], function (expor
         }
     };
 });
-System.register("tinyts/control/choice", ["tinyts/control/list"], function (exports_9, context_9) {
+System.register("tinyts/control/choice", ["tinyts/control/input"], function (exports_9, context_9) {
     "use strict";
     var __moduleName = context_9 && context_9.id;
-    var list_1, ChoiceView;
+    var input_1, ChoiceView;
     return {
         setters: [
-            function (list_1_1) {
-                list_1 = list_1_1;
+            function (input_1_1) {
+                input_1 = input_1_1;
             }
         ],
         execute: function () {
@@ -1210,7 +1520,7 @@ System.register("tinyts/control/choice", ["tinyts/control/list"], function (expo
                     return _super !== null && _super.apply(this, arguments) || this;
                 }
                 return ChoiceView;
-            }(list_1.ListView));
+            }(input_1.InputView));
             exports_9("ChoiceView", ChoiceView);
         }
     };
@@ -1218,11 +1528,11 @@ System.register("tinyts/control/choice", ["tinyts/control/list"], function (expo
 System.register("tinyts/control/table", ["tinyts/control/list"], function (exports_10, context_10) {
     "use strict";
     var __moduleName = context_10 && context_10.id;
-    var list_2, Table;
+    var list_1, Table;
     return {
         setters: [
-            function (list_2_1) {
-                list_2 = list_2_1;
+            function (list_1_1) {
+                list_1 = list_1_1;
             }
         ],
         execute: function () {
@@ -1232,7 +1542,7 @@ System.register("tinyts/control/table", ["tinyts/control/list"], function (expor
                     return _super !== null && _super.apply(this, arguments) || this;
                 }
                 return Table;
-            }(list_2.ListView));
+            }(list_1.ListView));
             exports_10("Table", Table);
         }
     };
@@ -1256,7 +1566,7 @@ System.register("tinyts/model/injector", ["tinyts/control/input", "tinyts/contro
                         if (target instanceof text_3.TextView || target instanceof choice_1.ChoiceView) {
                             target.Clear();
                         }
-                        else if (target instanceof list_3.ListView) {
+                        else if (target instanceof list_2.ListView) {
                             target.SetData([]);
                         }
                         else {
@@ -1278,7 +1588,7 @@ System.register("tinyts/model/injector", ["tinyts/control/input", "tinyts/contro
                         if (target instanceof text_3.TextView || target instanceof choice_1.ChoiceView) {
                             target.SetValue(value);
                         }
-                        else if (target instanceof list_3.ListView && $.isArray(value)) {
+                        else if (target instanceof list_2.ListView && $.isArray(value)) {
                             target.SetData(value);
                         }
                         else {
@@ -1311,10 +1621,10 @@ System.register("tinyts/model/injector", ["tinyts/control/input", "tinyts/contro
                 var propName = target.PropertyName();
                 if (propName) {
                     var value;
-                    if (target instanceof input_1.InputView || target instanceof choice_1.ChoiceView) {
+                    if (target instanceof input_2.InputView || target instanceof choice_1.ChoiceView) {
                         value = target.Value();
                     }
-                    else if (target instanceof list_3.ListView) {
+                    else if (target instanceof list_2.ListView) {
                         // 暂时不注入列表数据
                     }
                     //如果model中存在,优先注入
@@ -1372,11 +1682,11 @@ System.register("tinyts/model/injector", ["tinyts/control/input", "tinyts/contro
         });
     }
     exports_11("ValidateData", ValidateData);
-    var input_1, choice_1, text_3, list_3, view_3, class_validator_1;
+    var input_2, choice_1, text_3, list_2, view_3, class_validator_1;
     return {
         setters: [
-            function (input_1_1) {
-                input_1 = input_1_1;
+            function (input_2_1) {
+                input_2 = input_2_1;
             },
             function (choice_1_1) {
                 choice_1 = choice_1_1;
@@ -1384,8 +1694,8 @@ System.register("tinyts/model/injector", ["tinyts/control/input", "tinyts/contro
             function (text_3_1) {
                 text_3 = text_3_1;
             },
-            function (list_3_1) {
-                list_3 = list_3_1;
+            function (list_2_1) {
+                list_2 = list_2_1;
             },
             function (view_3_1) {
                 view_3 = view_3_1;

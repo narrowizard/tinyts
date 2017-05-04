@@ -1,11 +1,7 @@
 import { ListView } from './list';
 import { InputView } from './input';
 
-export abstract class ChoiceView<T> extends ListView<T> implements InputView {
+export abstract class ChoiceView<T> extends InputView {
 
-    abstract Value();
 
-    abstract SetValue(v: string);
-
-    abstract Clear();
 }

@@ -6,12 +6,13 @@
         "moduleResolution": "classic",
         "target": "es5",
         "module": "system",
-        "outFile": "dist/tinyts.js",
+        "outFile": "tinyts.js",
         "rootDir": ".."
     },
     "exclude": [
         "application",
-        "node_modules"
+        "node_modules",
+        "typings"
     ]
 }
 // 单元测试配置
