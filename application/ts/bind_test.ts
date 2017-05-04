@@ -2,7 +2,7 @@ import { AncView, v } from '../../core/tinyts';
 import { TestModel } from '../model/validator_test';
 import { InputView } from '../../control/input';
 import { Button } from '../../control/button';
-import { ListView } from '../../control/list';
+import { ListView, ArrayProxy } from '../../control/list';
 import { Meta } from '../../core/meta';
 import { TextView } from '../../control/text';
 import { Length } from 'class-validator'
@@ -59,7 +59,8 @@ export class BindTestModel extends AncView {
             input: "sth"
         };
 
-        this.data.listData.push(new DataModel(3, "aaa"));
+        // this.data.listData.push(new DataModel(3, "aaa"));
+        this.mList.GetData().push((new DataModel(3, "aaa")));
 
         this.btnInject.OnClick(() => {
             ValidateData(ObjectModel, this.data).then(ot => {
@@ -74,3 +75,4 @@ export class BindTestModel extends AncView {
 }
 
 var aa = new BindTestModel();
+

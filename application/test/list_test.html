@@ -8,7 +8,11 @@
 
 <body>
     <ul id="mList">
-        <li data-id="{{Id}}">{{Name}}</li>
+        <li data-id="{{Id}}">{{Name}}
+            {{#ListData}}
+            {{.}}
+            {{/ListData}}
+        </li>
     </ul>
 
     <script src="/libs/jquery-1.12.3.js"></script>

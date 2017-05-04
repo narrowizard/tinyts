@@ -997,7 +997,7 @@ System.register("core/meta", [], function (exports_8, context_8) {
 System.register("control/list", ["core/view", "core/meta"], function (exports_9, context_9) {
     "use strict";
     var __moduleName = context_9 && context_9.id;
-    var view_2, meta_1, ListView;
+    var view_2, meta_1, ArrayProxy, ListView;
     return {
         setters: [
             function (view_2_1) {
@@ -1008,6 +1008,72 @@ System.register("control/list", ["core/view", "core/meta"], function (exports_9,
             }
         ],
         execute: function () {
+            /**
+             * ArrayProxy<T> 列表数据操作接口
+             */
+            ArrayProxy = (function () {
+                function ArrayProxy(data, context) {
+                    this.data = data;
+                    this.context = context;
+                }
+                ArrayProxy.prototype.get = function (index) {
+                    return this.data[index];
+                };
+                ArrayProxy.prototype.push = function () {
+                    var items = [];
+                    for (var _i = 0; _i < arguments.length; _i++) {
+                        items[_i] = arguments[_i];
+                    }
+                    var res = (_a = this.data).push.apply(_a, items);
+                    this.context.RefreshView();
+                    return res;
+                    var _a;
+                };
+                ArrayProxy.prototype.pop = function () {
+                    var res = this.data.pop();
+                    this.context.RefreshView();
+                    return res;
+                };
+                ArrayProxy.prototype.concat = function () {
+                    var items = [];
+                    for (var _i = 0; _i < arguments.length; _i++) {
+                        items[_i] = arguments[_i];
+                    }
+                    var res = (_a = this.data).concat.apply(_a, items);
+                    this.context.RefreshView();
+                    return res;
+                    var _a;
+                };
+                ArrayProxy.prototype.shift = function () {
+                    var res = this.data.shift();
+                    this.context.RefreshView();
+                    return res;
+                };
+                ArrayProxy.prototype.splice = function (start, deleteCount) {
+                    var items = [];
+                    for (var _i = 2; _i < arguments.length; _i++) {
+                        items[_i - 2] = arguments[_i];
+                    }
+                    var res = (_a = this.data).splice.apply(_a, [start, deleteCount].concat(items));
+                    this.context.RefreshView();
+                    return res;
+                    var _a;
+                };
+                ArrayProxy.prototype.unshift = function () {
+                    var items = [];
+                    for (var _i = 0; _i < arguments.length; _i++) {
+                        items[_i] = arguments[_i];
+                    }
+                    var res = this.data.unshift();
+                    this.context.RefreshView();
+                    return res;
+                };
+                ArrayProxy.prototype.count = function () {
+                    return this.data.length;
+                };
+                return ArrayProxy;
+            }());
+            exports_9("ArrayProxy", ArrayProxy);
             ListView = (function (_super) {
                 __extends(ListView, _super);
                 function ListView() {
@@ -1072,7 +1138,7 @@ System.register("control/list", ["core/view", "core/meta"], function (exports_9,
                     }
                 };
                 /**
-                 * SetData 设置数据
+                 * SetData 设置数据,在这里作列表数据代理
                  * @param data 数据
                  */
                 ListView.prototype.SetData = function (data) {
@@ -1083,8 +1149,11 @@ System.register("control/list", ["core/view", "core/meta"], function (exports_9,
                         console.error(this.name + " load error!");
                         return;
                     }
-                    this.mData = data;
+                    this.mData = new ArrayProxy(data, this);
                     this.RefreshView();
+                };
+                ListView.prototype.GetData = function () {
+                    return this.mData;
                 };
                 ListView.prototype.SetValue = function (data) {
                     this.SetData(data);
@@ -1100,7 +1169,7 @@ System.register("control/list", ["core/view", "core/meta"], function (exports_9,
                     if (!this.mData) {
                         return;
                     }
-                    for (var i = 0; i < this.Count(); i++) {
+                    for (var i = 0; i < this.mData.count(); i++) {
                         this.createView(i);
                     }
                     this.RegisterEvents();
@@ -1111,7 +1180,7 @@ System.register("control/list", ["core/view", "core/meta"], function (exports_9,
                  * @param (仅多元素绑定时)元素索引
                 */
                 ListView.prototype.GetView = function (dataIndex, elemIndex) {
-                    var data = this.mData[dataIndex];
+                    var data = this.mData.get(dataIndex);
                     if (this.getTemplpateModel) {
                         data = this.getTemplpateModel(data);
                     }
@@ -1183,32 +1252,6 @@ System.register("control/list", ["core/view", "core/meta"], function (exports_9,
                         else {
                             targetView.click(this.eventHandler[i].handler);
                         }
-                    }
-                };
-                /**
-                 * Count 获取列表长度
-                 */
-                ListView.prototype.Count = function () {
-                    return this.mData.length;
-                };
-                /**
-                 * Add 添加数据，该方法不会刷新整个列表
-                 * @param model 待添加的数据
-                 */
-                ListView.prototype.AppendItems = function () {
-                    var model = [];
-                    for (var _i = 0; _i < arguments.length; _i++) {
-                        model[_i] = arguments[_i];
-                    }
-                    (_a = this.mData).push.apply(_a, model);
-                    var _a;
-                };
-                /**
-                 * CheckView 检验当前视图是否与数据一直,如不一致,则刷新不一致的部分
-                 */
-                ListView.prototype.CheckView = function () {
-                    for (var i = 0; i < this.mData.length; i++) {
-                        var t = this.GetChildren().eq(i).html();
                     }
                 };
                 return ListView;
@@ -1634,7 +1677,8 @@ System.register("application/ts/bind_test", ["core/tinyts", "control/input", "co
                         },
                         input: "sth"
                     };
-                    this.data.listData.push(new DataModel(3, "aaa"));
+                    // this.data.listData.push(new DataModel(3, "aaa"));
+                    this.mList.GetData().push((new DataModel(3, "aaa")));
                     this.btnInject.OnClick(function () {
                         injector_1.ValidateData(ObjectModel, _this.data).then(function (ot) {
                             console.log("validate success");
@@ -1791,7 +1835,7 @@ System.register("application/ts/injector_test", ["control/input", "core/tinyts",
 System.register("application/ts/list_test", ["core/tinyts", "control/list"], function (exports_17, context_17) {
     "use strict";
     var __moduleName = context_17 && context_17.id;
-    var tinyts_3, list_4, DataModel, ListModel;
+    var tinyts_3, list_4, DataModel, ListModel, aa;
     return {
         setters: [
             function (tinyts_3_1) {
@@ -1803,23 +1847,24 @@ System.register("application/ts/list_test", ["core/tinyts", "control/list"], fun
         ],
         execute: function () {
             DataModel = (function () {
-                function DataModel(Id, Name) {
+                function DataModel(Id, Name, ListData) {
                     this.Id = Id;
                     this.Name = Name;
+                    this.ListData = ListData;
                 }
                 return DataModel;
             }());
             ListModel = (function (_super) {
                 __extends(ListModel, _super);
-                function ListModel(aa) {
-                    var _this = _super.call(this) || this;
-                    _this.aa = aa;
-                    return _this;
+                function ListModel() {
+                    return _super !== null && _super.apply(this, arguments) || this;
                 }
+                // constructor(private aa: UserService) {
+                //     super();
+                // }
                 ListModel.prototype.AfterInject = function () {
                     var data = [];
-                    data.push({});
-                    data.push(new DataModel(2, "bbb"));
+                    data.push(new DataModel(2, "bbb", ["ccc", "dd"]));
                     this.mList.SetData(data);
                 };
                 return ListModel;
@@ -1829,6 +1874,7 @@ System.register("application/ts/list_test", ["core/tinyts", "control/list"], fun
                 __metadata("design:type", list_4.ListView)
             ], ListModel.prototype, "mList", void 0);
             exports_17("ListModel", ListModel);
+            aa = new ListModel();
         }
     };
 });

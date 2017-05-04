@@ -2,28 +2,72 @@ import { View, ViewState } from '../core/view';
 import { Meta } from '../core/meta';
 
 /**
- * List<T> 列表数据操作接口
+ * ArrayProxy<T> 列表数据操作接口
  */
-interface List<T> {
-    SetData(data: T[]);
-    Count(): number;
+export class ArrayProxy<T> {
 
-    AppendItems(...model: T[]);
+    protected data: T[];
 
-    GetItem(index: number): T;
-    GetItem(predicate: (p: T) => boolean): T;
+    constructor(data: T[], context: ListView<T>) {
+        this.data = data;
+        this.context = context;
+    }
 
-    RemoveItem(index: number);
-    RemoveItem(predicate: (p: T) => boolean): T;
+    context: ListView<T>;
 
-    ReplaceItem(index: number, newItem: T);
-    ReplaceItem(predicate: (p: T) => boolean, newItem: T);
+    get(index: number): T {
+        return this.data[index];
+    }
+
+    push(...items: T[]): number {
+        var res = this.data.push(...items);
+        this.context.RefreshView();
+        return res;
+    }
+
+    pop(): T {
+        var res = this.data.pop();
+        this.context.RefreshView();
+        return res;
+
+    }
+
+    concat<U extends T[]>(...items: U[]): T[] {
+        var res = this.data.concat(...items);
+        this.context.RefreshView();
+        return res;
+
+    }
+
+    shift(): T {
+        var res = this.data.shift();
+        this.context.RefreshView();
+        return res;
+
+    }
+
+    splice(start: number, deleteCount?: number, ...items: T[]): T[] {
+        var res = this.data.splice(start, deleteCount, ...items);
+        this.context.RefreshView();
+        return res;
+
+    }
+
+    unshift(...items: T[]): number {
+        var res = this.data.unshift();
+        this.context.RefreshView();
+        return res;
+    }
+
+    count(): number {
+        return this.data.length;
+    }
 }
 
 
-export class ListView<T> extends View implements List<T>{
+export class ListView<T> extends View {
 
-    protected mData: T[];
+    protected mData: ArrayProxy<T>;
 
     protected viewString: string[];
 
@@ -95,7 +139,7 @@ export class ListView<T> extends View implements List<T>{
     }
 
     /**
-     * SetData 设置数据
+     * SetData 设置数据,在这里作列表数据代理
      * @param data 数据
      */
     SetData(data: T[]) {
@@ -106,8 +150,12 @@ export class ListView<T> extends View implements List<T>{
             console.error(`${this.name} load error!`);
             return;
         }
-        this.mData = data;
+        this.mData = new ArrayProxy(data, this);
         this.RefreshView();
+    }
+
+    GetData(): ArrayProxy<T> {
+        return this.mData;
     }
 
     SetValue(data: T[]) {
@@ -126,7 +174,7 @@ export class ListView<T> extends View implements List<T>{
         if (!this.mData) {
             return;
         }
-        for (var i = 0; i < this.Count(); i++) {
+        for (var i = 0; i < this.mData.count(); i++) {
             this.createView(i);
         }
         this.RegisterEvents();
@@ -138,7 +186,7 @@ export class ListView<T> extends View implements List<T>{
      * @param (仅多元素绑定时)元素索引
 	*/
     GetView(dataIndex: number, elemIndex?: number): string {
-        var data = this.mData[dataIndex];
+        var data = this.mData.get(dataIndex);
         if (this.getTemplpateModel) {
             data = this.getTemplpateModel(data);
         }
@@ -212,31 +260,6 @@ export class ListView<T> extends View implements List<T>{
             } else {
                 targetView.click(this.eventHandler[i].handler);
             }
-        }
-    }
-
-    /**
-     * Count 获取列表长度
-     */
-    Count(): number {
-        return this.mData.length;
-    }
-
-    /**
-     * Add 添加数据，该方法不会刷新整个列表
-     * @param model 待添加的数据
-     */
-    AppendItems(...model: T[]) {
-        this.mData.push(...model);
-    }
-
-    /**
-     * CheckView 检验当前视图是否与数据一直,如不一致,则刷新不一致的部分
-     */
-    CheckView() {
-        for (var i = 0; i < this.mData.length; i++) {
-            var t = this.GetChildren().eq(i).html();
-
         }
     }
 
