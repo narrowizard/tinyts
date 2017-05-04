@@ -4,64 +4,56 @@ import { Meta } from '../core/meta';
 /**
  * ArrayProxy<T> 列表数据操作接口
  */
-export class ArrayProxy<T> {
-
-    protected data: T[];
+export class ArrayProxy<T> extends Array<T>{
 
     constructor(data: T[], context: ListView<T>) {
-        this.data = data;
+        super(...data);
+        Object.setPrototypeOf(this, ArrayProxy.prototype);
         this.context = context;
     }
 
     context: ListView<T>;
 
-    get(index: number): T {
-        return this.data[index];
-    }
-
     push(...items: T[]): number {
-        var res = this.data.push(...items);
+        var res = super.push(...items);
         this.context.RefreshView();
         return res;
     }
 
     pop(): T {
-        var res = this.data.pop();
+        var res = super.pop();
         this.context.RefreshView();
         return res;
 
     }
 
     concat<U extends T[]>(...items: U[]): T[] {
-        var res = this.data.concat(...items);
+        var res = super.concat(...items);
         this.context.RefreshView();
         return res;
 
     }
 
     shift(): T {
-        var res = this.data.shift();
+        var res = super.shift();
         this.context.RefreshView();
         return res;
 
     }
 
     splice(start: number, deleteCount?: number, ...items: T[]): T[] {
-        var res = this.data.splice(start, deleteCount, ...items);
+        var res = super.splice(start, deleteCount, ...items);
         this.context.RefreshView();
         return res;
 
     }
 
     unshift(...items: T[]): number {
-        var res = this.data.unshift();
+        var res = super.unshift();
         this.context.RefreshView();
         return res;
     }
 
-    count(): number {
-        return this.data.length;
-    }
 }
 
 
@@ -174,7 +166,7 @@ export class ListView<T> extends View {
         if (!this.mData) {
             return;
         }
-        for (var i = 0; i < this.mData.count(); i++) {
+        for (var i = 0; i < this.mData.length; i++) {
             this.createView(i);
         }
         this.RegisterEvents();
@@ -186,7 +178,7 @@ export class ListView<T> extends View {
      * @param (仅多元素绑定时)元素索引
 	*/
     GetView(dataIndex: number, elemIndex?: number): string {
-        var data = this.mData.get(dataIndex);
+        var data = this.mData[dataIndex];
         if (this.getTemplpateModel) {
             data = this.getTemplpateModel(data);
         }

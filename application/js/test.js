@@ -1011,26 +1011,25 @@ System.register("control/list", ["core/view", "core/meta"], function (exports_9,
             /**
              * ArrayProxy<T> 列表数据操作接口
              */
-            ArrayProxy = (function () {
+            ArrayProxy = (function (_super) {
+                __extends(ArrayProxy, _super);
                 function ArrayProxy(data, context) {
-                    this.data = data;
-                    this.context = context;
+                    var _this = _super.apply(this, data) || this;
+                    Object.setPrototypeOf(_this, ArrayProxy.prototype);
+                    _this.context = context;
+                    return _this;
                 }
-                ArrayProxy.prototype.get = function (index) {
-                    return this.data[index];
-                };
                 ArrayProxy.prototype.push = function () {
                     var items = [];
                     for (var _i = 0; _i < arguments.length; _i++) {
                         items[_i] = arguments[_i];
                     }
-                    var res = (_a = this.data).push.apply(_a, items);
+                    var res = _super.prototype.push.apply(this, items);
                     this.context.RefreshView();
                     return res;
-                    var _a;
                 };
                 ArrayProxy.prototype.pop = function () {
-                    var res = this.data.pop();
+                    var res = _super.prototype.pop.call(this);
                     this.context.RefreshView();
                     return res;
                 };
@@ -1039,13 +1038,12 @@ System.register("control/list", ["core/view", "core/meta"], function (exports_9,
                     for (var _i = 0; _i < arguments.length; _i++) {
                         items[_i] = arguments[_i];
                     }
-                    var res = (_a = this.data).concat.apply(_a, items);
+                    var res = _super.prototype.concat.apply(this, items);
                     this.context.RefreshView();
                     return res;
-                    var _a;
                 };
                 ArrayProxy.prototype.shift = function () {
-                    var res = this.data.shift();
+                    var res = _super.prototype.shift.call(this);
                     this.context.RefreshView();
                     return res;
                 };
@@ -1054,25 +1052,21 @@ System.register("control/list", ["core/view", "core/meta"], function (exports_9,
                     for (var _i = 2; _i < arguments.length; _i++) {
                         items[_i - 2] = arguments[_i];
                     }
-                    var res = (_a = this.data).splice.apply(_a, [start, deleteCount].concat(items));
+                    var res = _super.prototype.splice.apply(this, [start, deleteCount].concat(items));
                     this.context.RefreshView();
                     return res;
-                    var _a;
                 };
                 ArrayProxy.prototype.unshift = function () {
                     var items = [];
                     for (var _i = 0; _i < arguments.length; _i++) {
                         items[_i] = arguments[_i];
                     }
-                    var res = this.data.unshift();
+                    var res = _super.prototype.unshift.call(this);
                     this.context.RefreshView();
                     return res;
                 };
-                ArrayProxy.prototype.count = function () {
-                    return this.data.length;
-                };
                 return ArrayProxy;
-            }());
+            }(Array));
             exports_9("ArrayProxy", ArrayProxy);
             ListView = (function (_super) {
                 __extends(ListView, _super);
@@ -1169,7 +1163,7 @@ System.register("control/list", ["core/view", "core/meta"], function (exports_9,
                     if (!this.mData) {
                         return;
                     }
-                    for (var i = 0; i < this.mData.count(); i++) {
+                    for (var i = 0; i < this.mData.length; i++) {
                         this.createView(i);
                     }
                     this.RegisterEvents();
@@ -1180,7 +1174,7 @@ System.register("control/list", ["core/view", "core/meta"], function (exports_9,
                  * @param (仅多元素绑定时)元素索引
                 */
                 ListView.prototype.GetView = function (dataIndex, elemIndex) {
-                    var data = this.mData.get(dataIndex);
+                    var data = this.mData[dataIndex];
                     if (this.getTemplpateModel) {
                         data = this.getTemplpateModel(data);
                     }
