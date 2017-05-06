@@ -17,5 +17,3 @@ gulp.task('default', function () {
         .pipe(rename("tinyts.min.js"))
         .pipe(gulp.dest("dist"));
 });
-
-gulp.start();
