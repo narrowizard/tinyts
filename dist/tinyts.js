@@ -708,6 +708,13 @@ System.register("tinyts/core/view", ["tinyts/core/http", "tinyts/core/servicepoo
                     }
                 };
                 /**
+                 * HasClass 是否含有目标class
+                 * @param className class名称
+                 */
+                View.prototype.HasClass = function (className) {
+                    return this.target.hasClass(className);
+                };
+                /**
                  * SetStyle 设置style属性
                  * @param key css属性名
                  * @param value 值
