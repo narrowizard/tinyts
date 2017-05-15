@@ -1579,6 +1579,7 @@ System.register("tinyts/control/dialog", ["tinyts/core/view"], function (exports
              * Dialog
              * options
              * data-draggable
+             * data-close 关闭按钮的选择器(限定在dialog内) click事件
              */
             Dialog = (function (_super) {
                 __extends(Dialog, _super);
@@ -1586,17 +1587,28 @@ System.register("tinyts/control/dialog", ["tinyts/core/view"], function (exports
                     return _super !== null && _super.apply(this, arguments) || this;
                 }
                 Dialog.prototype.LoadView = function (parent) {
+                    var _this = this;
                     var succ = _super.prototype.LoadView.call(this, parent);
                     if (succ) {
                         var draggable = this.target.attr("data-draggable");
                         if (draggable) {
                             this.initDraggable();
                         }
+                        var closeSelector = this.target.attr("data-close");
+                        if (closeSelector) {
+                            this.target.find(closeSelector).click(function () {
+                                _this.Hide();
+                            });
+                        }
+                        this.Hide();
                     }
                     return succ;
                 };
                 Dialog.prototype.Hide = function () {
                     this.display = this.target.css("display");
+                    if (!this.display) {
+                        this.display = "";
+                    }
                     this.target.css("display", "none");
                 };
                 Dialog.prototype.Show = function () {

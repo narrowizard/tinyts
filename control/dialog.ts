@@ -4,6 +4,7 @@ import { View } from '../core/view';
  * Dialog 
  * options
  * data-draggable
+ * data-close 关闭按钮的选择器(限定在dialog内) click事件
  */
 export class Dialog extends View {
 
@@ -19,12 +20,22 @@ export class Dialog extends View {
             if (draggable) {
                 this.initDraggable();
             }
+            var closeSelector = this.target.attr("data-close");
+            if (closeSelector) {
+                this.target.find(closeSelector).click(() => {
+                    this.Hide();
+                })
+            }
+            this.Hide();
         }
         return succ;
     }
 
     Hide() {
         this.display = this.target.css("display");
+        if (!this.display) {
+            this.display = "";
+        }
         this.target.css("display", "none");
     }
 
