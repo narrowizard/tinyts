@@ -1,6 +1,6 @@
 {
   "name": "tinyts",
-  "version": "2.1.0",
+  "version": "2.2.2",
   "description": "基于TypeScript的一个轻量级的MVVM Web框架",
   "main": "index.js",
   "dependencies": {

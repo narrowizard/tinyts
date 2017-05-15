@@ -1555,9 +1555,93 @@ System.register("tinyts/control/choice", ["tinyts/control/input"], function (exp
         }
     };
 });
-System.register("tinyts/control/table", ["tinyts/control/list"], function (exports_10, context_10) {
+System.register("tinyts/control/dialog", ["tinyts/core/view"], function (exports_10, context_10) {
     "use strict";
     var __moduleName = context_10 && context_10.id;
+    function pauseEvent(e) {
+        if (e.stopPropagation)
+            e.stopPropagation();
+        if (e.preventDefault)
+            e.preventDefault();
+        e.cancelBubble = true;
+        e.returnValue = false;
+        return false;
+    }
+    var view_3, Dialog;
+    return {
+        setters: [
+            function (view_3_1) {
+                view_3 = view_3_1;
+            }
+        ],
+        execute: function () {
+            /**
+             * Dialog
+             * options
+             * data-draggable
+             */
+            Dialog = (function (_super) {
+                __extends(Dialog, _super);
+                function Dialog() {
+                    return _super !== null && _super.apply(this, arguments) || this;
+                }
+                Dialog.prototype.LoadView = function (parent) {
+                    var succ = _super.prototype.LoadView.call(this, parent);
+                    if (succ) {
+                        var draggable = this.target.attr("data-draggable");
+                        if (draggable) {
+                            this.initDraggable();
+                        }
+                    }
+                    return succ;
+                };
+                Dialog.prototype.Hide = function () {
+                    this.display = this.target.css("display");
+                    this.target.css("display", "none");
+                };
+                Dialog.prototype.Show = function () {
+                    this.target.css("display", this.display);
+                };
+                Dialog.prototype.initDraggable = function () {
+                    var me = this;
+                    this.target.mousedown(function (eventObject) {
+                        if (eventObject.target instanceof HTMLInputElement || eventObject.target instanceof HTMLTextAreaElement || eventObject.target instanceof HTMLSelectElement) {
+                            return;
+                        }
+                        eventObject = (eventObject || window.event);
+                        pauseEvent(eventObject);
+                        me.mouseX = eventObject.pageX - me.target.offset().left;
+                        me.mouseY = eventObject.pageY - me.target.offset().top;
+                        me.isMoving = true;
+                    });
+                    $(document).mousemove(function (eventObject) {
+                        if (!me.isMoving) {
+                            return;
+                        }
+                        if (eventObject.target instanceof HTMLInputElement || eventObject.target instanceof HTMLTextAreaElement || eventObject.target instanceof HTMLSelectElement) {
+                            return;
+                        }
+                        eventObject = (eventObject || window.event);
+                        pauseEvent(eventObject);
+                        if (me.isMoving) {
+                            var scroll = $(window).scrollTop();
+                            me.target.css("top", eventObject.pageY - scroll - me.mouseY);
+                            me.target.css("left", eventObject.pageX - me.mouseX);
+                        }
+                    });
+                    this.target.mouseup(function () {
+                        me.isMoving = false;
+                    });
+                };
+                return Dialog;
+            }(view_3.View));
+            exports_10("Dialog", Dialog);
+        }
+    };
+});
+System.register("tinyts/control/table", ["tinyts/control/list"], function (exports_11, context_11) {
+    "use strict";
+    var __moduleName = context_11 && context_11.id;
     var list_1, Table;
     return {
         setters: [
@@ -1573,13 +1657,13 @@ System.register("tinyts/control/table", ["tinyts/control/list"], function (expor
                 }
                 return Table;
             }(list_1.ListView));
-            exports_10("Table", Table);
+            exports_11("Table", Table);
         }
     };
 });
-System.register("tinyts/model/injector", ["tinyts/control/input", "tinyts/control/choice", "tinyts/control/text", "tinyts/control/list", "tinyts/core/view", "class-validator"], function (exports_11, context_11) {
+System.register("tinyts/model/injector", ["tinyts/control/input", "tinyts/control/choice", "tinyts/control/text", "tinyts/control/list", "tinyts/core/view", "class-validator"], function (exports_12, context_12) {
     "use strict";
-    var __moduleName = context_11 && context_11.id;
+    var __moduleName = context_12 && context_12.id;
     /**
      * Resolve 将model中的数据注入到context中
      * @param context 控件上下文
@@ -1590,7 +1674,7 @@ System.register("tinyts/model/injector", ["tinyts/control/input", "tinyts/contro
             // 清空context
             for (var prop in context) {
                 var target = context[prop];
-                if (target instanceof view_3.View) {
+                if (target instanceof view_4.View) {
                     var propName = target.PropertyName();
                     if (propName) {
                         if (target instanceof text_3.TextView || target instanceof choice_1.ChoiceView) {
@@ -1609,7 +1693,7 @@ System.register("tinyts/model/injector", ["tinyts/control/input", "tinyts/contro
         }
         for (var prop in context) {
             var target = context[prop];
-            if (target instanceof view_3.View) {
+            if (target instanceof view_4.View) {
                 var propName = target.PropertyName();
                 if (propName) {
                     var value = model[propName];
@@ -1632,7 +1716,7 @@ System.register("tinyts/model/injector", ["tinyts/control/input", "tinyts/contro
             }
         }
     }
-    exports_11("Resolve", Resolve);
+    exports_12("Resolve", Resolve);
     function InjectWithoutValidate(TClass, context) {
         var temp = new TClass();
         for (var property in context) {
@@ -1641,8 +1725,8 @@ System.register("tinyts/model/injector", ["tinyts/control/input", "tinyts/contro
                 continue;
             }
             var target = context[property];
-            if (target instanceof view_3.View) {
-                if (target instanceof view_3.ViewG || target instanceof view_3.ViewV) {
+            if (target instanceof view_4.View) {
+                if (target instanceof view_4.ViewG || target instanceof view_4.ViewV) {
                     // nest inject
                     var tt = InjectWithoutValidate(TClass, target);
                     // 合并temp和tt
@@ -1692,7 +1776,7 @@ System.register("tinyts/model/injector", ["tinyts/control/input", "tinyts/contro
             });
         });
     }
-    exports_11("Inject", Inject);
+    exports_12("Inject", Inject);
     function ValidateData(TClass, data) {
         return new Promise(function (resolve, reject) {
             var temp = new TClass();
@@ -1711,8 +1795,8 @@ System.register("tinyts/model/injector", ["tinyts/control/input", "tinyts/contro
             });
         });
     }
-    exports_11("ValidateData", ValidateData);
-    var input_2, choice_1, text_3, list_2, view_3, class_validator_1;
+    exports_12("ValidateData", ValidateData);
+    var input_2, choice_1, text_3, list_2, view_4, class_validator_1;
     return {
         setters: [
             function (input_2_1) {
@@ -1727,8 +1811,8 @@ System.register("tinyts/model/injector", ["tinyts/control/input", "tinyts/contro
             function (list_2_1) {
                 list_2 = list_2_1;
             },
-            function (view_3_1) {
-                view_3 = view_3_1;
+            function (view_4_1) {
+                view_4 = view_4_1;
             },
             function (class_validator_1_1) {
                 class_validator_1 = class_validator_1_1;
@@ -1738,9 +1822,9 @@ System.register("tinyts/model/injector", ["tinyts/control/input", "tinyts/contro
         }
     };
 });
-System.register("tinyts/core/tinyts", ["tinyts/core/view"], function (exports_12, context_12) {
+System.register("tinyts/core/tinyts", ["tinyts/core/view"], function (exports_13, context_13) {
     "use strict";
-    var __moduleName = context_12 && context_12.id;
+    var __moduleName = context_13 && context_13.id;
     /**
      * v decorator 用于标记一个通过ID绑定的View
      * @param T 目标视图的类型(如果是ViewG,则要求视图实现T的方法,如果是View则不限制)
@@ -1768,14 +1852,14 @@ System.register("tinyts/core/tinyts", ["tinyts/core/view"], function (exports_12
             if (!targetType["__inject__"][name]["views"]) {
                 targetType["__inject__"][name]["views"] = [];
             }
-            var temp = new view_4.injectModel();
+            var temp = new view_5.injectModel();
             temp.creator = c;
             temp.propertyName = decoratedPropertyName;
             temp.selector = selector == null ? "#" + decoratedPropertyName : selector;
             targetType["__inject__"][name]["views"].push(temp);
         };
     }
-    exports_12("v", v);
+    exports_13("v", v);
     /**
      * f decorator 用于声明虚拟视图的html文件
      * @param url html文件的url地址
@@ -1789,7 +1873,7 @@ System.register("tinyts/core/tinyts", ["tinyts/core/view"], function (exports_12
             constructor["__url__"] = url;
         };
     }
-    exports_12("f", f);
+    exports_13("f", f);
     /**
      * 用于声明需要注入的service
      * @param s service的构造函数
@@ -1815,18 +1899,18 @@ System.register("tinyts/core/tinyts", ["tinyts/core/view"], function (exports_12
             if (!targetType["__inject__"][name]["services"]) {
                 targetType["__inject__"][name]["services"] = [];
             }
-            var temp = new view_4.serviceInjectModel();
+            var temp = new view_5.serviceInjectModel();
             temp.creator = s;
             temp.propertyName = decoratedPropertyName;
             targetType["__inject__"][name]["services"].push(temp);
         };
     }
-    exports_12("s", s);
-    var view_4, AncView;
+    exports_13("s", s);
+    var view_5, AncView;
     return {
         setters: [
-            function (view_4_1) {
-                view_4 = view_4_1;
+            function (view_5_1) {
+                view_5 = view_5_1;
             }
         ],
         execute: function () {
@@ -1862,7 +1946,7 @@ System.register("tinyts/core/tinyts", ["tinyts/core/view"], function (exports_12
                  * Show 移除style中的display:none
                  */
                 AncView.prototype.Show = function () {
-                    if (this.state == view_4.ViewState.LOADSUCC) {
+                    if (this.state == view_5.ViewState.LOADSUCC) {
                         var style = this.target.attr("style");
                         var aa = /display\s*:\s*none;?/;
                         style = style.replace(aa, "");
@@ -1870,14 +1954,14 @@ System.register("tinyts/core/tinyts", ["tinyts/core/view"], function (exports_12
                     }
                 };
                 return AncView;
-            }(view_4.View));
-            exports_12("AncView", AncView);
+            }(view_5.View));
+            exports_13("AncView", AncView);
         }
     };
 });
-System.register("tinyts/utils/cookie", [], function (exports_13, context_13) {
+System.register("tinyts/utils/cookie", [], function (exports_14, context_14) {
     "use strict";
-    var __moduleName = context_13 && context_13.id;
+    var __moduleName = context_14 && context_14.id;
     var Cookie, CookieInstance;
     return {
         setters: [],
@@ -1948,13 +2032,13 @@ System.register("tinyts/utils/cookie", [], function (exports_13, context_13) {
                 };
                 return Cookie;
             }());
-            exports_13("CookieInstance", CookieInstance = new Cookie());
+            exports_14("CookieInstance", CookieInstance = new Cookie());
         }
     };
 });
-System.register("tinyts/utils/date", [], function (exports_14, context_14) {
+System.register("tinyts/utils/date", [], function (exports_15, context_15) {
     "use strict";
-    var __moduleName = context_14 && context_14.id;
+    var __moduleName = context_15 && context_15.id;
     var TsDate;
     return {
         setters: [],
@@ -2032,13 +2116,13 @@ System.register("tinyts/utils/date", [], function (exports_14, context_14) {
                 };
                 return TsDate;
             }());
-            exports_14("TsDate", TsDate);
+            exports_15("TsDate", TsDate);
         }
     };
 });
-System.register("tinyts/utils/time", [], function (exports_15, context_15) {
+System.register("tinyts/utils/time", [], function (exports_16, context_16) {
     "use strict";
-    var __moduleName = context_15 && context_15.id;
+    var __moduleName = context_16 && context_16.id;
     var Time, CountDown;
     return {
         setters: [],
@@ -2089,7 +2173,7 @@ System.register("tinyts/utils/time", [], function (exports_15, context_15) {
                 };
                 return Time;
             }());
-            exports_15("Time", Time);
+            exports_16("Time", Time);
             /**
              * CountDown 倒计时
              */
@@ -2207,7 +2291,7 @@ System.register("tinyts/utils/time", [], function (exports_15, context_15) {
                 };
                 return CountDown;
             }());
-            exports_15("CountDown", CountDown);
+            exports_16("CountDown", CountDown);
         }
     };
 });
