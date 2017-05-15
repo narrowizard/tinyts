@@ -1960,6 +1960,9 @@ System.register("tinyts/core/tinyts", ["tinyts/core/view"], function (exports_13
                 AncView.prototype.Show = function () {
                     if (this.state == view_5.ViewState.LOADSUCC) {
                         var style = this.target.attr("style");
+                        if (!style) {
+                            return;
+                        }
                         var aa = /display\s*:\s*none;?/;
                         style = style.replace(aa, "");
                         this.target.attr("style", style);

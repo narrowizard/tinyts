@@ -35,6 +35,9 @@ export class AncView extends View {
     protected Show() {
         if (this.state == ViewState.LOADSUCC) {
             var style = this.target.attr("style");
+            if (!style) {
+                return;
+            }
             var aa = /display\s*:\s*none;?/;
             style = style.replace(aa, "");
             this.target.attr("style", style);
