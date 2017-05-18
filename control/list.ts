@@ -77,11 +77,12 @@ export class ListView<T> extends View {
                 // 多绑定元素,viewString可能每个都不一样,但是数据是一份一样的
                 this.target.each((index, elem) => {
                     this.viewString[index] = $(elem).html();
+                    $(elem).html("");
                 });
             } else {
                 // 单元素绑定关系
                 this.viewString.push(this.target.html());
-
+                this.target.html("");
             }
         }
         return succ;
