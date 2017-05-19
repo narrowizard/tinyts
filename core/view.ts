@@ -510,8 +510,14 @@ export class View {
      */
     protected Inject() {
         var c = this.constructor;
+        var injector = {};
+        // 处理继承后的注入
+        while (c instanceof View.constructor) {
+            injector = $.extend(injector, c["__inject__"]);
+            c = c["__proto__"];
+        }
+
         var instance = this;
-        var injector = c["__inject__"];
         var dataBindingExpressions: DataBindExpressionModel[] = [];
         this.BeforeInject();
         if (injector) {
@@ -567,7 +573,6 @@ export class View {
                             instance[service.propertyName] = ServicePoolInstance.GetService(service.creator);
                         }
                     }
-                    break;
                 }
             }
         }

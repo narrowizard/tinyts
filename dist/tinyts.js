@@ -763,8 +763,13 @@ System.register("tinyts/core/view", ["tinyts/core/http", "tinyts/core/servicepoo
                  */
                 View.prototype.Inject = function () {
                     var c = this.constructor;
+                    var injector = {};
+                    // 处理继承后的注入
+                    while (c instanceof View.constructor) {
+                        injector = $.extend(injector, c["__inject__"]);
+                        c = c["__proto__"];
+                    }
                     var instance = this;
-                    var injector = c["__inject__"];
                     var dataBindingExpressions = [];
                     this.BeforeInject();
                     if (injector) {
@@ -822,7 +827,6 @@ System.register("tinyts/core/view", ["tinyts/core/http", "tinyts/core/servicepoo
                                         instance[service.propertyName] = servicepool_1.ServicePoolInstance.GetService(service.creator);
                                     }
                                 }
-                                break;
                             }
                         }
                     }
