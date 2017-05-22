@@ -1116,17 +1116,19 @@ System.register("tinyts/control/list", ["tinyts/core/view", "tinyts/core/meta"],
                         if (this.multipart) {
                             // 多绑定元素,viewString可能每个都不一样,但是数据是一份一样的
                             this.target.each(function (index, elem) {
-                                _this.viewString[index] = $(elem).html();
-                                $(elem).html("");
+                                _this.viewString[index] = _this.getTemplateString($(elem));
                             });
                         }
                         else {
                             // 单元素绑定关系
-                            this.viewString.push(this.target.html());
-                            this.target.html("");
+                            this.viewString.push(this.getTemplateString(this.target));
                         }
+                        this.ClearView();
                     }
                     return succ;
+                };
+                ListView.prototype.getTemplateString = function (target) {
+                    return target.html();
                 };
                 /**
                  * SetEventHandler 设置事件处理函数
@@ -1690,6 +1692,9 @@ System.register("tinyts/control/table", ["tinyts/control/list"], function (expor
                 function Table() {
                     return _super !== null && _super.apply(this, arguments) || this;
                 }
+                Table.prototype.getTemplateString = function (target) {
+                    return target.find("tbody").html();
+                };
                 Table.prototype.append = function (viewString, elemIndex) {
                     if (this.multipart) {
                         if (elemIndex == null) {
@@ -1700,6 +1705,9 @@ System.register("tinyts/control/table", ["tinyts/control/list"], function (expor
                     else {
                         this.target.find("tbody").append(viewString);
                     }
+                };
+                Table.prototype.ClearView = function () {
+                    this.target.find("tbody").html("");
                 };
                 return Table;
             }(list_1.ListView));

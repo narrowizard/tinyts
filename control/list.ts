@@ -76,16 +76,19 @@ export class ListView<T> extends View {
             if (this.multipart) {
                 // 多绑定元素,viewString可能每个都不一样,但是数据是一份一样的
                 this.target.each((index, elem) => {
-                    this.viewString[index] = $(elem).html();
-                    $(elem).html("");
+                    this.viewString[index] = this.getTemplateString($(elem));
                 });
             } else {
                 // 单元素绑定关系
-                this.viewString.push(this.target.html());
-                this.target.html("");
+                this.viewString.push(this.getTemplateString(this.target));
             }
+            this.ClearView();
         }
         return succ;
+    }
+
+    protected getTemplateString(target: JQuery): string {
+        return target.html();
     }
 
     protected eventHandler: { selector: string, event?: string, handler: (obj: JQueryEventObject) => void }[];
