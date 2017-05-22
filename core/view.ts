@@ -627,7 +627,17 @@ export class ViewG<T> extends View {
  */
 export abstract class ViewV<T> extends ViewG<T> {
 
+    /**
+     * [deprecated] viewString 模板视图内容
+     */
     protected viewString: string;
+
+    /**
+     * GetViewString 同步获取模板html,同步模式下实现该方法
+     */
+    GetViewString(): string {
+        return "";
+    }
 
     /**
      * SetTemplateView 设置虚拟视图的html
@@ -641,7 +651,11 @@ export abstract class ViewV<T> extends ViewG<T> {
             });
         } else {
             return new Promise<void>((resolve, reject) => {
-                this.target.html(this.viewString);
+                var s = this.GetViewString();
+                if (s == "") {
+                    s = this.viewString;
+                }
+                this.target.html(s);
                 resolve();
             });
         }

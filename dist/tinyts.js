@@ -884,6 +884,12 @@ System.register("tinyts/core/view", ["tinyts/core/http", "tinyts/core/servicepoo
                     return _super !== null && _super.apply(this, arguments) || this;
                 }
                 /**
+                 * GetViewString 同步获取模板html,同步模式下实现该方法
+                 */
+                ViewV.prototype.GetViewString = function () {
+                    return "";
+                };
+                /**
                  * SetTemplateView 设置虚拟视图的html
                  */
                 ViewV.prototype.SetTemplateView = function () {
@@ -897,7 +903,11 @@ System.register("tinyts/core/view", ["tinyts/core/http", "tinyts/core/servicepoo
                     }
                     else {
                         return new Promise(function (resolve, reject) {
-                            _this.target.html(_this.viewString);
+                            var s = _this.GetViewString();
+                            if (s == "") {
+                                s = _this.viewString;
+                            }
+                            _this.target.html(s);
                             resolve();
                         });
                     }
