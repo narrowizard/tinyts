@@ -1680,6 +1680,17 @@ System.register("tinyts/control/table", ["tinyts/control/list"], function (expor
                 function Table() {
                     return _super !== null && _super.apply(this, arguments) || this;
                 }
+                Table.prototype.append = function (viewString, elemIndex) {
+                    if (this.multipart) {
+                        if (elemIndex == null) {
+                            elemIndex = 0;
+                        }
+                        this.target.eq(elemIndex).find("tbody").append(viewString);
+                    }
+                    else {
+                        this.target.find("tbody").append(viewString);
+                    }
+                };
                 return Table;
             }(list_1.ListView));
             exports_11("Table", Table);
