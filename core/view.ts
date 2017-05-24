@@ -146,10 +146,13 @@ class TreeNode {
             for (var i = 0; i < this.Views.length; i++) {
                 var temp_view = this.Views[i];
                 if (temp_view.ViewInstance && temp_view.Type == BindType.OVONIC || temp_view.Type == BindType.VIEWTOMODEL) {
-                    temp_view.ViewInstance.On("compositionend", () => {
-                        temp[this.Expression] = this.Views[i].ViewInstance.Value();
-                    });
-                    break;
+                    var element = temp_view.ViewInstance.GetJQueryInstance().context;
+                    if (element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement) {
+                        temp_view.ViewInstance.On("compositionend", () => {
+                            temp[this.Expression] = this.Views[i].ViewInstance.Value();
+                        });
+                        break;
+                    }
                 }
             }
         } else {
