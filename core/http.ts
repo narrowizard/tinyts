@@ -198,7 +198,9 @@ class Router {
         var me = this;
         window.onpopstate = function (event) {
             var state = event.state;
-            me.context.OnRoutePopState(state);
+            if (me.context) {
+                me.context.OnRoutePopState(state);
+            }
         }
     }
 
@@ -230,7 +232,9 @@ class Router {
         var me = this;
         var stateData = { url: url, data: data, param: param };
         window.history.pushState(stateData, "", url);
-        me.context.OnRouteChange(url, data);
+        if (me.context) {
+            me.context.OnRouteChange(url, data);
+        }
     }
 
     /**
@@ -242,7 +246,9 @@ class Router {
         var me = this;
         var stateData = { url: url, data: data, param: param };
         window.history.replaceState(stateData, "", url);
-        me.context.OnRouteChange(url, data);
+        if (me.context) {
+            me.context.OnRouteChange(url, data);
+        }
     }
 
     /**
@@ -257,7 +263,7 @@ class Router {
         var url2 = xx.Generate();
         var stateData = { url: url, data: {} };
         window.history.replaceState(stateData, "", url2);
-        if (changeRoute) {
+        if (changeRoute && me.context) {
             me.context.OnRouteChange(url2, stateData);
         }
     }

@@ -168,7 +168,9 @@ System.register("tinyts/core/http", [], function (exports_1, context_1) {
                     var me = this;
                     window.onpopstate = function (event) {
                         var state = event.state;
-                        me.context.OnRoutePopState(state);
+                        if (me.context) {
+                            me.context.OnRoutePopState(state);
+                        }
                     };
                 }
                 /**
@@ -205,7 +207,9 @@ System.register("tinyts/core/http", [], function (exports_1, context_1) {
                     var me = this;
                     var stateData = { url: url, data: data, param: param };
                     window.history.pushState(stateData, "", url);
-                    me.context.OnRouteChange(url, data);
+                    if (me.context) {
+                        me.context.OnRouteChange(url, data);
+                    }
                 };
                 /**
                  * ReplaceCurrentState 修改当前router的状态(无历史记录)
@@ -216,7 +220,9 @@ System.register("tinyts/core/http", [], function (exports_1, context_1) {
                     var me = this;
                     var stateData = { url: url, data: data, param: param };
                     window.history.replaceState(stateData, "", url);
-                    me.context.OnRouteChange(url, data);
+                    if (me.context) {
+                        me.context.OnRouteChange(url, data);
+                    }
                 };
                 /**
                  * ReplaceCurrentStateWithParam 修改当前router的状态,并将data存储在url中
@@ -230,7 +236,7 @@ System.register("tinyts/core/http", [], function (exports_1, context_1) {
                     var url2 = xx.Generate();
                     var stateData = { url: url, data: {} };
                     window.history.replaceState(stateData, "", url2);
-                    if (changeRoute) {
+                    if (changeRoute && me.context) {
                         me.context.OnRouteChange(url2, stateData);
                     }
                 };
