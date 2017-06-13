@@ -196,6 +196,7 @@ class Router {
 
     constructor() {
         var me = this;
+        
         window.onpopstate = function (event) {
             var state = event.state;
             if (me.context) {
@@ -231,7 +232,9 @@ class Router {
         }
         var me = this;
         var stateData = { url: url, data: data, param: param };
-        window.history.pushState(stateData, "", url);
+        if (window.history.pushState) {
+            window.history.pushState(stateData, "", url);
+        }
         if (me.context) {
             me.context.OnRouteChange(url, data);
         }
@@ -245,7 +248,9 @@ class Router {
     ReplaceCurrentState(url: string, data: any, param?: any) {
         var me = this;
         var stateData = { url: url, data: data, param: param };
-        window.history.replaceState(stateData, "", url);
+        if (window.history.replaceState) {
+            window.history.replaceState(stateData, "", url);
+        }
         if (me.context) {
             me.context.OnRouteChange(url, data);
         }
@@ -262,7 +267,9 @@ class Router {
         xx.searchObject = $.extend(xx.searchObject, data);
         var url2 = xx.Generate();
         var stateData = { url: url, data: {} };
-        window.history.replaceState(stateData, "", url2);
+        if (window.history.replaceState) {
+            window.history.replaceState(stateData, "", url2);
+        }
         if (changeRoute && me.context) {
             me.context.OnRouteChange(url2, stateData);
         }
