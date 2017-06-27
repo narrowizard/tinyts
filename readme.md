@@ -2,6 +2,9 @@
 ## target
 es5
 
+## issues
++ don't support array proxy in ie 9,10
+
 ## support
 + modern browser: chrome,firefox,ms edge
 + To support IE(9+):  

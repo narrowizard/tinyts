@@ -27,13 +27,6 @@ export class ArrayProxy<T> extends Array<T>{
 
     }
 
-    concat<U extends T[]>(...items: U[]): T[] {
-        var res = super.concat(...items);
-        this.context.RefreshView();
-        return res;
-
-    }
-
     shift(): T {
         var res = super.shift();
         this.context.RefreshView();
@@ -41,17 +34,46 @@ export class ArrayProxy<T> extends Array<T>{
 
     }
 
-    splice(start: number, deleteCount?: number, ...items: T[]): T[] {
-        var res = super.splice(start, deleteCount, ...items);
+    unshift(...items: T[]): number {
+        var res = super.unshift(...items);
         this.context.RefreshView();
         return res;
+    }
+
+    reverse(): T[] {
+        var res = super.reverse();
+        this.context.RefreshView();
+        return res;
+    }
+
+    sort(compareFn?: (a: T, b: T) => number): T[] {
+        var res = super.sort(compareFn);
+        this.context.RefreshView();
+        return res;
+    }
+
+    concat<U extends T[]>(...items: U[]): T[] {
+        var temp = [];
+        for (var i = 0; i < this.length; i++) {
+            temp[i] = this[i];
+        }
+        return temp.concat(...items);
 
     }
 
-    unshift(...items: T[]): number {
-        var res = super.unshift();
+    splice(start: number, deleteCount?: number, ...items: T[]): T[] {
+        var temp = [];
+        for (var i = 0; i < this.length; i++) {
+            temp[i] = this[i];
+        }
+        var res = temp.splice(start, deleteCount, ...items);
+        this.length = temp.length;
+        for (var i = 0; i < temp.length; i++) {
+            this[i] = temp[i];
+        }
         this.context.RefreshView();
         return res;
+
     }
 
 }
