@@ -71,7 +71,7 @@ System.register("application/service/user", [], function (exports_2, context_2) 
 System.register("core/http", [], function (exports_3, context_3) {
     "use strict";
     var __moduleName = context_3 && context_3.id;
-    var UrlComparison, UrlParser, HttpResponse, HttpUtils;
+    var UrlComparison, UrlParser, HttpResponse, HttpUtils, Router, routerInstance;
     return {
         setters: [],
         execute: function () {
@@ -223,6 +223,92 @@ System.register("core/http", [], function (exports_3, context_3) {
                 return HttpUtils;
             }());
             exports_3("HttpUtils", HttpUtils);
+            Router = (function () {
+                function Router() {
+                    var me = this;
+                    window.onpopstate = function (event) {
+                        var state = event.state;
+                        if (me.context) {
+                            me.context.OnRoutePopState(state);
+                        }
+                    };
+                }
+                /**
+                 * SetContext 设置上下文
+                 * @param context.OnRouteSucc 路由完成回调
+                 * @param context.OnRouteError 路由错误回调
+                 */
+                Router.prototype.SetContext = function (context) {
+                    this.context = context;
+                };
+                /**
+                 * GoBack 返回上一页
+                 */
+                Router.prototype.GoBack = function () {
+                    window.history.back();
+                };
+                /**
+                 * GoForward 前往下一页
+                 */
+                Router.prototype.GoForward = function () {
+                    window.history.forward();
+                };
+                /**
+                 * GoTo 修改当前url为指定url,并触发context的OnRouteChange事件
+                 * @param url 指定url
+                 * @param data 可能存在的参数
+                 */
+                Router.prototype.GoTo = function (url, data, param) {
+                    //首先判断路由是否有变化,如果没有变化,则不作跳转
+                    var res = UrlParser.CompareUrls(window.location.href, url);
+                    if (res.Complete) {
+                        return;
+                    }
+                    var me = this;
+                    var stateData = { url: url, data: data, param: param };
+                    if (window.history.pushState) {
+                        window.history.pushState(stateData, "", url);
+                    }
+                    if (me.context) {
+                        me.context.OnRouteChange(url, data);
+                    }
+                };
+                /**
+                 * ReplaceCurrentState 修改当前router的状态(无历史记录)
+                 * @param url 指定的url
+                 * @param data 当前router的数据
+                 */
+                Router.prototype.ReplaceCurrentState = function (url, data, param) {
+                    var me = this;
+                    var stateData = { url: url, data: data, param: param };
+                    if (window.history.replaceState) {
+                        window.history.replaceState(stateData, "", url);
+                    }
+                    if (me.context) {
+                        me.context.OnRouteChange(url, data);
+                    }
+                };
+                /**
+                 * ReplaceCurrentStateWithParam 修改当前router的状态,并将data存储在url中
+                 */
+                Router.prototype.ReplaceCurrentStateWithParam = function (url, data, changeRoute) {
+                    var me = this;
+                    // 将data添加到url中
+                    var xx = new UrlParser();
+                    xx.Parse(url);
+                    xx.searchObject = $.extend(xx.searchObject, data);
+                    var url2 = xx.Generate();
+                    var stateData = { url: url, data: {} };
+                    if (window.history.replaceState) {
+                        window.history.replaceState(stateData, "", url2);
+                    }
+                    if (changeRoute && me.context) {
+                        me.context.OnRouteChange(url2, stateData);
+                    }
+                };
+                return Router;
+            }());
+            exports_3("routerInstance", routerInstance = new Router());
         }
     };
 });
@@ -426,10 +512,13 @@ System.register("core/view", ["core/http", "core/servicepool"], function (export
                         for (var i = 0; i < this.Views.length; i++) {
                             var temp_view = this.Views[i];
                             if (temp_view.ViewInstance && temp_view.Type == BindType.OVONIC || temp_view.Type == BindType.VIEWTOMODEL) {
-                                temp_view.ViewInstance.On("input", function () {
-                                    temp[_this.Expression] = _this.Views[i].ViewInstance.Value();
-                                });
-                                break;
+                                var element = temp_view.ViewInstance.GetJQueryInstance().context;
+                                if (element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement) {
+                                    temp_view.ViewInstance.On("compositionend", function () {
+                                        temp[_this.Expression] = _this.Views[i].ViewInstance.Value();
+                                    });
+                                    break;
+                                }
                             }
                         }
                     }
@@ -694,6 +783,13 @@ System.register("core/view", ["core/http", "core/servicepool"], function (export
                     }
                 };
                 /**
+                 * HasClass 是否含有目标class
+                 * @param className class名称
+                 */
+                View.prototype.HasClass = function (className) {
+                    return this.target.hasClass(className);
+                };
+                /**
                  * SetStyle 设置style属性
                  * @param key css属性名
                  * @param value 值
@@ -742,8 +838,13 @@ System.register("core/view", ["core/http", "core/servicepool"], function (export
                  */
                 View.prototype.Inject = function () {
                     var c = this.constructor;
+                    var injector = {};
+                    // 处理继承后的注入
+                    while (c instanceof View.constructor) {
+                        injector = $.extend(injector, c["__inject__"]);
+                        c = c["__proto__"];
+                    }
                     var instance = this;
-                    var injector = c["__inject__"];
                     var dataBindingExpressions = [];
                     this.BeforeInject();
                     if (injector) {
@@ -801,7 +902,6 @@ System.register("core/view", ["core/http", "core/servicepool"], function (export
                                         instance[service.propertyName] = servicepool_1.ServicePoolInstance.GetService(service.creator);
                                     }
                                 }
-                                break;
                             }
                         }
                     }
@@ -859,6 +959,12 @@ System.register("core/view", ["core/http", "core/servicepool"], function (export
                     return _super !== null && _super.apply(this, arguments) || this;
                 }
                 /**
+                 * GetViewString 同步获取模板html,同步模式下实现该方法
+                 */
+                ViewV.prototype.GetViewString = function () {
+                    return "";
+                };
+                /**
                  * SetTemplateView 设置虚拟视图的html
                  */
                 ViewV.prototype.SetTemplateView = function () {
@@ -872,7 +978,11 @@ System.register("core/view", ["core/http", "core/servicepool"], function (export
                     }
                     else {
                         return new Promise(function (resolve, reject) {
-                            _this.target.html(_this.viewString);
+                            var s = _this.GetViewString();
+                            if (s == "") {
+                                s = _this.viewString;
+                            }
+                            _this.target.html(s);
                             resolve();
                         });
                     }
@@ -927,10 +1037,10 @@ System.register("control/text", ["core/view"], function (exports_6, context_6) {
         }
     };
 });
-System.register("control/input", ["control/text"], function (exports_7, context_7) {
+System.register("control/button", ["control/text"], function (exports_7, context_7) {
     "use strict";
     var __moduleName = context_7 && context_7.id;
-    var text_1, InputView;
+    var text_1, Button;
     return {
         setters: [
             function (text_1_1) {
@@ -938,14 +1048,80 @@ System.register("control/input", ["control/text"], function (exports_7, context_
             }
         ],
         execute: function () {
+            Button = (function (_super) {
+                __extends(Button, _super);
+                function Button() {
+                    return _super !== null && _super.apply(this, arguments) || this;
+                }
+                /**
+                 * OnClick 注册点击事件
+                 */
+                Button.prototype.OnClick = function (handler) {
+                    this.target.click(handler);
+                };
+                /**
+                 * PerformClick 触发button的点击事件
+                 */
+                Button.prototype.PerformClick = function () {
+                    if (this.target != null) {
+                        this.target.click();
+                    }
+                };
+                return Button;
+            }(text_1.TextView));
+            exports_7("Button", Button);
+        }
+    };
+});
+System.register("control/input", ["control/text"], function (exports_8, context_8) {
+    "use strict";
+    var __moduleName = context_8 && context_8.id;
+    var text_2, InputView;
+    return {
+        setters: [
+            function (text_2_1) {
+                text_2 = text_2_1;
+            }
+        ],
+        execute: function () {
             /**
              * InputView 文本输入控件,作为输入框的基类,重载了TextView中的方法
+             * properties
+             *      data-accept-button string jquery selector
              */
             InputView = (function (_super) {
                 __extends(InputView, _super);
                 function InputView() {
                     return _super !== null && _super.apply(this, arguments) || this;
                 }
+                InputView.prototype.LoadView = function (parent) {
+                    var _this = this;
+                    var succ = _super.prototype.LoadView.call(this, parent);
+                    if (succ) {
+                        var acceptSelector = this.target.attr("data-accept-button");
+                        if (acceptSelector) {
+                            this.acceptBtn = $(acceptSelector);
+                        }
+                        this.On("keypress", function (args) {
+                            if (args.which == 13) {
+                                if (_this.acceptBtn.prop("disabled")) {
+                                }
+                                else {
+                                    _this.acceptBtn.click();
+                                }
+                            }
+                        });
+                    }
+                    return succ;
+                };
+                InputView.prototype.SetAcceptButton = function (p) {
+                    if (typeof p == "string") {
+                        this.acceptBtn = $(p);
+                    }
+                    else if (typeof p == "object") {
+                        this.acceptBtn = p.GetJQueryInstance();
+                    }
+                };
                 InputView.prototype.Value = function () {
                     return this.target.val();
                 };
@@ -959,14 +1135,14 @@ System.register("control/input", ["control/text"], function (exports_7, context_
                     this.target.val("");
                 };
                 return InputView;
-            }(text_1.TextView));
-            exports_7("InputView", InputView);
+            }(text_2.TextView));
+            exports_8("InputView", InputView);
         }
     };
 });
-System.register("core/meta", [], function (exports_8, context_8) {
+System.register("core/meta", [], function (exports_9, context_9) {
     "use strict";
-    var __moduleName = context_8 && context_8.id;
+    var __moduleName = context_9 && context_9.id;
     var Meta;
     return {
         setters: [],
@@ -990,14 +1166,14 @@ System.register("core/meta", [], function (exports_8, context_8) {
                 };
                 return Meta;
             }());
-            exports_8("Meta", Meta);
+            exports_9("Meta", Meta);
         }
     };
 });
-System.register("control/list", ["core/view", "core/meta"], function (exports_9, context_9) {
+System.register("control/list", ["core/view", "core/meta"], function (exports_10, context_10) {
     "use strict";
-    var __moduleName = context_9 && context_9.id;
-    var view_2, meta_1, ArrayProxy, ListView;
+    var __moduleName = context_10 && context_10.id;
+    var view_2, meta_1, ArrayProxy, ListView, PAGEMODE, PageManager;
     return {
         setters: [
             function (view_2_1) {
@@ -1033,26 +1209,8 @@ System.register("control/list", ["core/view", "core/meta"], function (exports_9,
                     this.context.RefreshView();
                     return res;
                 };
-                ArrayProxy.prototype.concat = function () {
-                    var items = [];
-                    for (var _i = 0; _i < arguments.length; _i++) {
-                        items[_i] = arguments[_i];
-                    }
-                    var res = _super.prototype.concat.apply(this, items);
-                    this.context.RefreshView();
-                    return res;
-                };
                 ArrayProxy.prototype.shift = function () {
                     var res = _super.prototype.shift.call(this);
-                    this.context.RefreshView();
-                    return res;
-                };
-                ArrayProxy.prototype.splice = function (start, deleteCount) {
-                    var items = [];
-                    for (var _i = 2; _i < arguments.length; _i++) {
-                        items[_i - 2] = arguments[_i];
-                    }
-                    var res = _super.prototype.splice.apply(this, [start, deleteCount].concat(items));
                     this.context.RefreshView();
                     return res;
                 };
@@ -1061,13 +1219,51 @@ System.register("control/list", ["core/view", "core/meta"], function (exports_9,
                     for (var _i = 0; _i < arguments.length; _i++) {
                         items[_i] = arguments[_i];
                     }
-                    var res = _super.prototype.unshift.call(this);
+                    var res = _super.prototype.unshift.apply(this, items);
+                    this.context.RefreshView();
+                    return res;
+                };
+                ArrayProxy.prototype.reverse = function () {
+                    var res = _super.prototype.reverse.call(this);
+                    this.context.RefreshView();
+                    return res;
+                };
+                ArrayProxy.prototype.sort = function (compareFn) {
+                    var res = _super.prototype.sort.call(this, compareFn);
+                    this.context.RefreshView();
+                    return res;
+                };
+                ArrayProxy.prototype.concat = function () {
+                    var items = [];
+                    for (var _i = 0; _i < arguments.length; _i++) {
+                        items[_i] = arguments[_i];
+                    }
+                    var temp = [];
+                    for (var i = 0; i < this.length; i++) {
+                        temp[i] = this[i];
+                    }
+                    return temp.concat.apply(temp, items);
+                };
+                ArrayProxy.prototype.splice = function (start, deleteCount) {
+                    var items = [];
+                    for (var _i = 2; _i < arguments.length; _i++) {
+                        items[_i - 2] = arguments[_i];
+                    }
+                    var temp = [];
+                    for (var i = 0; i < this.length; i++) {
+                        temp[i] = this[i];
+                    }
+                    var res = temp.splice.apply(temp, [start, deleteCount].concat(items));
+                    this.length = temp.length;
+                    for (var i = 0; i < temp.length; i++) {
+                        this[i] = temp[i];
+                    }
                     this.context.RefreshView();
                     return res;
                 };
                 return ArrayProxy;
             }(Array));
-            exports_9("ArrayProxy", ArrayProxy);
+            exports_10("ArrayProxy", ArrayProxy);
             ListView = (function (_super) {
                 __extends(ListView, _super);
                 function ListView() {
@@ -1082,15 +1278,19 @@ System.register("control/list", ["core/view", "core/meta"], function (exports_9,
                         if (this.multipart) {
                             // 多绑定元素,viewString可能每个都不一样,但是数据是一份一样的
                             this.target.each(function (index, elem) {
-                                _this.viewString[index] = $(elem).html();
+                                _this.viewString[index] = _this.getTemplateString($(elem));
                             });
                         }
                         else {
                             // 单元素绑定关系
-                            this.viewString.push(this.target.html());
+                            this.viewString.push(this.getTemplateString(this.target));
                         }
+                        this.ClearView();
                     }
                     return succ;
+                };
+                ListView.prototype.getTemplateString = function (target) {
+                    return target.html();
                 };
                 /**
                  * SetEventHandler 设置事件处理函数
@@ -1174,7 +1374,7 @@ System.register("control/list", ["core/view", "core/meta"], function (exports_9,
                  * @param (仅多元素绑定时)元素索引
                 */
                 ListView.prototype.GetView = function (dataIndex, elemIndex) {
-                    var data = this.mData[dataIndex];
+                    var data = $.extend(true, {}, this.mData[dataIndex]);
                     if (this.getTemplpateModel) {
                         data = this.getTemplpateModel(data);
                     }
@@ -1248,20 +1448,219 @@ System.register("control/list", ["core/view", "core/meta"], function (exports_9,
                         }
                     }
                 };
+                /**
+                 * GetPageManager 获取分页器,仅当data-pagable为sync或async时有效
+                 */
+                ListView.prototype.GetPageManager = function () {
+                    if (!this.pageManager) {
+                        console.error("data-pagable has not defined!");
+                    }
+                    return this.pageManager;
+                };
+                /**
+                 * SetPageSize 设置每页条数,显示到页面上
+                 */
+                ListView.prototype.SetPageSize = function (pagesize) {
+                };
+                /**
+                 * SetCurPage 设置当前页(用于展示)
+                 */
+                ListView.prototype.SetCurPage = function (page) {
+                };
+                /**
+                 * SetPageCount 设置总页数(用于展示)
+                 */
+                ListView.prototype.SetPageCount = function (count) {
+                };
+                /**
+                 * GetPageSize 获取每页条数
+                 */
+                ListView.prototype.GetPageSize = function () {
+                    return 0;
+                };
                 return ListView;
             }(view_2.View));
-            exports_9("ListView", ListView);
+            exports_10("ListView", ListView);
+            // PAGEMODE 分页模式
+            // SYNC 同步分页
+            // ASYNC 异步分页
+            (function (PAGEMODE) {
+                PAGEMODE[PAGEMODE["SYNC"] = 0] = "SYNC";
+                PAGEMODE[PAGEMODE["ASYNC"] = 1] = "ASYNC";
+            })(PAGEMODE || (PAGEMODE = {}));
+            ;
+            PageManager = (function () {
+                /**
+                 * @param instance 同步模式时,数据会被设置到该instance
+                 */
+                function PageManager(instance) {
+                    this.curPage = 1;
+                }
+                /**
+                 * SetData 设置数据,当模式为同步分页模式时,可以直接调用该函数将数据交给PageManager
+                 * @param data 数据,同时会更新total和pageCount
+                 */
+                PageManager.prototype.SetData = function (data) {
+                    if (!data) {
+                        return;
+                    }
+                    this.mData = data;
+                    this.SetRecordCount(this.mData.length);
+                };
+                /**
+                 * SetContext 设置上下文
+                 * @param context 数据获取器
+                 */
+                PageManager.prototype.SetContext = function (context) {
+                    this.context = context;
+                };
+                /**
+                 * SetPageMode 设置分页模式
+                 * 同步模式时,需要在构造函数中传入目标ListView的实例
+                 * 异步模式时,需要设置用于获取异步数据的context
+                 * @param mode 分页模式
+                 */
+                PageManager.prototype.SetPageMode = function (mode) {
+                    this.pageMode = mode;
+                };
+                /**
+                 * SetCurPage 强行设置当前页,不跳转
+                 * 注意,调用此函数会引起分页器的奔溃,请谨慎使用
+                 * @param index 页码
+                 */
+                PageManager.prototype.ForceSetCurPage = function (index) {
+                    this.curPage = index;
+                };
+                /**
+                 * CurPage 获取当前页码
+                 */
+                PageManager.prototype.CurPage = function () {
+                    return this.curPage;
+                };
+                /**
+                 * SetPageSize 设置每页条数
+                 * @param pagesize 每页条数
+                 */
+                PageManager.prototype.SetPageSize = function (pagesize) {
+                    this.pageSize = pagesize;
+                };
+                /**
+                 * RecordCount 返回记录总条数,仅在通过SetRecordCount方法设置总条数后才有效
+                 */
+                PageManager.prototype.RecordCount = function () {
+                    return this.total;
+                };
+                /**
+                 * SetRecordCount 设置记录总条数,同时设置pageCount
+                 * @param count 记录总数量
+                 */
+                PageManager.prototype.SetRecordCount = function (count) {
+                    this.total = count;
+                    this.SetPageCount(Math.ceil(this.total / this.pageSize));
+                };
+                /**
+                 * SetPageCount 设置总页数
+                 * @param count 总页数
+                 */
+                PageManager.prototype.SetPageCount = function (count) {
+                    //在列表上展示总页数
+                    this.context.SetPageCount(count);
+                    this.pageCount = count;
+                };
+                /**
+                 * ResetCurPage 重置当前页为第一页
+                 */
+                PageManager.prototype.ResetCurPage = function () {
+                    this.curPage = 1;
+                };
+                /**
+                 * GetCurPage 获取当前页的数据
+                 */
+                PageManager.prototype.GetCurPage = function () {
+                    //在列表上展示当前页
+                    this.context.SetCurPage(this.curPage);
+                    //获取每页条数
+                    var pagesize = this.context.GetPageSize();
+                    if (!pagesize) {
+                        console.error("pagesize is wrong!");
+                        return;
+                    }
+                    this.SetPageSize(pagesize);
+                    if (this.pageMode == PAGEMODE.SYNC) {
+                        //同步分页模式,直接将数据交给ListView
+                        this.context.SetData(mx(this.mData).skip((this.curPage - 1) * this.pageSize).take(this.pageSize).toArray());
+                    }
+                    else if (this.pageMode == PAGEMODE.ASYNC) {
+                        if (!this.context) {
+                            throw "context has not been set!";
+                        }
+                        //异步分页模式,请求服务器
+                        this.getData(this.curPage, this.pageSize);
+                    }
+                };
+                /**
+                 * FirstPage 首页
+                 */
+                PageManager.prototype.FirstPage = function () {
+                    this.curPage = 1;
+                    this.GetCurPage();
+                };
+                /**
+                 * PrevPage 上一页
+                 */
+                PageManager.prototype.PrevPage = function () {
+                    if (this.curPage <= 1) {
+                        return;
+                    }
+                    this.curPage--;
+                    this.GetCurPage();
+                };
+                /**
+                 * NextPage 下一页
+                 */
+                PageManager.prototype.NextPage = function () {
+                    var nPageSize = this.context.GetPageSize();
+                    if (nPageSize >= this.pageSize && this.curPage >= this.pageCount) {
+                        return;
+                    }
+                    this.curPage++;
+                    this.GetCurPage();
+                };
+                /**
+                 * LastPage 末页
+                 */
+                PageManager.prototype.LastPage = function () {
+                    if (this.pageCount < 1) {
+                        return;
+                    }
+                    this.curPage = this.pageCount;
+                    this.GetCurPage();
+                };
+                /**
+                 * TurnToPage 跳转到某页
+                 * @param index 页码
+                 */
+                PageManager.prototype.TurnToPage = function (index) {
+                    var nPageSize = this.context.GetPageSize();
+                    if (index < 1 || (nPageSize >= this.pageSize && index > this.pageCount)) {
+                        return;
+                    }
+                    this.curPage = index;
+                    this.GetCurPage();
+                };
+                return PageManager;
+            }());
         }
     };
 });
-System.register("control/choice", ["control/list"], function (exports_10, context_10) {
+System.register("control/choice", ["control/input"], function (exports_11, context_11) {
     "use strict";
-    var __moduleName = context_10 && context_10.id;
-    var list_1, ChoiceView;
+    var __moduleName = context_11 && context_11.id;
+    var input_1, ChoiceView;
     return {
         setters: [
-            function (list_1_1) {
-                list_1 = list_1_1;
+            function (input_1_1) {
+                input_1 = input_1_1;
             }
         ],
         execute: function () {
@@ -1271,14 +1670,14 @@ System.register("control/choice", ["control/list"], function (exports_10, contex
                     return _super !== null && _super.apply(this, arguments) || this;
                 }
                 return ChoiceView;
-            }(list_1.ListView));
-            exports_10("ChoiceView", ChoiceView);
+            }(input_1.InputView));
+            exports_11("ChoiceView", ChoiceView);
         }
     };
 });
-System.register("model/injector", ["control/input", "control/choice", "control/text", "control/list", "core/view", "class-validator"], function (exports_11, context_11) {
+System.register("model/injector", ["control/input", "control/choice", "control/text", "control/list", "core/view", "class-validator"], function (exports_12, context_12) {
     "use strict";
-    var __moduleName = context_11 && context_11.id;
+    var __moduleName = context_12 && context_12.id;
     /**
      * Resolve 将model中的数据注入到context中
      * @param context 控件上下文
@@ -1292,10 +1691,10 @@ System.register("model/injector", ["control/input", "control/choice", "control/t
                 if (target instanceof view_3.View) {
                     var propName = target.PropertyName();
                     if (propName) {
-                        if (target instanceof text_2.TextView || target instanceof choice_1.ChoiceView) {
+                        if (target instanceof text_3.TextView || target instanceof choice_1.ChoiceView) {
                             target.Clear();
                         }
-                        else if (target instanceof list_2.ListView) {
+                        else if (target instanceof list_1.ListView) {
                             target.SetData([]);
                         }
                         else {
@@ -1314,10 +1713,10 @@ System.register("model/injector", ["control/input", "control/choice", "control/t
                     var value = model[propName];
                     if (value) {
                         // 注入
-                        if (target instanceof text_2.TextView || target instanceof choice_1.ChoiceView) {
+                        if (target instanceof text_3.TextView || target instanceof choice_1.ChoiceView) {
                             target.SetValue(value);
                         }
-                        else if (target instanceof list_2.ListView && $.isArray(value)) {
+                        else if (target instanceof list_1.ListView && $.isArray(value)) {
                             target.SetData(value);
                         }
                         else {
@@ -1331,7 +1730,7 @@ System.register("model/injector", ["control/input", "control/choice", "control/t
             }
         }
     }
-    exports_11("Resolve", Resolve);
+    exports_12("Resolve", Resolve);
     function InjectWithoutValidate(TClass, context) {
         var temp = new TClass();
         for (var property in context) {
@@ -1350,10 +1749,10 @@ System.register("model/injector", ["control/input", "control/choice", "control/t
                 var propName = target.PropertyName();
                 if (propName) {
                     var value;
-                    if (target instanceof input_1.InputView || target instanceof choice_1.ChoiceView) {
+                    if (target instanceof input_2.InputView || target instanceof choice_1.ChoiceView) {
                         value = target.Value();
                     }
-                    else if (target instanceof list_2.ListView) {
+                    else if (target instanceof list_1.ListView) {
                         // 暂时不注入列表数据
                     }
                     //如果model中存在,优先注入
@@ -1391,7 +1790,7 @@ System.register("model/injector", ["control/input", "control/choice", "control/t
             });
         });
     }
-    exports_11("Inject", Inject);
+    exports_12("Inject", Inject);
     function ValidateData(TClass, data) {
         return new Promise(function (resolve, reject) {
             var temp = new TClass();
@@ -1410,21 +1809,21 @@ System.register("model/injector", ["control/input", "control/choice", "control/t
             });
         });
     }
-    exports_11("ValidateData", ValidateData);
-    var input_1, choice_1, text_2, list_2, view_3, class_validator_2;
+    exports_12("ValidateData", ValidateData);
+    var input_2, choice_1, text_3, list_1, view_3, class_validator_2;
     return {
         setters: [
-            function (input_1_1) {
-                input_1 = input_1_1;
+            function (input_2_1) {
+                input_2 = input_2_1;
             },
             function (choice_1_1) {
                 choice_1 = choice_1_1;
             },
-            function (text_2_1) {
-                text_2 = text_2_1;
+            function (text_3_1) {
+                text_3 = text_3_1;
             },
-            function (list_2_1) {
-                list_2 = list_2_1;
+            function (list_1_1) {
+                list_1 = list_1_1;
             },
             function (view_3_1) {
                 view_3 = view_3_1;
@@ -1437,9 +1836,9 @@ System.register("model/injector", ["control/input", "control/choice", "control/t
         }
     };
 });
-System.register("core/tinyts", ["core/view"], function (exports_12, context_12) {
+System.register("core/tinyts", ["core/view"], function (exports_13, context_13) {
     "use strict";
-    var __moduleName = context_12 && context_12.id;
+    var __moduleName = context_13 && context_13.id;
     /**
      * v decorator 用于标记一个通过ID绑定的View
      * @param T 目标视图的类型(如果是ViewG,则要求视图实现T的方法,如果是View则不限制)
@@ -1474,7 +1873,7 @@ System.register("core/tinyts", ["core/view"], function (exports_12, context_12) 
             targetType["__inject__"][name]["views"].push(temp);
         };
     }
-    exports_12("v", v);
+    exports_13("v", v);
     /**
      * f decorator 用于声明虚拟视图的html文件
      * @param url html文件的url地址
@@ -1488,7 +1887,7 @@ System.register("core/tinyts", ["core/view"], function (exports_12, context_12) 
             constructor["__url__"] = url;
         };
     }
-    exports_12("f", f);
+    exports_13("f", f);
     /**
      * 用于声明需要注入的service
      * @param s service的构造函数
@@ -1520,7 +1919,7 @@ System.register("core/tinyts", ["core/view"], function (exports_12, context_12) 
             targetType["__inject__"][name]["services"].push(temp);
         };
     }
-    exports_12("s", s);
+    exports_13("s", s);
     var view_4, AncView;
     return {
         setters: [
@@ -1563,6 +1962,9 @@ System.register("core/tinyts", ["core/view"], function (exports_12, context_12) 
                 AncView.prototype.Show = function () {
                     if (this.state == view_4.ViewState.LOADSUCC) {
                         var style = this.target.attr("style");
+                        if (!style) {
+                            return;
+                        }
                         var aa = /display\s*:\s*none;?/;
                         style = style.replace(aa, "");
                         this.target.attr("style", style);
@@ -1570,63 +1972,27 @@ System.register("core/tinyts", ["core/view"], function (exports_12, context_12) 
                 };
                 return AncView;
             }(view_4.View));
-            exports_12("AncView", AncView);
-        }
-    };
-});
-System.register("control/button", ["control/text"], function (exports_13, context_13) {
-    "use strict";
-    var __moduleName = context_13 && context_13.id;
-    var text_3, Button;
-    return {
-        setters: [
-            function (text_3_1) {
-                text_3 = text_3_1;
-            }
-        ],
-        execute: function () {
-            Button = (function (_super) {
-                __extends(Button, _super);
-                function Button() {
-                    return _super !== null && _super.apply(this, arguments) || this;
-                }
-                /**
-                 * OnClick 注册点击事件
-                 */
-                Button.prototype.OnClick = function (handler) {
-                    this.target.click(handler);
-                };
-                /**
-                 * PerformClick 触发button的点击事件
-                 */
-                Button.prototype.PerformClick = function () {
-                    if (this.target != null) {
-                        this.target.click();
-                    }
-                };
-                return Button;
-            }(text_3.TextView));
-            exports_13("Button", Button);
+            exports_13("AncView", AncView);
         }
     };
 });
 System.register("application/ts/bind_test", ["core/tinyts", "control/input", "control/button", "control/list", "control/text", "class-validator", "model/injector"], function (exports_14, context_14) {
     "use strict";
     var __moduleName = context_14 && context_14.id;
-    var tinyts_1, input_2, button_1, list_3, text_4, class_validator_3, injector_1, DataModel, ObjectModel, BindTestModel, aa;
+    var tinyts_1, input_3, button_1, list_2, text_4, class_validator_3, injector_1, DataModel, ObjectModel, BindTestModel, aa;
     return {
         setters: [
             function (tinyts_1_1) {
                 tinyts_1 = tinyts_1_1;
             },
-            function (input_2_1) {
-                input_2 = input_2_1;
+            function (input_3_1) {
+                input_3 = input_3_1;
             },
             function (button_1_1) {
                 button_1 = button_1_1;
             },
-            function (list_3_1) {
-                list_3 = list_3_1;
+            function (list_2_1) {
+                list_2 = list_2_1;
             },
             function (text_4_1) {
                 text_4 = text_4_1;
@@ -1684,20 +2050,20 @@ System.register("application/ts/bind_test", ["core/tinyts", "control/input", "co
                 return BindTestModel;
             }(tinyts_1.AncView));
             __decorate([
-                tinyts_1.v(input_2.InputView),
-                __metadata("design:type", input_2.InputView)
+                tinyts_1.v(input_3.InputView),
+                __metadata("design:type", input_3.InputView)
             ], BindTestModel.prototype, "sName", void 0);
             __decorate([
-                tinyts_1.v(input_2.InputView),
-                __metadata("design:type", input_2.InputView)
+                tinyts_1.v(input_3.InputView),
+                __metadata("design:type", input_3.InputView)
             ], BindTestModel.prototype, "sPhone", void 0);
             __decorate([
-                tinyts_1.v(input_2.InputView),
-                __metadata("design:type", input_2.InputView)
+                tinyts_1.v(input_3.InputView),
+                __metadata("design:type", input_3.InputView)
             ], BindTestModel.prototype, "sSubName", void 0);
             __decorate([
-                tinyts_1.v(input_2.InputView),
-                __metadata("design:type", input_2.InputView)
+                tinyts_1.v(input_3.InputView),
+                __metadata("design:type", input_3.InputView)
             ], BindTestModel.prototype, "sInput", void 0);
             __decorate([
                 tinyts_1.v(text_4.TextView),
@@ -1708,8 +2074,8 @@ System.register("application/ts/bind_test", ["core/tinyts", "control/input", "co
                 __metadata("design:type", button_1.Button)
             ], BindTestModel.prototype, "btnInject", void 0);
             __decorate([
-                tinyts_1.v(list_3.ListView),
-                __metadata("design:type", list_3.ListView)
+                tinyts_1.v(list_2.ListView),
+                __metadata("design:type", list_2.ListView)
             ], BindTestModel.prototype, "mList", void 0);
             exports_14("BindTestModel", BindTestModel);
             aa = new BindTestModel();
@@ -1739,11 +2105,11 @@ System.register("application/ts/http_test", ["core/http"], function (exports_15,
 System.register("application/ts/injector_test", ["control/input", "core/tinyts", "model/injector", "application/model/validator_test", "control/button", "core/view"], function (exports_16, context_16) {
     "use strict";
     var __moduleName = context_16 && context_16.id;
-    var input_3, tinyts_2, injector_2, validator_test_1, button_2, view_5, Name2Model, SubModel, InjectorTestModel, aa;
+    var input_4, tinyts_2, injector_2, validator_test_1, button_2, view_5, Name2Model, SubModel, InjectorTestModel, aa;
     return {
         setters: [
-            function (input_3_1) {
-                input_3 = input_3_1;
+            function (input_4_1) {
+                input_4 = input_4_1;
             },
             function (tinyts_2_1) {
                 tinyts_2 = tinyts_2_1;
@@ -1770,8 +2136,8 @@ System.register("application/ts/injector_test", ["control/input", "core/tinyts",
                 return Name2Model;
             }(view_5.ViewG));
             __decorate([
-                tinyts_2.v(input_3.InputView),
-                __metadata("design:type", input_3.InputView)
+                tinyts_2.v(input_4.InputView),
+                __metadata("design:type", input_4.InputView)
             ], Name2Model.prototype, "Name2", void 0);
             SubModel = (function (_super) {
                 __extends(SubModel, _super);
@@ -1785,8 +2151,8 @@ System.register("application/ts/injector_test", ["control/input", "core/tinyts",
                 __metadata("design:type", Name2Model)
             ], SubModel.prototype, "aaa", void 0);
             __decorate([
-                tinyts_2.v(input_3.InputView),
-                __metadata("design:type", input_3.InputView)
+                tinyts_2.v(input_4.InputView),
+                __metadata("design:type", input_4.InputView)
             ], SubModel.prototype, "sSubName", void 0);
             InjectorTestModel = (function (_super) {
                 __extends(InjectorTestModel, _super);
@@ -1806,12 +2172,12 @@ System.register("application/ts/injector_test", ["control/input", "core/tinyts",
                 return InjectorTestModel;
             }(tinyts_2.AncView));
             __decorate([
-                tinyts_2.v(input_3.InputView),
-                __metadata("design:type", input_3.InputView)
+                tinyts_2.v(input_4.InputView),
+                __metadata("design:type", input_4.InputView)
             ], InjectorTestModel.prototype, "sName", void 0);
             __decorate([
-                tinyts_2.v(input_3.InputView),
-                __metadata("design:type", input_3.InputView)
+                tinyts_2.v(input_4.InputView),
+                __metadata("design:type", input_4.InputView)
             ], InjectorTestModel.prototype, "sPhone", void 0);
             __decorate([
                 tinyts_2.v(button_2.Button),
@@ -1826,25 +2192,110 @@ System.register("application/ts/injector_test", ["control/input", "core/tinyts",
         }
     };
 });
-System.register("application/ts/list_test", ["core/tinyts", "control/list"], function (exports_17, context_17) {
+System.register("utils/date", [], function (exports_17, context_17) {
     "use strict";
     var __moduleName = context_17 && context_17.id;
-    var tinyts_3, list_4, DataModel, ListModel, aa;
+    var TsDate;
+    return {
+        setters: [],
+        execute: function () {
+            TsDate = (function () {
+                function TsDate(dateString) {
+                    if (!dateString) {
+                        // 获取当前时间
+                        this.date = new Date();
+                        return this;
+                    }
+                    var D = new Date('2011-06-02T09:34:29+02:00');
+                    if (!D || +D !== 1307000069000) {
+                        //不支持ISO格式的js引擎
+                        var day, tz, rx = /^(\d{4}\-\d\d\-\d\d([tT ][\d:\.]*)?)([zZ]|([+\-])(\d\d):(\d\d))?$/, p = rx.exec(dateString) || [];
+                        if (p[1]) {
+                            day = p[1].split(/\D/);
+                            for (var i = 0, L = day.length; i < L; i++) {
+                                day[i] = parseInt(day[i], 10) || 0;
+                            }
+                            ;
+                            day[1] -= 1;
+                            day = new Date(Date.UTC.apply(Date, day));
+                            if (!day.getDate())
+                                this.date = null;
+                            if (p[5]) {
+                                tz = (parseInt(p[5], 10) * 60);
+                                if (p[6])
+                                    tz += parseInt(p[6], 10);
+                                if (p[4] == '+')
+                                    tz *= -1;
+                                if (tz)
+                                    day.setUTCMinutes(day.getUTCMinutes() + tz);
+                            }
+                            this.date = day;
+                        }
+                        this.date = null;
+                    }
+                    else {
+                        this.date = new Date(dateString);
+                    }
+                }
+                /**
+                 * fromISO 由ISO对象生成一个TsDate对象
+                 * @param s ISO格式的Date字符串
+                 * @return 若参数为空,返回null
+                 */
+                TsDate.fromISO = function (s) {
+                    var temp = new TsDate(s);
+                    if (!s) {
+                        temp.date = null;
+                    }
+                    return temp;
+                };
+                /**
+                 * Format 按照指定格式格式化Date String
+                 * @param fmt 月(M)、日(d)、小时(h)、分(m)、秒(s)、季度(q) 可以用 1-2 个占位符，年(y)可以用 1-4 个占位符，毫秒(S)只能用 1 个占位符(是 1-3 位的数字)
+                 */
+                TsDate.prototype.Format = function (fmt) {
+                    var o = {
+                        "M+": this.date.getMonth() + 1,
+                        "d+": this.date.getDate(),
+                        "h+": this.date.getHours(),
+                        "m+": this.date.getMinutes(),
+                        "s+": this.date.getSeconds(),
+                        "q+": Math.floor((this.date.getMonth() + 3) / 3),
+                        "S": this.date.getMilliseconds() //毫秒
+                    };
+                    if (/(y+)/.test(fmt))
+                        fmt = fmt.replace(RegExp.$1, (this.date.getFullYear() + "").substr(4 - RegExp.$1.length));
+                    for (var k in o)
+                        if (new RegExp("(" + k + ")").test(fmt))
+                            fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+                    return fmt;
+                };
+                return TsDate;
+            }());
+            exports_17("TsDate", TsDate);
+        }
+    };
+});
+System.register("application/ts/list_test", ["core/tinyts", "control/list"], function (exports_18, context_18) {
+    "use strict";
+    var __moduleName = context_18 && context_18.id;
+    var tinyts_3, list_3, DataModel, ListModel, aa;
     return {
         setters: [
             function (tinyts_3_1) {
                 tinyts_3 = tinyts_3_1;
             },
-            function (list_4_1) {
-                list_4 = list_4_1;
+            function (list_3_1) {
+                list_3 = list_3_1;
             }
         ],
         execute: function () {
             DataModel = (function () {
-                function DataModel(Id, Name, ListData) {
+                function DataModel(Id, Name, ListData, Date) {
                     this.Id = Id;
                     this.Name = Name;
                     this.ListData = ListData;
+                    this.Date = Date;
                 }
                 return DataModel;
             }());
@@ -1858,23 +2309,29 @@ System.register("application/ts/list_test", ["core/tinyts", "control/list"], fun
                 // }
                 ListModel.prototype.AfterInject = function () {
                     var data = [];
-                    data.push(new DataModel(2, "bbb", ["ccc", "dd"]));
+                    data.push(new DataModel(2, "bbb", ["ccc", "dd"], "2004-05-03T17:30:08+08:00"));
+                    console.log(data);
+                    this.mList.getTemplpateModel = function (data) {
+                        data.Id = 3;
+                        return data;
+                    };
                     this.mList.SetData(data);
+                    console.log(data);
                 };
                 return ListModel;
             }(tinyts_3.AncView));
             __decorate([
-                tinyts_3.v(list_4.ListView),
-                __metadata("design:type", list_4.ListView)
+                tinyts_3.v(list_3.ListView),
+                __metadata("design:type", list_3.ListView)
             ], ListModel.prototype, "mList", void 0);
-            exports_17("ListModel", ListModel);
+            exports_18("ListModel", ListModel);
             aa = new ListModel();
         }
     };
 });
-System.register("application/ts/service_test", ["core/tinyts", "application/service/user"], function (exports_18, context_18) {
+System.register("application/ts/service_test", ["core/tinyts", "application/service/user"], function (exports_19, context_19) {
     "use strict";
-    var __moduleName = context_18 && context_18.id;
+    var __moduleName = context_19 && context_19.id;
     var tinyts_4, user_1, ServiceTestModel, aa;
     return {
         setters: [
@@ -1900,14 +2357,14 @@ System.register("application/ts/service_test", ["core/tinyts", "application/serv
                 tinyts_4.s(user_1.UserService),
                 __metadata("design:type", user_1.UserService)
             ], ServiceTestModel.prototype, "userService", void 0);
-            exports_18("ServiceTestModel", ServiceTestModel);
+            exports_19("ServiceTestModel", ServiceTestModel);
             aa = new ServiceTestModel();
         }
     };
 });
-System.register("application/ts/validator_test", ["application/model/validator_test", "class-validator"], function (exports_19, context_19) {
+System.register("application/ts/validator_test", ["application/model/validator_test", "class-validator"], function (exports_20, context_20) {
     "use strict";
-    var __moduleName = context_19 && context_19.id;
+    var __moduleName = context_20 && context_20.id;
     var validator_test_2, class_validator_4, ValidatorTestModel, aa;
     return {
         setters: [
@@ -1936,15 +2393,15 @@ System.register("application/ts/validator_test", ["application/model/validator_t
                 }
                 return ValidatorTestModel;
             }());
-            exports_19("ValidatorTestModel", ValidatorTestModel);
+            exports_20("ValidatorTestModel", ValidatorTestModel);
             aa = new ValidatorTestModel();
         }
     };
 });
-System.register("application/ts/viewv_test", ["core/view", "core/tinyts", "control/button", "control/list"], function (exports_20, context_20) {
+System.register("application/ts/viewv_test", ["core/view", "core/tinyts", "control/button", "control/list"], function (exports_21, context_21) {
     "use strict";
-    var __moduleName = context_20 && context_20.id;
-    var view_6, tinyts_5, button_3, list_5, ViewVTest, ViewVTest2, ViewVModel, aa;
+    var __moduleName = context_21 && context_21.id;
+    var view_6, tinyts_5, button_3, list_4, ViewVTest, ViewVTest2, ViewVModel, aa;
     return {
         setters: [
             function (view_6_1) {
@@ -1956,8 +2413,8 @@ System.register("application/ts/viewv_test", ["core/view", "core/tinyts", "contr
             function (button_3_1) {
                 button_3 = button_3_1;
             },
-            function (list_5_1) {
-                list_5 = list_5_1;
+            function (list_4_1) {
+                list_4 = list_4_1;
             }
         ],
         execute: function () {
@@ -1993,10 +2450,10 @@ System.register("application/ts/viewv_test", ["core/view", "core/tinyts", "contr
                 return ViewVTest2;
             }(view_6.ViewV));
             __decorate([
-                tinyts_5.v(list_5.ListView),
-                __metadata("design:type", list_5.ListView)
+                tinyts_5.v(list_4.ListView),
+                __metadata("design:type", list_4.ListView)
             ], ViewVTest2.prototype, "list", void 0);
-            exports_20("ViewVTest2", ViewVTest2);
+            exports_21("ViewVTest2", ViewVTest2);
             ViewVModel = (function (_super) {
                 __extends(ViewVModel, _super);
                 function ViewVModel() {
@@ -2012,7 +2469,7 @@ System.register("application/ts/viewv_test", ["core/view", "core/tinyts", "contr
                 tinyts_5.v(ViewVTest2),
                 __metadata("design:type", ViewVTest2)
             ], ViewVModel.prototype, "c", void 0);
-            exports_20("ViewVModel", ViewVModel);
+            exports_21("ViewVModel", ViewVModel);
             aa = new ViewVModel();
         }
     };

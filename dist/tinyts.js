@@ -1247,7 +1247,7 @@ System.register("tinyts/control/list", ["tinyts/core/view", "tinyts/core/meta"],
                  * @param (仅多元素绑定时)元素索引
                 */
                 ListView.prototype.GetView = function (dataIndex, elemIndex) {
-                    var data = this.mData[dataIndex];
+                    var data = $.extend(true, {}, this.mData[dataIndex]);
                     if (this.getTemplpateModel) {
                         data = this.getTemplpateModel(data);
                     }

@@ -204,7 +204,8 @@ export class ListView<T> extends View {
      * @param (仅多元素绑定时)元素索引
 	*/
     GetView(dataIndex: number, elemIndex?: number): string {
-        var data = this.mData[dataIndex];
+        var data = $.extend(true, {}, this.mData[dataIndex]);
+
         if (this.getTemplpateModel) {
             data = this.getTemplpateModel(data);
         }
