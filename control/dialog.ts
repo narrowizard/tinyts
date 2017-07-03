@@ -33,7 +33,7 @@ export class Dialog extends View {
 
     Hide() {
         this.display = this.target.css("display");
-        if (!this.display) {
+        if (!this.display || this.display == "none") {
             this.display = "";
         }
         this.target.css("display", "none");

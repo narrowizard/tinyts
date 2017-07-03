@@ -1666,7 +1666,7 @@ System.register("tinyts/control/dialog", ["tinyts/core/view"], function (exports
                 };
                 Dialog.prototype.Hide = function () {
                     this.display = this.target.css("display");
-                    if (!this.display) {
+                    if (!this.display || this.display == "none") {
                         this.display = "";
                     }
                     this.target.css("display", "none");
