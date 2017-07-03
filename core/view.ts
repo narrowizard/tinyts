@@ -565,8 +565,6 @@ export class View {
                             }
                             instance[view.propertyName] = viewInstance;
                         }
-                        // views注入完成,根据views生成数据绑定树
-                        this.ResolveDataBinding(dataBindingExpressions);
                     }
                     // 注入服务
                     var services: serviceInjectModel[] = temp["services"];
@@ -579,6 +577,8 @@ export class View {
                 }
             }
         }
+        // views注入完成,根据views生成数据绑定树
+        this.ResolveDataBinding(dataBindingExpressions);
         this.AfterInject();
     }
 

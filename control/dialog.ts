@@ -31,6 +31,10 @@ export class Dialog extends View {
         return succ;
     }
 
+    /**
+     * Hide 隐藏Dialog
+     * 当target初始display状态是none,且定义在style样式表中时,无法正确Show
+     */
     Hide() {
         this.display = this.target.css("display");
         if (!this.display || this.display == "none") {
