@@ -688,12 +688,15 @@ System.register("tinyts/core/view", ["tinyts/core/http", "tinyts/core/servicepoo
                 View.prototype.Off = function (eventName) {
                     if (this.target != null) {
                         this.target.off(eventName);
-                        if (eventName) {
-                            this.eventList[eventName] = [];
-                        }
-                        else {
-                            this.eventList = {};
-                        }
+                    }
+                    if (!this.eventList) {
+                        return;
+                    }
+                    if (eventName) {
+                        this.eventList[eventName] = [];
+                    }
+                    else {
+                        this.eventList = {};
                     }
                 };
                 /**

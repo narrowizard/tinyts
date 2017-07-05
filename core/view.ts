@@ -417,11 +417,14 @@ export class View {
     Off(eventName?: string) {
         if (this.target != null) {
             this.target.off(eventName);
-            if (eventName) {
-                this.eventList[eventName] = [];
-            } else {
-                this.eventList = {};
-            }
+        }
+        if (!this.eventList) {
+            return;
+        }
+        if (eventName) {
+            this.eventList[eventName] = [];
+        } else {
+            this.eventList = {};
         }
     }
 
