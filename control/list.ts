@@ -253,6 +253,18 @@ export class ListView<T> extends View {
     }
 
     /**
+     * Traverse 遍历列表(需要保证GetChildren方法有效)
+     * @param handler 遍历函数,返回false表示停止遍历
+     */
+    Traverse(handler: (index: number, elem: Element) => boolean) {
+        this.GetChildren().each((index, elem) => {
+            if (!handler(index, elem)) {
+                return false;
+            };
+        });
+    }
+
+    /**
      * [override] ClearView 清空列表部分视图
      */
     ClearView() {

@@ -1296,6 +1296,18 @@ System.register("tinyts/control/list", ["tinyts/core/view", "tinyts/core/meta"],
                     return this.target.children();
                 };
                 /**
+                 * Traverse 遍历列表(需要保证GetChildren方法有效)
+                 * @param handler 遍历函数,返回false表示停止遍历
+                 */
+                ListView.prototype.Traverse = function (handler) {
+                    this.GetChildren().each(function (index, elem) {
+                        if (!handler(index, elem)) {
+                            return false;
+                        }
+                        ;
+                    });
+                };
+                /**
                  * [override] ClearView 清空列表部分视图
                  */
                 ListView.prototype.ClearView = function () {
