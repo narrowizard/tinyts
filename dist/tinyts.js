@@ -1162,6 +1162,18 @@ System.register("tinyts/control/list", ["tinyts/core/view", "tinyts/core/meta"],
                             this.viewString.push(this.getTemplateString(this.target));
                         }
                         this.ClearView();
+                        // 分页器
+                        var pagable = this.target.attr("data-pagable");
+                        if (pagable) {
+                            this.pageManager = new PageManager();
+                            this.pageManager.SetContext(this);
+                        }
+                        if (pagable == "sync") {
+                            this.pageManager.SetPageMode(PAGEMODE.SYNC);
+                        }
+                        else if (pagable == "async") {
+                            this.pageManager.SetPageMode(PAGEMODE.ASYNC);
+                        }
                     }
                     return succ;
                 };
