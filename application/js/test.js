@@ -748,12 +748,15 @@ System.register("core/view", ["core/http", "core/servicepool"], function (export
                 View.prototype.Off = function (eventName) {
                     if (this.target != null) {
                         this.target.off(eventName);
-                        if (eventName) {
-                            this.eventList[eventName] = [];
-                        }
-                        else {
-                            this.eventList = {};
-                        }
+                    }
+                    if (!this.eventList) {
+                        return;
+                    }
+                    if (eventName) {
+                        this.eventList[eventName] = [];
+                    }
+                    else {
+                        this.eventList = {};
                     }
                 };
                 /**
@@ -891,8 +894,6 @@ System.register("core/view", ["core/http", "core/servicepool"], function (export
                                         }
                                         instance[view.propertyName] = viewInstance;
                                     }
-                                    // views注入完成,根据views生成数据绑定树
-                                    this.ResolveDataBinding(dataBindingExpressions);
                                 }
                                 // 注入服务
                                 var services = temp["services"];
@@ -905,6 +906,8 @@ System.register("core/view", ["core/http", "core/servicepool"], function (export
                             }
                         }
                     }
+                    // views注入完成,根据views生成数据绑定树
+                    this.ResolveDataBinding(dataBindingExpressions);
                     this.AfterInject();
                 };
                 /**
@@ -1286,6 +1289,18 @@ System.register("control/list", ["core/view", "core/meta"], function (exports_10
                             this.viewString.push(this.getTemplateString(this.target));
                         }
                         this.ClearView();
+                        // 分页器
+                        var pagable = this.target.attr("data-pagable");
+                        if (pagable) {
+                            this.pageManager = new PageManager();
+                            this.pageManager.SetContext(this);
+                        }
+                        if (pagable == "sync") {
+                            this.pageManager.SetPageMode(PAGEMODE.SYNC);
+                        }
+                        else if (pagable == "async") {
+                            this.pageManager.SetPageMode(PAGEMODE.ASYNC);
+                        }
                     }
                     return succ;
                 };
@@ -1418,6 +1433,18 @@ System.register("control/list", ["core/view", "core/meta"], function (exports_10
                  */
                 ListView.prototype.GetChildren = function () {
                     return this.target.children();
+                };
+                /**
+                 * Traverse 遍历列表(需要保证GetChildren方法有效)
+                 * @param handler 遍历函数,返回false表示停止遍历
+                 */
+                ListView.prototype.Traverse = function (handler) {
+                    this.GetChildren().each(function (index, elem) {
+                        if (!handler(index, elem)) {
+                            return false;
+                        }
+                        ;
+                    });
                 };
                 /**
                  * [override] ClearView 清空列表部分视图
@@ -2317,6 +2344,15 @@ System.register("application/ts/list_test", ["core/tinyts", "control/list"], fun
                     };
                     this.mList.SetData(data);
                     console.log(data);
+                    var data1 = [28, 26, 25, 24, 23, 21, 20, 19, 18, 16];
+                    var data2 = [1, 2, 3, 4, 5, 6, 7, 8];
+                    debugger;
+                    var data3 = mx(data1).join(data2, function (it) { return it; }, function (it) { return it; }, function (a, b) {
+                        return {
+                            Id: a
+                        };
+                    }).toArray();
+                    console.log(data3);
                 };
                 return ListModel;
             }(tinyts_3.AncView));

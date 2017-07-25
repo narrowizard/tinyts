@@ -1,26 +1,13 @@
 // tinyts 项目编译配置
-// {
-//     "compilerOptions": {
-//         "emitDecoratorMetadata": true,
-//         "experimentalDecorators": true,
-//         "moduleResolution": "classic",
-//         "target": "es5",
-//         "module": "system",
-//         "outFile": "tinyts.js",
-//         "rootDir": ".."
-//     },
-//     "exclude": [
-//         "application",
-//         "node_modules"
-//     ]
-// }
 {
     "compilerOptions": {
         "emitDecoratorMetadata": true,
         "experimentalDecorators": true,
         "moduleResolution": "classic",
         "target": "es5",
-        "module": "commonjs"
+        "module": "system",
+        "outFile": "tinyts.js",
+        "rootDir": ".."
     },
     "exclude": [
         "application",

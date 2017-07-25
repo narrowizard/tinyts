@@ -1,6 +1,6 @@
 /*!
 * Multiplex.js - Comprehensive data-structure and LINQ library for JavaScript.
-* Version 2.0.0 (April 10, 2017)
+* Version 2.0.0 (July 25, 2017)
 
 * Created and maintained by Kamyar Nazeri <Kamyar.Nazeri@yahoo.com>
 * Licensed under MIT License
@@ -1522,7 +1522,7 @@ mixin(HashTable.prototype, {
             slot = null,
             bucket = 0;
 
-        this.buckets.length = newSize;          // expand buckets
+        this.buckets = new Array(newSize);      // expand buckets
         this.slots.length = newSize;            // expand slots
 
 
@@ -1532,8 +1532,8 @@ mixin(HashTable.prototype, {
 
             // freed slots have undefined hashCode value and do not need rehash
             if (slot.hash !== undefined) {
-                bucket = slot.hash % newSize;          // rehash
-                slot.next = this.buckets[bucket];      // update slot's next index in the bucket chain
+                bucket = slot.hash % newSize;           // rehash
+                slot.next = this.buckets[bucket];       // update slot's next index in the bucket chain
                 this.buckets[bucket] = index;           // update bucket index
             }
         }
@@ -2820,6 +2820,7 @@ function validateNode(node, list) {
 function Grouping(key, elements) {
     this.key = key;
     this.elements = elements;
+    Collection.call(this, elements);
 }
 
 extend(Grouping, Collection, {
@@ -2928,8 +2929,7 @@ mixin(LookupTable.prototype, {
             bucket = 0;
 
         this.slots.length = newSize;
-        this.buckets.length = newSize;
-
+        this.buckets = new Array(newSize);
 
         // rehash values & update buckets and slots
         for (var index = 0; index < size; index++) {
@@ -4802,7 +4802,7 @@ function groupIterator(source, keySelector, elementSelector, resultSelector, com
         return new Iterator(function () {
             if (!(next = it.next()).done) {
                 return {
-                    value: resultSelector ? resultSelector(next.value.key, next.value) : next.value,
+                    value: resultSelector ? resultSelector(next.value.key, new Iterable(next.value.elements)) : next.value,
                     done: false
                 };
             }
@@ -4852,8 +4852,13 @@ function joinIterator(outer, inner, outerKeySelector, innerKeySelector, resultSe
             next;
 
         return new Iterator(function () {
-            while (!(next = it.next()).done) {
+            while (true) {
                 if (elements === null) {
+                    if ((next = it.next()).done) {
+                        return {
+                            done: true
+                        };
+                    }
                     elements = lookup.get(outerKeySelector(next.value)).elements;
                 }
                 if (index < elements.length) {
@@ -4867,9 +4872,6 @@ function joinIterator(outer, inner, outerKeySelector, innerKeySelector, resultSe
                     elements = null;
                 }
             }
-            return {
-                done: true
-            };
         });
     });
 }
@@ -5570,7 +5572,7 @@ function linq(iterable) {
         * @returns {Iterable}
         */
         join: function (inner, outerKeySelector, innerKeySelector, resultSelector, comparer) {
-            return joinIterator(this, inner, outerKeySelector, innerKeySelector, comparer);
+            return joinIterator(this, inner, outerKeySelector, innerKeySelector, resultSelector, comparer);
         },
 
         /**

@@ -1,36 +1,24 @@
-export class UrlComparison {
-    Host: boolean;
-    Path: boolean;
-    Search: boolean;
-    Hash: boolean;
-    Complete: boolean;
-}
-
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var UrlComparison = (function () {
+    function UrlComparison() {
+    }
+    return UrlComparison;
+}());
+exports.UrlComparison = UrlComparison;
 /**
  * url parser 解析url地址
  */
-export class UrlParser {
-    //原始地址
-    url: string;
-    //解析结果
-    protocol: string;
-    host: string;
-    hostname: string;
-    port: string;
-    pathname: string;
-    segments: string[];
-    search: string;
-    searchObject: { [key: string]: string | any[] };
-    hash: string;
-
+var UrlParser = (function () {
+    function UrlParser() {
+    }
     /**
      * Parse 解析url
      */
-    Parse(url: string): UrlParser {
+    UrlParser.prototype.Parse = function (url) {
         this.url = url;
         this.searchObject = {};
-        var parser = document.createElement('a'),
-            queries, split, i;
+        var parser = document.createElement('a'), queries, split, i;
         // Let the browser do the work
         parser.href = this.url;
         // Convert query string to object
@@ -42,18 +30,18 @@ export class UrlParser {
                 var val = decodeURIComponent(split[1]);
                 if (this.searchObject[key]) {
                     if (Array.isArray(this.searchObject[key])) {
-                        (this.searchObject[key] as Array<any>).push(val);
+                        this.searchObject[key].push(val);
                     }
                     var temp = this.searchObject[key];
                     this.searchObject[key] = [];
-                    (this.searchObject[key] as Array<any>).push(temp);
-                    (this.searchObject[key] as Array<any>).push(val);
-                } else {
+                    this.searchObject[key].push(temp);
+                    this.searchObject[key].push(val);
+                }
+                else {
                     this.searchObject[key] = val;
                 }
             }
         }
-
         this.protocol = parser.protocol;
         this.host = parser.host;
         this.hostname = parser.hostname;
@@ -64,15 +52,14 @@ export class UrlParser {
         // 解析pathname
         this.segments = this.pathname.substr(1).split("/");
         return this;
-    }
-
+    };
     /**
      * 生成url
      */
-    Generate(): string {
+    UrlParser.prototype.Generate = function () {
         this.search = "?";
         for (var temp in this.searchObject) {
-            this.search += `${temp}=${this.searchObject[temp]}&`;
+            this.search += temp + "=" + this.searchObject[temp] + "&";
         }
         this.search = this.search.substr(0, this.search.length - 1);
         this.url = "";
@@ -81,13 +68,12 @@ export class UrlParser {
         }
         this.url += this.host + this.pathname + this.search + this.hash;
         return this.url;
-    }
-
+    };
     /**
      * CompareUrls 比较url,返回信息
      */
-    static CompareUrls(url1: string, url2: string): UrlComparison {
-        var temp: UrlComparison = new UrlComparison();
+    UrlParser.CompareUrls = function (url1, url2) {
+        var temp = new UrlComparison();
         var u1 = new UrlParser();
         var u2 = new UrlParser();
         u1.Parse(url1);
@@ -98,53 +84,44 @@ export class UrlParser {
         temp.Host = u1.host.toLowerCase() == u2.host.toLowerCase();
         if (temp.Hash && temp.Host && temp.Path && temp.Search) {
             temp.Complete = true;
-        } else {
+        }
+        else {
             temp.Complete = false;
         }
         return temp;
+    };
+    return UrlParser;
+}());
+exports.UrlParser = UrlParser;
+var HttpResponse = (function () {
+    function HttpResponse() {
     }
-}
-
-export class HttpResponse {
-    /**
-     * HttpStatus http 状态码
-     */
-    HttpStatus: number;
-
-    /**
-     * ResponseBody 返回值
-     */
-    ResponseBody: string;
-
-    /**
-     * jqXHR 包含异步请求response的所有信息
-     */
-    jqXHR: JQueryXHR;
-
-}
-
-export class HttpUtils {
-
+    return HttpResponse;
+}());
+exports.HttpResponse = HttpResponse;
+var HttpUtils = (function () {
+    function HttpUtils() {
+    }
     /**
      * Get 异步发送一个http get请求
      * @param url 请求url地址
      * @param params 请求参数
-     * @return 
+     * @return
      */
-    public static Get(url: string, params?: Object, otherOptions?: JQueryAjaxSettings): Promise<HttpResponse> {
-        return new Promise<HttpResponse>((resolve, reject) => {
-            var baseOptions: JQueryAjaxSettings = {
+    HttpUtils.Get = function (url, params, otherOptions) {
+        return new Promise(function (resolve, reject) {
+            var baseOptions = {
                 url: url,
                 type: "GET",
                 data: params,
-                success: (data: any, textStatus: string, jqXHR: JQueryXHR) => {
+                success: function (data, textStatus, jqXHR) {
                     var dd = new HttpResponse();
                     dd.ResponseBody = data;
                     dd.HttpStatus = jqXHR.status;
                     dd.jqXHR = jqXHR;
                     resolve(dd);
                 },
-                error: (jqXHR: JQueryXHR, textStatus: string, errorThrown: string) => {
+                error: function (jqXHR, textStatus, errorThrown) {
                     reject(jqXHR.status);
                 }
             };
@@ -153,28 +130,27 @@ export class HttpUtils {
             }
             $.ajax(baseOptions);
         });
-    }
-
+    };
     /**
      * Get 异步发送一个http post请求
      * @param url 请求url地址
      * @param params 请求参数
-     * @return 
+     * @return
      */
-    public static Post(url: string, params?: Object, otherOptions?: JQueryAjaxSettings): Promise<HttpResponse> {
-        return new Promise<HttpResponse>((resolve, reject) => {
-            var baseOptions: JQueryAjaxSettings = {
+    HttpUtils.Post = function (url, params, otherOptions) {
+        return new Promise(function (resolve, reject) {
+            var baseOptions = {
                 url: url,
                 type: "POST",
                 data: params,
-                success: (data: any, textStatus: string, jqXHR: JQueryXHR) => {
+                success: function (data, textStatus, jqXHR) {
                     var dd = new HttpResponse();
                     dd.ResponseBody = data;
                     dd.HttpStatus = jqXHR.status;
                     dd.jqXHR = jqXHR;
                     resolve(dd);
                 },
-                error: (jqXHR: JQueryXHR, textStatus: string, errorThrown: string) => {
+                error: function (jqXHR, textStatus, errorThrown) {
                     reject(jqXHR.status);
                 }
             };
@@ -183,62 +159,46 @@ export class HttpUtils {
             }
             $.ajax(baseOptions);
         });
-    }
-
-}
-
-class Router {
-
-    context: {
-        // url 改变
-        OnRouteChange: (url: string, data?: any) => void,
-        // 触发前进、后退事件
-        OnRoutePopState: (state: { url: string, data: any }) => void
     };
-
-    /**
-     * SetContext 设置上下文
-     * @param context.OnRouteSucc 路由完成回调
-     * @param context.OnRouteError 路由错误回调
-     */
-    SetContext(context: {
-        OnRouteChange: (url: string, data?: any) => void,
-        OnRoutePopState: (state: { url: string, data: any }) => void
-    }) {
-        this.context = context;
-    }
-
-    constructor() {
+    return HttpUtils;
+}());
+exports.HttpUtils = HttpUtils;
+var Router = (function () {
+    function Router() {
         var me = this;
-
         window.onpopstate = function (event) {
             var state = event.state;
             if (me.context) {
                 me.context.OnRoutePopState(state);
             }
-        }
+        };
     }
-
+    /**
+     * SetContext 设置上下文
+     * @param context.OnRouteSucc 路由完成回调
+     * @param context.OnRouteError 路由错误回调
+     */
+    Router.prototype.SetContext = function (context) {
+        this.context = context;
+    };
     /**
      * GoBack 返回上一页
      */
-    GoBack() {
+    Router.prototype.GoBack = function () {
         window.history.back();
-    }
-
+    };
     /**
-     * GoForward 前往下一页 
+     * GoForward 前往下一页
      */
-    GoForward() {
+    Router.prototype.GoForward = function () {
         window.history.forward();
-    }
-
+    };
     /**
      * GoTo 修改当前url为指定url,并触发context的OnRouteChange事件
      * @param url 指定url
      * @param data 可能存在的参数
      */
-    GoTo(url: string, data: any, param?: any) {
+    Router.prototype.GoTo = function (url, data, param) {
         //首先判断路由是否有变化,如果没有变化,则不作跳转
         var res = UrlParser.CompareUrls(window.location.href, url);
         if (res.Complete) {
@@ -252,14 +212,13 @@ class Router {
         if (me.context) {
             me.context.OnRouteChange(url, data);
         }
-    }
-
+    };
     /**
      * ReplaceCurrentState 修改当前router的状态(无历史记录)
      * @param url 指定的url
      * @param data 当前router的数据
      */
-    ReplaceCurrentState(url: string, data: any, param?: any) {
+    Router.prototype.ReplaceCurrentState = function (url, data, param) {
         var me = this;
         var stateData = { url: url, data: data, param: param };
         if (window.history.replaceState) {
@@ -268,12 +227,11 @@ class Router {
         if (me.context) {
             me.context.OnRouteChange(url, data);
         }
-    }
-
+    };
     /**
      * ReplaceCurrentStateWithParam 修改当前router的状态,并将data存储在url中
      */
-    ReplaceCurrentStateWithParam(url: string, data: any, changeRoute?: boolean) {
+    Router.prototype.ReplaceCurrentStateWithParam = function (url, data, changeRoute) {
         var me = this;
         // 将data添加到url中
         var xx = new UrlParser();
@@ -287,7 +245,7 @@ class Router {
         if (changeRoute && me.context) {
             me.context.OnRouteChange(url2, stateData);
         }
-    }
-}
-
-export var routerInstance = new Router();
+    };
+    return Router;
+}());
+exports.routerInstance = new Router();

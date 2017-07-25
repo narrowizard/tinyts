@@ -36,6 +36,15 @@ export class ListModel extends AncView {
         this.mList.SetData(data);
         console.log(data);
 
+        var data1 = [28, 26, 25, 24, 23, 21, 20, 19, 18, 16];
+
+        var data2 = [1, 2, 3, 4, 5, 6, 7, 8];
+        var data3 = mx(data1).join(data2, it => it, it => it, (a, b) => {
+            return {
+                Id: a
+            }
+        }).toArray();
+        console.log(data3);
     }
 
 }

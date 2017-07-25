@@ -41,7 +41,20 @@ System.register("tinyts/core/http", [], function (exports_1, context_1) {
                     for (i = 0; i < queries.length; i++) {
                         split = queries[i].split('=');
                         if (split[0] != "" && split[1]) {
-                            this.searchObject[split[0]] = decodeURIComponent(split[1]);
+                            var key = split[0];
+                            var val = decodeURIComponent(split[1]);
+                            if (this.searchObject[key]) {
+                                if (Array.isArray(this.searchObject[key])) {
+                                    this.searchObject[key].push(val);
+                                }
+                                var temp = this.searchObject[key];
+                                this.searchObject[key] = [];
+                                this.searchObject[key].push(temp);
+                                this.searchObject[key].push(val);
+                            }
+                            else {
+                                this.searchObject[key] = val;
+                            }
                         }
                     }
                     this.protocol = parser.protocol;
@@ -51,6 +64,8 @@ System.register("tinyts/core/http", [], function (exports_1, context_1) {
                     this.pathname = parser.pathname.indexOf("/") == 0 ? parser.pathname : "/" + parser.pathname;
                     this.search = parser.search;
                     this.hash = parser.hash;
+                    // 解析pathname
+                    this.segments = this.pathname.substr(1).split("/");
                     return this;
                 };
                 /**
