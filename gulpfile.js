@@ -48,6 +48,7 @@ gulp.task('test', function () {
     // test code
     gulp.src("dist/test/**/*.js", { read: false })
         .pipe(mocha({
-            require: "jsdom-global/register"
+            require: ["jsdom-global/register"],
+            reporter: "spec"
         }))
 });

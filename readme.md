@@ -1,5 +1,5 @@
 # tinyts2
-
+[![Build Status](https://travis-ci.org/narrowizard/tinyts.svg?branch=master)](https://travis-ci.org/narrowizard/tinyts)
 [![Coverage Status](https://coveralls.io/repos/github/narrowizard/tinyts/badge.svg?branch=master)](https://coveralls.io/github/narrowizard/tinyts?branch=master)
 
 ## target
