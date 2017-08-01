@@ -14,7 +14,6 @@ describe('Date', function () {
       assert.equal(date.date.getUTCHours(), 9);
       assert.equal(date.date.getUTCMinutes(), 30);
       assert.equal(date.date.getUTCSeconds(), 8);
-      assert.equal(date.date.getTimezoneOffset(), -8 * 60);
       assert.deepEqual(date.Format("yyyy-MM-dd hh:mm:ss"), "2004-05-03 17:30:08");
     });
   });

@@ -43,12 +43,3 @@ gulp.task('default', ['clean'], function () {
     gulp.start("test_compile");
     gulp.start("product");
 });
-
-gulp.task('test', function () {
-    // test code
-    gulp.src("dist/test/**/*.js", { read: false })
-        .pipe(mocha({
-            require: ["jsdom-global/register"],
-            reporter: "spec"
-        }))
-});

@@ -5,4 +5,5 @@ before_script:
   - npm install -g gulp-cli
 script: 
   - gulp
-  - mocha -r jsdom-global/register dist/test/test_runner.js
+  - nyc mocha -r jsdom-global/register dist/test/test_runner.js
+  - nyc report --reporter=text-lcov | coveralls
