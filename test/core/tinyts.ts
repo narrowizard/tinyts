@@ -1,0 +1,1 @@
+import { AncView } from '../../core/tinyts';

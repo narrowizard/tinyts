@@ -5,7 +5,14 @@ var modules = [
     "./core/http.js",
     "./core/servicepool.js",
     "./core/view.js",
-    "./utils/date.js"
+    "./core/tinyts.js",
+    "./utils/date.js",
+    "./control/dialog.js",
+    "./control/input.js",
+    "./control/list.js",
+    "./control/table.js",
+    "./control/text.js",
+    "./control/button.js"
 ];
 (function () {
     if (typeof exports === 'object' && typeof module !== 'undefined') {
