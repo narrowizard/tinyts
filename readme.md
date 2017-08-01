@@ -1,6 +1,9 @@
 # tinyts2
 [![Build Status](https://travis-ci.org/narrowizard/tinyts.svg?branch=master)](https://travis-ci.org/narrowizard/tinyts)
 [![Coverage Status](https://coveralls.io/repos/github/narrowizard/tinyts/badge.svg?branch=master)](https://coveralls.io/github/narrowizard/tinyts?branch=master)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+[![NPM](https://nodei.co/npm/tinyts.png)](https://nodei.co/npm/tinyts/)
 
 ## target
 es5

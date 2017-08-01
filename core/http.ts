@@ -43,11 +43,12 @@ export class UrlParser {
                 if (this.searchObject[key]) {
                     if (Array.isArray(this.searchObject[key])) {
                         (this.searchObject[key] as Array<any>).push(val);
+                    } else {
+                        var temp = this.searchObject[key];
+                        this.searchObject[key] = [];
+                        (this.searchObject[key] as Array<any>).push(temp);
+                        (this.searchObject[key] as Array<any>).push(val);
                     }
-                    var temp = this.searchObject[key];
-                    this.searchObject[key] = [];
-                    (this.searchObject[key] as Array<any>).push(temp);
-                    (this.searchObject[key] as Array<any>).push(val);
                 } else {
                     this.searchObject[key] = val;
                 }
@@ -77,9 +78,16 @@ export class UrlParser {
         this.search = this.search.substr(0, this.search.length - 1);
         this.url = "";
         if (this.protocol) {
+            if (!this.protocol.endsWith(":")) {
+                this.protocol += ":";
+            }
             this.url += this.protocol + "//";
         }
-        this.url += this.host + this.pathname + this.search + this.hash;
+        this.url += this.host;
+        if (!isNaN(+this.port)) {
+            this.url += ":" + this.port;
+        }
+        this.url += this.pathname + this.search + this.hash;
         return this.url;
     }
 

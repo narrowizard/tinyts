@@ -47,10 +47,12 @@ System.register("tinyts/core/http", [], function (exports_1, context_1) {
                                 if (Array.isArray(this.searchObject[key])) {
                                     this.searchObject[key].push(val);
                                 }
-                                var temp = this.searchObject[key];
-                                this.searchObject[key] = [];
-                                this.searchObject[key].push(temp);
-                                this.searchObject[key].push(val);
+                                else {
+                                    var temp = this.searchObject[key];
+                                    this.searchObject[key] = [];
+                                    this.searchObject[key].push(temp);
+                                    this.searchObject[key].push(val);
+                                }
                             }
                             else {
                                 this.searchObject[key] = val;
@@ -79,9 +81,16 @@ System.register("tinyts/core/http", [], function (exports_1, context_1) {
                     this.search = this.search.substr(0, this.search.length - 1);
                     this.url = "";
                     if (this.protocol) {
+                        if (!this.protocol.endsWith(":")) {
+                            this.protocol += ":";
+                        }
                         this.url += this.protocol + "//";
                     }
-                    this.url += this.host + this.pathname + this.search + this.hash;
+                    this.url += this.host;
+                    if (!isNaN(+this.port)) {
+                        this.url += ":" + this.port;
+                    }
+                    this.url += this.pathname + this.search + this.hash;
                     return this.url;
                 };
                 /**
@@ -2229,7 +2238,7 @@ System.register("tinyts/utils/date", [], function (exports_15, context_15) {
                 TsDate.fromISO = function (s) {
                     var temp = new TsDate(s);
                     if (!s) {
-                        temp.date = null;
+                        return null;
                     }
                     return temp;
                 };

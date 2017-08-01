@@ -46,7 +46,7 @@ var TsDate = (function () {
     TsDate.fromISO = function (s) {
         var temp = new TsDate(s);
         if (!s) {
-            temp.date = null;
+            return null;
         }
         return temp;
     };

@@ -44,7 +44,7 @@ export class TsDate {
     static fromISO(s: string): TsDate {
         var temp = new TsDate(s);
         if (!s) {
-            temp.date = null;
+            return null;
         }
         return temp;
     }
