@@ -13,18 +13,18 @@ var class_validator_1 = require("class-validator");
 var TestModel = (function () {
     function TestModel() {
     }
+    __decorate([
+        class_validator_1.Length(5, 10),
+        __metadata("design:type", String)
+    ], TestModel.prototype, "name", void 0);
+    __decorate([
+        class_validator_1.IsMobilePhone('zh-CN'),
+        __metadata("design:type", String)
+    ], TestModel.prototype, "phone", void 0);
+    __decorate([
+        class_validator_1.Length(1, 2),
+        __metadata("design:type", String)
+    ], TestModel.prototype, "subname", void 0);
     return TestModel;
 }());
-__decorate([
-    class_validator_1.Length(5, 10),
-    __metadata("design:type", String)
-], TestModel.prototype, "name", void 0);
-__decorate([
-    class_validator_1.IsMobilePhone('zh-CN'),
-    __metadata("design:type", String)
-], TestModel.prototype, "phone", void 0);
-__decorate([
-    class_validator_1.Length(1, 2),
-    __metadata("design:type", String)
-], TestModel.prototype, "subname", void 0);
 exports.TestModel = TestModel;

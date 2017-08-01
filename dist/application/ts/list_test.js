@@ -57,11 +57,11 @@ var ListModel = (function (_super) {
         }).toArray();
         console.log(data3);
     };
+    __decorate([
+        tinyts_1.v(list_1.ListView),
+        __metadata("design:type", list_1.ListView)
+    ], ListModel.prototype, "mList", void 0);
     return ListModel;
 }(tinyts_1.AncView));
-__decorate([
-    tinyts_1.v(list_1.ListView),
-    __metadata("design:type", list_1.ListView)
-], ListModel.prototype, "mList", void 0);
 exports.ListModel = ListModel;
 var aa = new ListModel();

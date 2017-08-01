@@ -30,27 +30,27 @@ var Name2Model = (function (_super) {
     function Name2Model() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
+    __decorate([
+        tinyts_1.v(input_1.InputView),
+        __metadata("design:type", input_1.InputView)
+    ], Name2Model.prototype, "Name2", void 0);
     return Name2Model;
 }(view_1.ViewG));
-__decorate([
-    tinyts_1.v(input_1.InputView),
-    __metadata("design:type", input_1.InputView)
-], Name2Model.prototype, "Name2", void 0);
 var SubModel = (function (_super) {
     __extends(SubModel, _super);
     function SubModel() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
+    __decorate([
+        tinyts_1.v(Name2Model),
+        __metadata("design:type", Name2Model)
+    ], SubModel.prototype, "aaa", void 0);
+    __decorate([
+        tinyts_1.v(input_1.InputView),
+        __metadata("design:type", input_1.InputView)
+    ], SubModel.prototype, "sSubName", void 0);
     return SubModel;
 }(view_1.ViewG));
-__decorate([
-    tinyts_1.v(Name2Model),
-    __metadata("design:type", Name2Model)
-], SubModel.prototype, "aaa", void 0);
-__decorate([
-    tinyts_1.v(input_1.InputView),
-    __metadata("design:type", input_1.InputView)
-], SubModel.prototype, "sSubName", void 0);
 var InjectorTestModel = (function (_super) {
     __extends(InjectorTestModel, _super);
     function InjectorTestModel() {
@@ -66,23 +66,23 @@ var InjectorTestModel = (function (_super) {
             });
         });
     };
+    __decorate([
+        tinyts_1.v(input_1.InputView),
+        __metadata("design:type", input_1.InputView)
+    ], InjectorTestModel.prototype, "sName", void 0);
+    __decorate([
+        tinyts_1.v(input_1.InputView),
+        __metadata("design:type", input_1.InputView)
+    ], InjectorTestModel.prototype, "sPhone", void 0);
+    __decorate([
+        tinyts_1.v(button_1.Button),
+        __metadata("design:type", button_1.Button)
+    ], InjectorTestModel.prototype, "btnInject", void 0);
+    __decorate([
+        tinyts_1.v(SubModel),
+        __metadata("design:type", SubModel)
+    ], InjectorTestModel.prototype, "sub", void 0);
     return InjectorTestModel;
 }(tinyts_1.AncView));
-__decorate([
-    tinyts_1.v(input_1.InputView),
-    __metadata("design:type", input_1.InputView)
-], InjectorTestModel.prototype, "sName", void 0);
-__decorate([
-    tinyts_1.v(input_1.InputView),
-    __metadata("design:type", input_1.InputView)
-], InjectorTestModel.prototype, "sPhone", void 0);
-__decorate([
-    tinyts_1.v(button_1.Button),
-    __metadata("design:type", button_1.Button)
-], InjectorTestModel.prototype, "btnInject", void 0);
-__decorate([
-    tinyts_1.v(SubModel),
-    __metadata("design:type", SubModel)
-], InjectorTestModel.prototype, "sub", void 0);
 exports.InjectorTestModel = InjectorTestModel;
 var aa = new InjectorTestModel();

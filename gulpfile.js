@@ -14,10 +14,10 @@ gulp.task('product', function () {
         "model/*.ts",
         "utils/*.ts",
     ]).pipe(tsProject(ts.reporter.nullReporter()))
-        .pipe(gulp.dest("dist"))
+        .pipe(gulp.dest("build"))
         .pipe(uglify({ mangle: false }))
         .pipe(rename("tinyts.min.js"))
-        .pipe(gulp.dest("dist"));
+        .pipe(gulp.dest("build"));
 });
 
 gulp.task('test_compile', function () {

@@ -1,6 +1,6 @@
-require('blanket')({
-    pattern: "/dist/"
-});
+// require('blanket')({
+//     pattern: "core"
+// });
 var modules = [
     "./core/http.js",
     "./core/servicepool.js",

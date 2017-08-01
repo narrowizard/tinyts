@@ -1,6 +1,6 @@
-require('blanket')({
-    pattern: "core"
-});
+// require('blanket')({
+//     pattern: "core"
+// });
 
 var modules = [
     "./core/http.js",

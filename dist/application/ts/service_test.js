@@ -29,11 +29,11 @@ var ServiceTestModel = (function (_super) {
     ServiceTestModel.prototype.AfterInject = function () {
         console.log(this.userService.GetUserInfo());
     };
+    __decorate([
+        tinyts_1.s(user_1.UserService),
+        __metadata("design:type", user_1.UserService)
+    ], ServiceTestModel.prototype, "userService", void 0);
     return ServiceTestModel;
 }(tinyts_1.AncView));
-__decorate([
-    tinyts_1.s(user_1.UserService),
-    __metadata("design:type", user_1.UserService)
-], ServiceTestModel.prototype, "userService", void 0);
 exports.ServiceTestModel = ServiceTestModel;
 var aa = new ServiceTestModel();

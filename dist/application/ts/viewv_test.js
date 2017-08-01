@@ -33,15 +33,15 @@ var ViewVTest = (function (_super) {
     ViewVTest.prototype.AfterInject = function () {
         this.btnClick.SetText("消失");
     };
+    __decorate([
+        tinyts_1.v(button_1.Button),
+        __metadata("design:type", button_1.Button)
+    ], ViewVTest.prototype, "btnClick", void 0);
+    ViewVTest = __decorate([
+        tinyts_1.f("viewv_v.html")
+    ], ViewVTest);
     return ViewVTest;
 }(view_1.ViewV));
-__decorate([
-    tinyts_1.v(button_1.Button),
-    __metadata("design:type", button_1.Button)
-], ViewVTest.prototype, "btnClick", void 0);
-ViewVTest = __decorate([
-    tinyts_1.f("viewv_v.html")
-], ViewVTest);
 var ViewVTest2 = (function (_super) {
     __extends(ViewVTest2, _super);
     function ViewVTest2() {
@@ -52,27 +52,27 @@ var ViewVTest2 = (function (_super) {
     ViewVTest2.prototype.AfterInject = function () {
         console.log(this.list.PropertyName());
     };
+    __decorate([
+        tinyts_1.v(list_1.ListView),
+        __metadata("design:type", list_1.ListView)
+    ], ViewVTest2.prototype, "list", void 0);
     return ViewVTest2;
 }(view_1.ViewV));
-__decorate([
-    tinyts_1.v(list_1.ListView),
-    __metadata("design:type", list_1.ListView)
-], ViewVTest2.prototype, "list", void 0);
 exports.ViewVTest2 = ViewVTest2;
 var ViewVModel = (function (_super) {
     __extends(ViewVModel, _super);
     function ViewVModel() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
+    __decorate([
+        tinyts_1.v(ViewVTest),
+        __metadata("design:type", ViewVTest)
+    ], ViewVModel.prototype, "v", void 0);
+    __decorate([
+        tinyts_1.v(ViewVTest2),
+        __metadata("design:type", ViewVTest2)
+    ], ViewVModel.prototype, "c", void 0);
     return ViewVModel;
 }(tinyts_1.AncView));
-__decorate([
-    tinyts_1.v(ViewVTest),
-    __metadata("design:type", ViewVTest)
-], ViewVModel.prototype, "v", void 0);
-__decorate([
-    tinyts_1.v(ViewVTest2),
-    __metadata("design:type", ViewVTest2)
-], ViewVModel.prototype, "c", void 0);
 exports.ViewVModel = ViewVModel;
 var aa = new ViewVModel();

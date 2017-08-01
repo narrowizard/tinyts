@@ -36,12 +36,12 @@ var DataModel = (function () {
 var ObjectModel = (function () {
     function ObjectModel() {
     }
+    __decorate([
+        class_validator_1.Length(0, 2),
+        __metadata("design:type", String)
+    ], ObjectModel.prototype, "name", void 0);
     return ObjectModel;
 }());
-__decorate([
-    class_validator_1.Length(0, 2),
-    __metadata("design:type", String)
-], ObjectModel.prototype, "name", void 0);
 var BindTestModel = (function (_super) {
     __extends(BindTestModel, _super);
     function BindTestModel() {
@@ -68,35 +68,35 @@ var BindTestModel = (function (_super) {
             });
         });
     };
+    __decorate([
+        tinyts_1.v(input_1.InputView),
+        __metadata("design:type", input_1.InputView)
+    ], BindTestModel.prototype, "sName", void 0);
+    __decorate([
+        tinyts_1.v(input_1.InputView),
+        __metadata("design:type", input_1.InputView)
+    ], BindTestModel.prototype, "sPhone", void 0);
+    __decorate([
+        tinyts_1.v(input_1.InputView),
+        __metadata("design:type", input_1.InputView)
+    ], BindTestModel.prototype, "sSubName", void 0);
+    __decorate([
+        tinyts_1.v(input_1.InputView),
+        __metadata("design:type", input_1.InputView)
+    ], BindTestModel.prototype, "sInput", void 0);
+    __decorate([
+        tinyts_1.v(text_1.TextView),
+        __metadata("design:type", text_1.TextView)
+    ], BindTestModel.prototype, "oInput", void 0);
+    __decorate([
+        tinyts_1.v(button_1.Button),
+        __metadata("design:type", button_1.Button)
+    ], BindTestModel.prototype, "btnInject", void 0);
+    __decorate([
+        tinyts_1.v(list_1.ListView),
+        __metadata("design:type", list_1.ListView)
+    ], BindTestModel.prototype, "mList", void 0);
     return BindTestModel;
 }(tinyts_1.AncView));
-__decorate([
-    tinyts_1.v(input_1.InputView),
-    __metadata("design:type", input_1.InputView)
-], BindTestModel.prototype, "sName", void 0);
-__decorate([
-    tinyts_1.v(input_1.InputView),
-    __metadata("design:type", input_1.InputView)
-], BindTestModel.prototype, "sPhone", void 0);
-__decorate([
-    tinyts_1.v(input_1.InputView),
-    __metadata("design:type", input_1.InputView)
-], BindTestModel.prototype, "sSubName", void 0);
-__decorate([
-    tinyts_1.v(input_1.InputView),
-    __metadata("design:type", input_1.InputView)
-], BindTestModel.prototype, "sInput", void 0);
-__decorate([
-    tinyts_1.v(text_1.TextView),
-    __metadata("design:type", text_1.TextView)
-], BindTestModel.prototype, "oInput", void 0);
-__decorate([
-    tinyts_1.v(button_1.Button),
-    __metadata("design:type", button_1.Button)
-], BindTestModel.prototype, "btnInject", void 0);
-__decorate([
-    tinyts_1.v(list_1.ListView),
-    __metadata("design:type", list_1.ListView)
-], BindTestModel.prototype, "mList", void 0);
 exports.BindTestModel = BindTestModel;
 var aa = new BindTestModel();
