@@ -5,4 +5,4 @@ before_script:
   - npm install -g gulp-cli
 script: 
   - gulp
-  - gulp test
+  - mocha -r jsdom-global/register dist/test/test_runner.js
