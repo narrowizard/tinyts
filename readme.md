@@ -1,4 +1,7 @@
 # tinyts2
+
+[![Coverage Status](https://coveralls.io/repos/github/narrowizard/tinyts/badge.svg?branch=master)](https://coveralls.io/github/narrowizard/tinyts?branch=master)
+
 ## target
 es5
 

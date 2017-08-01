@@ -3,8 +3,9 @@ var ts = require('gulp-typescript');
 var uglify = require('gulp-uglify');
 var rename = require('gulp-rename');
 var mocha = require('gulp-mocha');
+var clean = require('gulp-clean');
 
-gulp.task('compile', function () {
+gulp.task('product', function () {
     var tsProject = ts.createProject('tsconfig1.json');
     // compile to single file.
     gulp.src([
@@ -12,12 +13,14 @@ gulp.task('compile', function () {
         "core/*.ts",
         "model/*.ts",
         "utils/*.ts",
-    ]).pipe(tsProject())
+    ]).pipe(tsProject(ts.reporter.nullReporter()))
         .pipe(gulp.dest("dist"))
         .pipe(uglify({ mangle: false }))
         .pipe(rename("tinyts.min.js"))
         .pipe(gulp.dest("dist"));
+});
 
+gulp.task('test_compile', function () {
     // compile to files
     gulp.src([
         "**/*.ts",
@@ -28,17 +31,23 @@ gulp.task('compile', function () {
         moduleResolution: "classic",
         target: "es5",
         module: "commonjs"
-    })).pipe(gulp.dest("dist"));
-
+    }, ts.reporter.nullReporter())).pipe(gulp.dest("dist"));
 });
 
-gulp.task('test', ['compile'], function () {
+gulp.task('clean', function () {
+    gulp.src('dist', { read: false })
+        .pipe(clean());
+})
+
+gulp.task('default', ['clean'], function () {
+    gulp.start("test_compile");
+    gulp.start("product");
+});
+
+gulp.task('test', function () {
     // test code
     gulp.src("dist/test/**/*.js", { read: false })
         .pipe(mocha({
-            reporter: "nyan",
             require: "jsdom-global/register"
         }))
 });
-
-gulp.task('default', ['test']);

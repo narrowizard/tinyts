@@ -274,7 +274,9 @@ var View = (function () {
             }
         }
         else {
+            this.state = ViewState.LOADFAIL;
             console.warn("[view]" + this.name + " has not set selector!");
+            return false;
         }
         var matchedElementLength = this.target.length;
         if (matchedElementLength > 0) {
