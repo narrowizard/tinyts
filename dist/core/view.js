@@ -219,12 +219,15 @@ var View = (function () {
      * Name 返回当前视图在viewmodel的属性名
      */
     View.prototype.Name = function () {
-        return name;
+        return this.name;
     };
     /**
      * IsMultiparted 返回当前视图是否绑定多个元素
      */
     View.prototype.IsMultiparted = function () {
+        if (!this.multipart) {
+            return false;
+        }
         return this.multipart;
     };
     /**

@@ -253,13 +253,16 @@ export class View {
      * Name 返回当前视图在viewmodel的属性名
      */
     Name(): string {
-        return name;
+        return this.name;
     }
 
     /**
      * IsMultiparted 返回当前视图是否绑定多个元素
      */
     IsMultiparted() {
+        if (!this.multipart) {
+            return false;
+        }
         return this.multipart;
     }
 
