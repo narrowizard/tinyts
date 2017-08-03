@@ -299,6 +299,9 @@ export class View {
      * @param parent JQuery对象或选择器 父元素,若指定该参数,则元素查找范围限制在父元素内
      */
     LoadView(parent?: JQuery | string): boolean {
+        if (this.state != undefined && this.state != ViewState.UNLOAD) {
+            console.warn("it's deprecated to call loadview twice!");
+        }
         // 优先使用selector绑定元素
         if (this.selector) {
             if (parent) {

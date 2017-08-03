@@ -26,7 +26,7 @@
   },
   "scripts": {
     "build": "gulp",
-    "test": "mocha -r jsdom-global/register dist/test/test_runner.js"
+    "test": "mocha dist/test/test_runner.js"
   },
   "repository": {
     "type": "git",

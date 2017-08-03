@@ -1,6 +1,10 @@
 // require('blanket')({
 //     pattern: "core"
 // });
+var jsdom = require('jsdom').JSDOM;
+var dom = new jsdom();
+global.window = dom.window;
+global.document = dom.window.document;
 var modules = [
     "./core/http.js",
     "./core/servicepool.js",
