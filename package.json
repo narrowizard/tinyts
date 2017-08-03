@@ -21,12 +21,14 @@
     "jsdom-global": "3.0.2",
     "mocha": "^3.5.0",
     "mocha-jsdom": "^1.1.0",
+    "multiplexjs": "^1.0.0",
     "nyc": "^11.1.0",
+    "request": "^2.81.0",
     "typescript": "^2.4.2"
   },
   "scripts": {
     "build": "gulp",
-    "test": "mocha dist/test/test_runner.js"
+    "test": "mocha -r jsdom-global/register dist/test/test_runner.js"
   },
   "repository": {
     "type": "git",
