@@ -47,5 +47,13 @@
     "travis-cov": {
       "threshold": 70
     }
+  },
+  "nyc": {
+    "include": [
+      "dist/control/**",
+      "dist/core/**",
+      "dist/model/**",
+      "dist/utils/**"
+    ]
   }
 }
