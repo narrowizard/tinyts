@@ -2,3 +2,4 @@
 libs/* linguist-vendored
 dist/* linguist-vendored
 build/* linguist-vendored
+application/* linguist-vendored
