@@ -88,7 +88,7 @@ export class ListView<T> extends View {
     /**
      * GetTemplpateModel 可以设置该方法来对data进行渲染前预处理
      */
-    getTemplpateModel: (data: T) => T;
+    getTemplpateModel: (data: T, index: number) => T;
 
     LoadView(parent?: string | JQuery): boolean {
         var succ = super.LoadView(parent);
@@ -219,7 +219,7 @@ export class ListView<T> extends View {
         var data = $.extend(true, {}, this.mData[dataIndex]);
 
         if (this.getTemplpateModel) {
-            data = this.getTemplpateModel(data);
+            data = this.getTemplpateModel(data, dataIndex);
         }
         if (elemIndex == null) {
             elemIndex = 0;

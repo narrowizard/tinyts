@@ -1,10 +1,9 @@
-// require('blanket')({
-//     pattern: "core"
-// });
 var jsdom = require('jsdom').JSDOM;
-var dom = new jsdom();
+var mx = require('../../libs/multiplex');
+var dom = new jsdom("<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <meta http-equiv=\"X-UA-Compatible\" content=\"ie=edge\">\n    <title>Document</title>\n</head>\n<body>\n    <div id=\"testor\" data-property=\"Name\"></div>\n    <div id=\"testor2\" data-property=\"Name\">\n        <div id=\"testor3\"></div>\n    </div>\n    <div class=\"multi\"></div>\n    <div class=\"multi\"></div>\n    <input type=\"text\" id=\"mInput\" data-bind=\"model.name\" />\n    <p id=\"mOutput\" data-bind=\"model.name:tov\"></p>\n</body>\n</html>");
 global.window = dom.window;
 global.document = dom.window.document;
+global.mx = mx;
 var modules = [
     "./core/http.js",
     "./core/servicepool.js",

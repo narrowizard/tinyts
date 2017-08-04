@@ -1,23 +1,6 @@
 import { View } from '../../core/view';
 
 var assert = require('assert');
-var jsdom = require('jsdom').JSDOM;
-
-var dom = new jsdom(`<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
-</head>
-<body>
-    <div id="testor" data-property="Name"></div>
-</body>
-</html>`);
-
-global.window = dom.window;
-global.document = dom.window.document;
 
 describe('Core', function () {
 
@@ -47,8 +30,16 @@ describe('Core', function () {
             assert.equal(v.Name(), undefined);
             v.SetName("test_name");
             assert.deepEqual(v.Name(), "test_name");
-
+            // view's value return name
+            assert.deepEqual(v.Value(), "test_name");
             assert.deepEqual(v.PropertyName(), "Name");
+        });
+
+        it('parent, multipart binding', function () {
+            var v = new View();
+            v.SetSelector(".multi");
+            assert.equal(v.LoadView("body"), true);
+            assert.equal(v.IsMultiparted(), true);
         });
     });
 
@@ -56,12 +47,27 @@ describe('Core', function () {
 
         it('add class, remove class, has class', function () {
             var v = new View();
-            v.SetSelector("#testor");
+            v.SetSelector("#testor2");
             v.LoadView();
+
+            // child
+            var v2 = new View();
+            v2.SetSelector("#testor3");
+            v2.LoadView();
+            v.AddClass("new-class", "#testor3");
+            assert.equal(v.HasClass('new-class'), false);
+            assert.equal(v2.HasClass('new-class'), true);
+            v.RemoveClass("new-class", "#testor3");
+            assert.equal(v.HasClass('new-class'), false);
+            assert.equal(v2.HasClass('new-class'), false);
+
             v.AddClass("new-class");
             assert.equal(v.HasClass('new-class'), true);
+            assert.equal(v2.HasClass('new-class'), false);
             v.RemoveClass('new-class');
             assert.equal(v.HasClass('new-class'), false);
+            assert.equal(v2.HasClass('new-class'), false);
+
         });
 
         it('set attr, attr, disable, enable', function () {

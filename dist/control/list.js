@@ -216,7 +216,7 @@ var ListView = (function (_super) {
     ListView.prototype.GetView = function (dataIndex, elemIndex) {
         var data = $.extend(true, {}, this.mData[dataIndex]);
         if (this.getTemplpateModel) {
-            data = this.getTemplpateModel(data);
+            data = this.getTemplpateModel(data, dataIndex);
         }
         if (elemIndex == null) {
             elemIndex = 0;

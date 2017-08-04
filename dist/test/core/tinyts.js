@@ -24,12 +24,6 @@ var view_1 = require("../../core/view");
 var input_1 = require("../../control/input");
 var text_1 = require("../../control/text");
 var assert = require('assert');
-var jsdom = require('jsdom').JSDOM;
-var mx = require('../../../libs/multiplex');
-var dom = new jsdom("<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <meta http-equiv=\"X-UA-Compatible\" content=\"ie=edge\">\n    <title>Document</title>\n</head>\n<body>\n    <div id=\"testor\" data-property=\"Name\"></div>\n    <input type=\"text\" id=\"mInput\" data-bind=\"model.name\" />\n    <p id=\"mOutput\" data-bind=\"model.name:tov\"></p>\n</body>\n</html>");
-global.window = dom.window;
-global.document = dom.window.document;
-global.mx = mx;
 var AnyService = (function () {
     function AnyService() {
     }
