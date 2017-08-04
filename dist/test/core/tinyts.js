@@ -32,6 +32,19 @@ var AnyService = (function () {
     };
     return AnyService;
 }());
+var ViewVTest = (function (_super) {
+    __extends(ViewVTest, _super);
+    function ViewVTest() {
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.viewString = "<p id=\"mNewPage\"></p>";
+        return _this;
+    }
+    __decorate([
+        tinyts_1.v(text_1.TextView),
+        __metadata("design:type", text_1.TextView)
+    ], ViewVTest.prototype, "mNewPage", void 0);
+    return ViewVTest;
+}(view_1.ViewV));
 var TestView = (function (_super) {
     __extends(TestView, _super);
     function TestView() {
@@ -51,6 +64,10 @@ var TestView = (function (_super) {
         tinyts_1.v(text_1.TextView),
         __metadata("design:type", text_1.TextView)
     ], TestView.prototype, "mOutput", void 0);
+    __decorate([
+        tinyts_1.v(ViewVTest),
+        __metadata("design:type", ViewVTest)
+    ], TestView.prototype, "mViewV", void 0);
     __decorate([
         tinyts_1.s(AnyService),
         __metadata("design:type", AnyService)
@@ -73,5 +90,13 @@ describe("Tinyts", function () {
         assert.deepEqual(instance.model.name, "John");
         // not support 
         // assert.deepEqual(instance.mOutput.Value(), "John");
+    });
+    it('viewv injector', function () {
+        var instance = new TestView();
+        assert.notEqual(instance.mViewV, null);
+        // viewv use promise to set view string
+        setTimeout(function () {
+            assert.notEqual(instance.mViewV.mNewPage, null);
+        }, 1000);
     });
 });

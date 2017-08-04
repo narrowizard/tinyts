@@ -10,14 +10,17 @@ var dom = new jsdom(`<!DOCTYPE html>
     <title>Document</title>
 </head>
 <body>
-    <div id="testor" data-property="Name"></div>
-    <div id="testor2" data-property="Name">
-        <div id="testor3"></div>
+    <div id="TestView" style="display:none">
+        <div id="testor" data-property="Name"></div>
+        <div id="testor2" data-property="Name">
+            <div id="testor3"></div>
+        </div>
+        <div class="multi"></div>
+        <div class="multi"></div>
+        <input type="text" id="mInput" data-bind="model.name" />
+        <p id="mOutput" data-bind="model.name:tov"></p>
+        <div id="mViewV"></div>
     </div>
-    <div class="multi"></div>
-    <div class="multi"></div>
-    <input type="text" id="mInput" data-bind="model.name" />
-    <p id="mOutput" data-bind="model.name:tov"></p>
 </body>
 </html>`);
 
