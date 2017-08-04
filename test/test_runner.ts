@@ -1,5 +1,6 @@
 var jsdom = require('jsdom').JSDOM;
 var mx = require('../../libs/multiplex');
+var Mustache = require('../../libs/mustache');
 
 var dom = new jsdom(`<!DOCTYPE html>
 <html lang="en">
@@ -20,6 +21,12 @@ var dom = new jsdom(`<!DOCTYPE html>
         <input type="text" id="mInput" data-bind="model.name" />
         <p id="mOutput" data-bind="model.name:tov"></p>
         <div id="mViewV"></div>
+        <p id="mTextView"></p>
+        <input type="text" id="mInputView" data-accept-button="#mButton" />
+        <button type="button" id="mButton"></button>
+        <ul id="mListView">
+            <li data-id="{{Id}}">{{Name}}</li>
+        </ul>
     </div>
 </body>
 </html>`);
@@ -27,6 +34,7 @@ var dom = new jsdom(`<!DOCTYPE html>
 global.window = dom.window;
 global.document = dom.window.document;
 global.mx = mx;
+global.Mustache = Mustache;
 
 var modules = [
     "./core/http.js",

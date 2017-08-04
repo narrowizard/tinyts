@@ -10,7 +10,7 @@ export class InputView extends TextView {
 
     protected acceptBtn: JQuery;
 
-    LoadView(parent) {
+    LoadView(parent?) {
         var succ = super.LoadView(parent);
         if (succ) {
             var acceptSelector = this.target.attr("data-accept-button");
@@ -34,10 +34,10 @@ export class InputView extends TextView {
 
     /**
      * SetAcceptButton 设置默认按钮
-     * @param id 默认按钮的选择器
+     * @param selector 默认按钮的选择器
      * @param btn 默认按钮(Button对象)
      */
-    SetAcceptButton(id: string);
+    SetAcceptButton(selector: string);
     SetAcceptButton(btn: Button);
     SetAcceptButton(p: any) {
         if (typeof p == "string") {
