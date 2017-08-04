@@ -101,7 +101,22 @@ System.register("core/http", [], function (exports_3, context_3) {
                     for (i = 0; i < queries.length; i++) {
                         split = queries[i].split('=');
                         if (split[0] != "" && split[1]) {
-                            this.searchObject[split[0]] = decodeURIComponent(split[1]);
+                            var key = split[0];
+                            var val = decodeURIComponent(split[1]);
+                            if (this.searchObject[key]) {
+                                if (Array.isArray(this.searchObject[key])) {
+                                    this.searchObject[key].push(val);
+                                }
+                                else {
+                                    var temp = this.searchObject[key];
+                                    this.searchObject[key] = [];
+                                    this.searchObject[key].push(temp);
+                                    this.searchObject[key].push(val);
+                                }
+                            }
+                            else {
+                                this.searchObject[key] = val;
+                            }
                         }
                     }
                     this.protocol = parser.protocol;
@@ -111,6 +126,8 @@ System.register("core/http", [], function (exports_3, context_3) {
                     this.pathname = parser.pathname.indexOf("/") == 0 ? parser.pathname : "/" + parser.pathname;
                     this.search = parser.search;
                     this.hash = parser.hash;
+                    // 解析pathname
+                    this.segments = this.pathname.substr(1).split("/");
                     return this;
                 };
                 /**
@@ -124,9 +141,16 @@ System.register("core/http", [], function (exports_3, context_3) {
                     this.search = this.search.substr(0, this.search.length - 1);
                     this.url = "";
                     if (this.protocol) {
+                        if (!this.protocol.endsWith(":")) {
+                            this.protocol += ":";
+                        }
                         this.url += this.protocol + "//";
                     }
-                    this.url += this.host + this.pathname + this.search + this.hash;
+                    this.url += this.host;
+                    if (!isNaN(+this.port)) {
+                        this.url += ":" + this.port;
+                    }
+                    this.url += this.pathname + this.search + this.hash;
                     return this.url;
                 };
                 /**
@@ -512,10 +536,21 @@ System.register("core/view", ["core/http", "core/servicepool"], function (export
                         for (var i = 0; i < this.Views.length; i++) {
                             var temp_view = this.Views[i];
                             if (temp_view.ViewInstance && temp_view.Type == BindType.OVONIC || temp_view.Type == BindType.VIEWTOMODEL) {
-                                var element = temp_view.ViewInstance.GetJQueryInstance().context;
+                                var element = temp_view.ViewInstance.GetJQueryInstance()[0];
                                 if (element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement) {
-                                    temp_view.ViewInstance.On("compositionend", function () {
+                                    var lock = false;
+                                    temp_view.ViewInstance.On("compositionstart", function () {
+                                        lock = true;
                                         temp[_this.Expression] = _this.Views[i].ViewInstance.Value();
+                                    });
+                                    temp_view.ViewInstance.On("compositionend", function () {
+                                        lock = false;
+                                        temp[_this.Expression] = _this.Views[i].ViewInstance.Value();
+                                    });
+                                    temp_view.ViewInstance.On("input", function () {
+                                        if (!lock) {
+                                            temp[_this.Expression] = _this.Views[i].ViewInstance.Value();
+                                        }
                                     });
                                     break;
                                 }
@@ -583,12 +618,15 @@ System.register("core/view", ["core/http", "core/servicepool"], function (export
                  * Name 返回当前视图在viewmodel的属性名
                  */
                 View.prototype.Name = function () {
-                    return name;
+                    return this.name;
                 };
                 /**
                  * IsMultiparted 返回当前视图是否绑定多个元素
                  */
                 View.prototype.IsMultiparted = function () {
+                    if (!this.multipart) {
+                        return false;
+                    }
                     return this.multipart;
                 };
                 /**
@@ -623,6 +661,9 @@ System.register("core/view", ["core/http", "core/servicepool"], function (export
                  * @param parent JQuery对象或选择器 父元素,若指定该参数,则元素查找范围限制在父元素内
                  */
                 View.prototype.LoadView = function (parent) {
+                    if (this.state != undefined && this.state != ViewState.UNLOAD) {
+                        console.warn("it's deprecated to call loadview twice!");
+                    }
                     // 优先使用selector绑定元素
                     if (this.selector) {
                         if (parent) {
@@ -638,7 +679,9 @@ System.register("core/view", ["core/http", "core/servicepool"], function (export
                         }
                     }
                     else {
+                        this.state = ViewState.LOADFAIL;
                         console.warn("[view]" + this.name + " has not set selector!");
+                        return false;
                     }
                     var matchedElementLength = this.target.length;
                     if (matchedElementLength > 0) {
@@ -1107,10 +1150,12 @@ System.register("control/input", ["control/text"], function (exports_8, context_
                         }
                         this.On("keypress", function (args) {
                             if (args.which == 13) {
-                                if (_this.acceptBtn.prop("disabled")) {
-                                }
-                                else {
-                                    _this.acceptBtn.click();
+                                if (_this.acceptBtn) {
+                                    if (_this.acceptBtn.prop("disabled")) {
+                                    }
+                                    else {
+                                        _this.acceptBtn.click();
+                                    }
                                 }
                             }
                         });
@@ -2067,6 +2112,7 @@ System.register("application/ts/bind_test", ["core/tinyts", "control/input", "co
                     // this.data.listData.push(new DataModel(3, "aaa"));
                     this.mList.GetData().push((new DataModel(3, "aaa")));
                     this.btnInject.OnClick(function () {
+                        console.log(_this.data);
                         injector_1.ValidateData(ObjectModel, _this.data).then(function (ot) {
                             console.log("validate success");
                         }).catch(function (it) {
@@ -2080,6 +2126,10 @@ System.register("application/ts/bind_test", ["core/tinyts", "control/input", "co
                 tinyts_1.v(input_3.InputView),
                 __metadata("design:type", input_3.InputView)
             ], BindTestModel.prototype, "sName", void 0);
+            __decorate([
+                tinyts_1.v(text_4.TextView),
+                __metadata("design:type", text_4.TextView)
+            ], BindTestModel.prototype, "sOutput", void 0);
             __decorate([
                 tinyts_1.v(input_3.InputView),
                 __metadata("design:type", input_3.InputView)
@@ -2272,7 +2322,7 @@ System.register("utils/date", [], function (exports_17, context_17) {
                 TsDate.fromISO = function (s) {
                     var temp = new TsDate(s);
                     if (!s) {
-                        temp.date = null;
+                        return null;
                     }
                     return temp;
                 };
@@ -2346,7 +2396,6 @@ System.register("application/ts/list_test", ["core/tinyts", "control/list"], fun
                     console.log(data);
                     var data1 = [28, 26, 25, 24, 23, 21, 20, 19, 18, 16];
                     var data2 = [1, 2, 3, 4, 5, 6, 7, 8];
-                    debugger;
                     var data3 = mx(data1).join(data2, function (it) { return it; }, function (it) { return it; }, function (a, b) {
                         return {
                             Id: a

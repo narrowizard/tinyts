@@ -1,6 +1,7 @@
 import { AncView, v, s } from '../../core/tinyts';
 import { View } from '../../core/view';
 import { InputView } from '../../control/input';
+import { TextView } from '../../control/text';
 
 var assert = require('assert');
 var jsdom = require('jsdom').JSDOM;
@@ -17,6 +18,7 @@ var dom = new jsdom(`<!DOCTYPE html>
 <body>
     <div id="testor" data-property="Name"></div>
     <input type="text" id="mInput" data-bind="model.name" />
+    <p id="mOutput" data-bind="model.name:tov"></p>
 </body>
 </html>`);
 
@@ -42,23 +44,37 @@ class TestView extends AncView {
     @v(InputView)
     mInput: InputView;
 
+    @v(TextView)
+    mOutput: TextView;
+
     @s(AnyService)
     service: AnyService;
 
+
     AfterInject() {
-        this.model.name = "Jaker";
+
     }
 }
 
 describe("Tinyts", function () {
+
+
     it('dependency injector', function () {
         var instance = new TestView();
         assert.notEqual(instance.testor, null);
         assert.notEqual(instance.service, null);
         assert.equal(instance.service.GetData(), true);
-        assert.deepEqual(instance.mInput.Value(), "Jaker");
+    });
 
+    it('data bind', function () {
+        var instance = new TestView();
+        instance.model.name = "Jaker";
+        assert.deepEqual(instance.mInput.Value(), "Jaker");
+        assert.deepEqual(instance.mOutput.Value(), "Jaker");
         instance.mInput.SetValue("John");
         assert.deepEqual(instance.model.name, "John");
+
+        // not support 
+        // assert.deepEqual(instance.mOutput.Value(), "John");
     });
 });

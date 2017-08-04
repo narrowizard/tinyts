@@ -30,6 +30,9 @@ export class BindTestModel extends AncView {
     @v(InputView)
     sName: InputView;
 
+    @v(TextView)
+    sOutput: TextView;
+
     @v(InputView)
     sPhone: InputView;
 
@@ -63,6 +66,7 @@ export class BindTestModel extends AncView {
         this.mList.GetData().push((new DataModel(3, "aaa")));
 
         this.btnInject.OnClick(() => {
+            console.log(this.data);
             ValidateData(ObjectModel, this.data).then(ot => {
                 console.log("validate success");
             }).catch(it => {

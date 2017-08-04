@@ -22,10 +22,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var tinyts_1 = require("../../core/tinyts");
 var view_1 = require("../../core/view");
 var input_1 = require("../../control/input");
+var text_1 = require("../../control/text");
 var assert = require('assert');
 var jsdom = require('jsdom').JSDOM;
 var mx = require('../../../libs/multiplex');
-var dom = new jsdom("<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <meta http-equiv=\"X-UA-Compatible\" content=\"ie=edge\">\n    <title>Document</title>\n</head>\n<body>\n    <div id=\"testor\" data-property=\"Name\"></div>\n    <input type=\"text\" id=\"mInput\" data-bind=\"model.name\" />\n</body>\n</html>");
+var dom = new jsdom("<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <meta http-equiv=\"X-UA-Compatible\" content=\"ie=edge\">\n    <title>Document</title>\n</head>\n<body>\n    <div id=\"testor\" data-property=\"Name\"></div>\n    <input type=\"text\" id=\"mInput\" data-bind=\"model.name\" />\n    <p id=\"mOutput\" data-bind=\"model.name:tov\"></p>\n</body>\n</html>");
 global.window = dom.window;
 global.document = dom.window.document;
 global.mx = mx;
@@ -43,7 +44,6 @@ var TestView = (function (_super) {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     TestView.prototype.AfterInject = function () {
-        this.model.name = "Jaker";
     };
     __decorate([
         tinyts_1.v(view_1.View),
@@ -53,6 +53,10 @@ var TestView = (function (_super) {
         tinyts_1.v(input_1.InputView),
         __metadata("design:type", input_1.InputView)
     ], TestView.prototype, "mInput", void 0);
+    __decorate([
+        tinyts_1.v(text_1.TextView),
+        __metadata("design:type", text_1.TextView)
+    ], TestView.prototype, "mOutput", void 0);
     __decorate([
         tinyts_1.s(AnyService),
         __metadata("design:type", AnyService)
@@ -65,8 +69,15 @@ describe("Tinyts", function () {
         assert.notEqual(instance.testor, null);
         assert.notEqual(instance.service, null);
         assert.equal(instance.service.GetData(), true);
+    });
+    it('data bind', function () {
+        var instance = new TestView();
+        instance.model.name = "Jaker";
         assert.deepEqual(instance.mInput.Value(), "Jaker");
+        assert.deepEqual(instance.mOutput.Value(), "Jaker");
         instance.mInput.SetValue("John");
         assert.deepEqual(instance.model.name, "John");
+        // not support 
+        // assert.deepEqual(instance.mOutput.Value(), "John");
     });
 });

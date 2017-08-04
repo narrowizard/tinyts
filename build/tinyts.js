@@ -476,10 +476,21 @@ System.register("tinyts/core/view", ["tinyts/core/http", "tinyts/core/servicepoo
                         for (var i = 0; i < this.Views.length; i++) {
                             var temp_view = this.Views[i];
                             if (temp_view.ViewInstance && temp_view.Type == BindType.OVONIC || temp_view.Type == BindType.VIEWTOMODEL) {
-                                var element = temp_view.ViewInstance.GetJQueryInstance().context;
+                                var element = temp_view.ViewInstance.GetJQueryInstance()[0];
                                 if (element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement) {
-                                    temp_view.ViewInstance.On("compositionend", function () {
+                                    var lock = false;
+                                    temp_view.ViewInstance.On("compositionstart", function () {
+                                        lock = true;
                                         temp[_this.Expression] = _this.Views[i].ViewInstance.Value();
+                                    });
+                                    temp_view.ViewInstance.On("compositionend", function () {
+                                        lock = false;
+                                        temp[_this.Expression] = _this.Views[i].ViewInstance.Value();
+                                    });
+                                    temp_view.ViewInstance.On("input", function () {
+                                        if (!lock) {
+                                            temp[_this.Expression] = _this.Views[i].ViewInstance.Value();
+                                        }
                                     });
                                     break;
                                 }
@@ -1616,10 +1627,12 @@ System.register("tinyts/control/input", ["tinyts/control/text"], function (expor
                         }
                         this.On("keypress", function (args) {
                             if (args.which == 13) {
-                                if (_this.acceptBtn.prop("disabled")) {
-                                }
-                                else {
-                                    _this.acceptBtn.click();
+                                if (_this.acceptBtn) {
+                                    if (_this.acceptBtn.prop("disabled")) {
+                                    }
+                                    else {
+                                        _this.acceptBtn.click();
+                                    }
                                 }
                             }
                         });
@@ -1639,6 +1652,8 @@ System.register("tinyts/control/input", ["tinyts/control/text"], function (expor
                 };
                 InputView.prototype.SetValue = function (v) {
                     this.target.val(v);
+                    // it causes stack overflow
+                    // this.Trigger("input");
                 };
                 /**
                  * Clear 清空值

@@ -61,6 +61,7 @@ var BindTestModel = (function (_super) {
         // this.data.listData.push(new DataModel(3, "aaa"));
         this.mList.GetData().push((new DataModel(3, "aaa")));
         this.btnInject.OnClick(function () {
+            console.log(_this.data);
             injector_1.ValidateData(ObjectModel, _this.data).then(function (ot) {
                 console.log("validate success");
             }).catch(function (it) {
@@ -72,6 +73,10 @@ var BindTestModel = (function (_super) {
         tinyts_1.v(input_1.InputView),
         __metadata("design:type", input_1.InputView)
     ], BindTestModel.prototype, "sName", void 0);
+    __decorate([
+        tinyts_1.v(text_1.TextView),
+        __metadata("design:type", text_1.TextView)
+    ], BindTestModel.prototype, "sOutput", void 0);
     __decorate([
         tinyts_1.v(input_1.InputView),
         __metadata("design:type", input_1.InputView)

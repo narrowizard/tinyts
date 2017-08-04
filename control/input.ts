@@ -19,10 +19,12 @@ export class InputView extends TextView {
             }
             this.On("keypress", (args) => {
                 if (args.which == 13) {
-                    if (this.acceptBtn.prop("disabled")) {
+                    if (this.acceptBtn) {
+                        if (this.acceptBtn.prop("disabled")) {
 
-                    } else {
-                        this.acceptBtn.click();
+                        } else {
+                            this.acceptBtn.click();
+                        }
                     }
                 }
             });
@@ -52,6 +54,8 @@ export class InputView extends TextView {
 
     SetValue(v: string) {
         this.target.val(v);
+        // it causes stack overflow
+        // this.Trigger("input");
     }
 
     /**

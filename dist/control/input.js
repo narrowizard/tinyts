@@ -31,10 +31,12 @@ var InputView = (function (_super) {
             }
             this.On("keypress", function (args) {
                 if (args.which == 13) {
-                    if (_this.acceptBtn.prop("disabled")) {
-                    }
-                    else {
-                        _this.acceptBtn.click();
+                    if (_this.acceptBtn) {
+                        if (_this.acceptBtn.prop("disabled")) {
+                        }
+                        else {
+                            _this.acceptBtn.click();
+                        }
                     }
                 }
             });
@@ -54,6 +56,8 @@ var InputView = (function (_super) {
     };
     InputView.prototype.SetValue = function (v) {
         this.target.val(v);
+        // it causes stack overflow
+        // this.Trigger("input");
     };
     /**
      * Clear 清空值
