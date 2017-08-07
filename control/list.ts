@@ -52,14 +52,13 @@ export class ArrayProxy<T> extends Array<T>{
         return res;
     }
 
-    concat<U extends T[]>(...items: U[]): T[] {
-        var temp = [];
-        for (var i = 0; i < this.length; i++) {
-            temp[i] = this[i];
-        }
-        return temp.concat(...items);
-
-    }
+    // concat<U extends T[]>(...items: U[]): T[] {
+    //     var temp = [];
+    //     for (var i = 0; i < this.length; i++) {
+    //         temp[i] = this[i];
+    //     }
+    //     return temp.concat(...items);
+    // }
 
     splice(start: number, deleteCount?: number, ...items: T[]): T[] {
         var temp = [];
@@ -184,15 +183,31 @@ export class ListView<T> extends View {
         this.RefreshView();
     }
 
-    GetData(): ArrayProxy<T> {
-        return this.mData;
+    /**
+     * GetData returns an array with the copy of data proxy's data 
+     */
+    GetData(): T[] {
+        if (!this.mData) {
+            return [];
+        }
+        var temp = [];
+        for (var i = 0; i < this.mData.length; i++) {
+            temp.push(this.mData[i]);
+        }
+        return temp;
     }
 
     SetValue(data: T[]) {
         this.SetData(data);
     }
 
+    /**
+     * Value returns the array proxy object.
+     */
     Value() {
+        if (!this.mData) {
+            this.mData = new ArrayProxy([], this);
+        }
         return this.mData;
     }
 
@@ -319,11 +334,13 @@ export class ListView<T> extends View {
         return this.pageManager;
     }
 
+    protected pageSize: number;
+
     /**
-     * SetPageSize 设置每页条数,显示到页面上
+     * SetPageSize 设置每页条数,请重写此方法来修改页面上的显示
      */
     SetPageSize(pagesize: number) {
-
+        this.pageSize = pagesize;
     }
 
     /**
@@ -341,10 +358,10 @@ export class ListView<T> extends View {
     }
 
     /**
-     * GetPageSize 获取每页条数
+     * GetPageSize 获取每页条数,请重写此方法以返回用户自定义的值
      */
     GetPageSize(): number {
-        return 0;
+        return this.pageSize;
     }
 
 }

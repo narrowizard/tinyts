@@ -61,17 +61,13 @@ var ArrayProxy = (function (_super) {
         this.context.RefreshView();
         return res;
     };
-    ArrayProxy.prototype.concat = function () {
-        var items = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            items[_i] = arguments[_i];
-        }
-        var temp = [];
-        for (var i = 0; i < this.length; i++) {
-            temp[i] = this[i];
-        }
-        return temp.concat.apply(temp, items);
-    };
+    // concat<U extends T[]>(...items: U[]): T[] {
+    //     var temp = [];
+    //     for (var i = 0; i < this.length; i++) {
+    //         temp[i] = this[i];
+    //     }
+    //     return temp.concat(...items);
+    // }
     ArrayProxy.prototype.splice = function (start, deleteCount) {
         var items = [];
         for (var _i = 2; _i < arguments.length; _i++) {
@@ -186,13 +182,29 @@ var ListView = (function (_super) {
         this.mData = new ArrayProxy(data, this);
         this.RefreshView();
     };
+    /**
+     * GetData returns an array with the copy of data proxy's data
+     */
     ListView.prototype.GetData = function () {
-        return this.mData;
+        if (!this.mData) {
+            return [];
+        }
+        var temp = [];
+        for (var i = 0; i < this.mData.length; i++) {
+            temp.push(this.mData[i]);
+        }
+        return temp;
     };
     ListView.prototype.SetValue = function (data) {
         this.SetData(data);
     };
+    /**
+     * Value returns the array proxy object.
+     */
     ListView.prototype.Value = function () {
+        if (!this.mData) {
+            this.mData = new ArrayProxy([], this);
+        }
         return this.mData;
     };
     /**
@@ -310,9 +322,10 @@ var ListView = (function (_super) {
         return this.pageManager;
     };
     /**
-     * SetPageSize 设置每页条数,显示到页面上
+     * SetPageSize 设置每页条数,请重写此方法来修改页面上的显示
      */
     ListView.prototype.SetPageSize = function (pagesize) {
+        this.pageSize = pagesize;
     };
     /**
      * SetCurPage 设置当前页(用于展示)
@@ -325,10 +338,10 @@ var ListView = (function (_super) {
     ListView.prototype.SetPageCount = function (count) {
     };
     /**
-     * GetPageSize 获取每页条数
+     * GetPageSize 获取每页条数,请重写此方法以返回用户自定义的值
      */
     ListView.prototype.GetPageSize = function () {
-        return 0;
+        return this.pageSize;
     };
     return ListView;
 }(view_1.View));

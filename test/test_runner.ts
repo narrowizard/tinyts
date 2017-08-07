@@ -24,7 +24,13 @@ var dom = new jsdom(`<!DOCTYPE html>
         <p id="mTextView"></p>
         <input type="text" id="mInputView" data-accept-button="#mButton" />
         <button type="button" id="mButton"></button>
-        <ul id="mListView">
+        <ul id="mListView" data-bind="model" data-pagable="async">
+            <li data-id="{{Id}}">{{Name}}</li>
+        </ul>
+        <div class="list-view" data-pagable="sync">
+            <p data-id="{{Id}}">{{Name}}</p>
+        </div>
+        <ul class="list-view" data-pagable="sync">
             <li data-id="{{Id}}">{{Name}}</li>
         </ul>
     </div>
