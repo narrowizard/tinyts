@@ -533,7 +533,7 @@ export class View {
      * Inject 将@v装饰的属性注入到View中,
      * 当当前视图绑定DOM元素成功,并且是单元素绑定模式时,下一级注入会限制在当前DOM元素之内进行
      */
-    protected Inject() {
+    Inject() {
         var c = this.constructor;
         var injector = {};
         // 处理继承后的注入
