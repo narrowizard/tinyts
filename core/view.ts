@@ -205,16 +205,21 @@ class TreeNode {
  */
 export class View {
 
-    // state 视图当前状态
     protected state: ViewState;
 
-    // name 当前视图在viewmodel的属性名
+    /**
+     * name 当前视图在viewmodel的属性名
+     */  
     protected name: string;
 
-    // 该属性用于解决虚拟视图被多次引用时产生的id冲突问题
+    /**
+     * selector 该属性用于解决虚拟视图被多次引用时产生的id冲突问题
+     */
     protected selector: string;
 
-    // 该属性标志了当前的view是否绑定了多个元素,默认false
+    /**
+     * multipart 该属性标志了当前的view是否绑定了多个元素,默认false
+     */
     protected multipart: boolean;
 
     /**
@@ -224,7 +229,9 @@ export class View {
 
     protected target: JQuery;
 
-    // 事件列表
+    /**
+     * eventList 事件列表
+     */
     protected eventList: { [eventName: string]: ((eventObj: JQueryEventObject, ...args: any[]) => any)[] };
 
     /**
@@ -279,6 +286,7 @@ export class View {
 
     /**
      * PropertyName 获取属性名
+     * @returns 属性名
      */
     PropertyName(): string {
         return this.propertyName;
@@ -311,6 +319,7 @@ export class View {
      * LoadView 建立视图与DOM之间的关联关系
      * 初始化视图属性
      * @param parent JQuery对象或选择器 父元素,若指定该参数,则元素查找范围限制在父元素内
+     * @returns 是否绑定成功
      */
     LoadView(parent?: JQuery | string): boolean {
         if (this.state != undefined && this.state != ViewState.UNLOAD) {
@@ -521,10 +530,6 @@ export class View {
         return this.bindingExpression;
     }
 
-    /**
-     * DataBind 返回数据绑定第index级属性
-     * @param index 
-     */
     DataBind(): string[] {
         return this.bindings;
     }
@@ -630,9 +635,14 @@ export class View {
         }
     }
 
-    // hooks
+    /**
+     * BeforeInject 该方法将会在Inject前被调用,请在子类重写改方法以实现hooks
+     */
     BeforeInject() { }
 
+    /**
+     * AfterInject 该方法将会在Inject后被调用,请在子类重写改方法以实现hooks
+     */
     AfterInject() { }
 }
 
@@ -640,6 +650,10 @@ export class ViewG<T> extends View {
 
     protected context: T;
 
+    /**
+     * SetContext 设置ViewG的上下文
+     * @param context 上下文
+     */
     SetContext(context: T) {
         this.context = context;
     }
