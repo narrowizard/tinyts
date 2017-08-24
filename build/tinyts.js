@@ -571,6 +571,7 @@ System.register("tinyts/core/view", ["tinyts/core/http", "tinyts/core/servicepoo
                 };
                 /**
                  * PropertyName 获取属性名
+                 * @returns 属性名
                  */
                 View.prototype.PropertyName = function () {
                     return this.propertyName;
@@ -599,6 +600,7 @@ System.register("tinyts/core/view", ["tinyts/core/http", "tinyts/core/servicepoo
                  * LoadView 建立视图与DOM之间的关联关系
                  * 初始化视图属性
                  * @param parent JQuery对象或选择器 父元素,若指定该参数,则元素查找范围限制在父元素内
+                 * @returns 是否绑定成功
                  */
                 View.prototype.LoadView = function (parent) {
                     if (this.state != undefined && this.state != ViewState.UNLOAD) {
@@ -811,10 +813,6 @@ System.register("tinyts/core/view", ["tinyts/core/http", "tinyts/core/servicepoo
                 View.prototype.DataBindExpression = function () {
                     return this.bindingExpression;
                 };
-                /**
-                 * DataBind 返回数据绑定第index级属性
-                 * @param index
-                 */
                 View.prototype.DataBind = function () {
                     return this.bindings;
                 };
@@ -917,8 +915,13 @@ System.register("tinyts/core/view", ["tinyts/core/http", "tinyts/core/servicepoo
                         Object.defineProperty(this, root.Child[i].Expression, Object.getOwnPropertyDescriptor(root.Child[i].BuildProxy(), root.Child[i].Expression));
                     }
                 };
-                // hooks
+                /**
+                 * BeforeInject 该方法将会在Inject前被调用,请在子类重写改方法以实现hooks
+                 */
                 View.prototype.BeforeInject = function () { };
+                /**
+                 * AfterInject 该方法将会在Inject后被调用,请在子类重写改方法以实现hooks
+                 */
                 View.prototype.AfterInject = function () { };
                 return View;
             }());
@@ -928,6 +931,10 @@ System.register("tinyts/core/view", ["tinyts/core/http", "tinyts/core/servicepoo
                 function ViewG() {
                     return _super !== null && _super.apply(this, arguments) || this;
                 }
+                /**
+                 * SetContext 设置ViewG的上下文
+                 * @param context 上下文
+                 */
                 ViewG.prototype.SetContext = function (context) {
                     this.context = context;
                 };
@@ -1326,7 +1333,6 @@ System.register("tinyts/control/list", ["tinyts/core/view", "tinyts/core/meta"],
                     }
                     return meta_1.Meta.Resolve(this.viewString[elemIndex], data);
                 };
-                ;
                 /**
                  * createView 创建一个视图的html代码,并添加到当前view的最后面
                  * @param index 需要创建的view的索引
@@ -1371,7 +1377,6 @@ System.register("tinyts/control/list", ["tinyts/core/view", "tinyts/core/meta"],
                         if (!handler(index, elem)) {
                             return false;
                         }
-                        ;
                     });
                 };
                 /**
@@ -1444,7 +1449,6 @@ System.register("tinyts/control/list", ["tinyts/core/view", "tinyts/core/meta"],
                 PAGEMODE[PAGEMODE["SYNC"] = 0] = "SYNC";
                 PAGEMODE[PAGEMODE["ASYNC"] = 1] = "ASYNC";
             })(PAGEMODE || (PAGEMODE = {}));
-            ;
             PageManager = (function () {
                 /**
                  * @param instance 同步模式时,数据会被设置到该instance
@@ -2242,7 +2246,6 @@ System.register("tinyts/utils/date", [], function (exports_15, context_15) {
                             for (var i = 0, L = day.length; i < L; i++) {
                                 day[i] = parseInt(day[i], 10) || 0;
                             }
-                            ;
                             day[1] -= 1;
                             day = new Date(Date.UTC.apply(Date, day));
                             if (!day.getDate())

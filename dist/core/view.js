@@ -243,6 +243,7 @@ var View = (function () {
     };
     /**
      * PropertyName 获取属性名
+     * @returns 属性名
      */
     View.prototype.PropertyName = function () {
         return this.propertyName;
@@ -271,6 +272,7 @@ var View = (function () {
      * LoadView 建立视图与DOM之间的关联关系
      * 初始化视图属性
      * @param parent JQuery对象或选择器 父元素,若指定该参数,则元素查找范围限制在父元素内
+     * @returns 是否绑定成功
      */
     View.prototype.LoadView = function (parent) {
         if (this.state != undefined && this.state != ViewState.UNLOAD) {
@@ -483,10 +485,6 @@ var View = (function () {
     View.prototype.DataBindExpression = function () {
         return this.bindingExpression;
     };
-    /**
-     * DataBind 返回数据绑定第index级属性
-     * @param index
-     */
     View.prototype.DataBind = function () {
         return this.bindings;
     };
@@ -589,8 +587,13 @@ var View = (function () {
             Object.defineProperty(this, root.Child[i].Expression, Object.getOwnPropertyDescriptor(root.Child[i].BuildProxy(), root.Child[i].Expression));
         }
     };
-    // hooks
+    /**
+     * BeforeInject 该方法将会在Inject前被调用,请在子类重写改方法以实现hooks
+     */
     View.prototype.BeforeInject = function () { };
+    /**
+     * AfterInject 该方法将会在Inject后被调用,请在子类重写改方法以实现hooks
+     */
     View.prototype.AfterInject = function () { };
     return View;
 }());
@@ -600,6 +603,10 @@ var ViewG = (function (_super) {
     function ViewG() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
+    /**
+     * SetContext 设置ViewG的上下文
+     * @param context 上下文
+     */
     ViewG.prototype.SetContext = function (context) {
         this.context = context;
     };

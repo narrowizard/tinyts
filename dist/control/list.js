@@ -235,7 +235,6 @@ var ListView = (function (_super) {
         }
         return meta_1.Meta.Resolve(this.viewString[elemIndex], data);
     };
-    ;
     /**
      * createView 创建一个视图的html代码,并添加到当前view的最后面
      * @param index 需要创建的view的索引
@@ -280,7 +279,6 @@ var ListView = (function (_super) {
             if (!handler(index, elem)) {
                 return false;
             }
-            ;
         });
     };
     /**
@@ -354,7 +352,6 @@ var PAGEMODE;
     PAGEMODE[PAGEMODE["SYNC"] = 0] = "SYNC";
     PAGEMODE[PAGEMODE["ASYNC"] = 1] = "ASYNC";
 })(PAGEMODE || (PAGEMODE = {}));
-;
 var PageManager = (function () {
     /**
      * @param instance 同步模式时,数据会被设置到该instance

@@ -19,6 +19,7 @@
     "jquery": "^3.2.1",
     "jsdom": "11.1.0",
     "jsdom-global": "3.0.2",
+    "jshint": "^2.9.5",
     "mocha": "^3.5.0",
     "mocha-jsdom": "^1.1.0",
     "multiplexjs": "^1.0.0",

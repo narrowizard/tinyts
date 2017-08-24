@@ -16,7 +16,6 @@ var TsDate = (function () {
                 for (var i = 0, L = day.length; i < L; i++) {
                     day[i] = parseInt(day[i], 10) || 0;
                 }
-                ;
                 day[1] -= 1;
                 day = new Date(Date.UTC.apply(Date, day));
                 if (!day.getDate())

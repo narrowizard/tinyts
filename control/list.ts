@@ -240,7 +240,7 @@ export class ListView<T> extends View {
             elemIndex = 0;
         }
         return Meta.Resolve(this.viewString[elemIndex], data);
-    };
+    }
 
 
 
@@ -287,7 +287,7 @@ export class ListView<T> extends View {
         this.GetChildren().each((index, elem) => {
             if (!handler(index, elem)) {
                 return false;
-            };
+            }
         });
     }
 
@@ -369,7 +369,7 @@ export class ListView<T> extends View {
 // PAGEMODE 分页模式
 // SYNC 同步分页
 // ASYNC 异步分页
-enum PAGEMODE { SYNC, ASYNC };
+enum PAGEMODE { SYNC, ASYNC }
 
 class PageManager<T> {
 
