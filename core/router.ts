@@ -4,26 +4,7 @@ import { routerInstance, UrlParser } from './http';
 
 export class Router {
 
-    protected routerMap: { [url: string]: () => void };
-
-    context: {
-        // url 改变
-        OnRouteChange: (url: string, data?: any) => void,
-        // 触发前进、后退事件
-        OnRoutePopState: (state: { url: string, data: any }) => void
-    };
-
-    /**
-     * SetContext 设置上下文
-     * @param context.OnRouteSucc 路由完成回调
-     * @param context.OnRouteError 路由错误回调
-     */
-    SetContext(context: {
-        OnRouteChange: (url: string, data?: any) => void,
-        OnRoutePopState: (state: { url: string, data: any }) => void
-    }) {
-        this.context = context;
-    }
+    protected routerMap: { [url: string]: (state: { url: string, data: any }) => void };
 
     constructor() {
         var me = this;
@@ -31,10 +12,7 @@ export class Router {
 
         window.onpopstate = function (event) {
             var state = event.state;
-            if (me.context) {
-                me.context.OnRoutePopState(state);
-            }
-            me.routerMap[state.url]();
+            me.routerMap[state.url](state);
         }
     }
 
@@ -68,10 +46,7 @@ export class Router {
         if (window.history.pushState) {
             window.history.pushState(stateData, "", url);
         }
-        if (me.context) {
-            me.context.OnRouteChange(url, data);
-        }
-        this.routerMap[url]();
+        this.routerMap[url]({ url: url, data: data });
     }
 
     /**
@@ -85,10 +60,7 @@ export class Router {
         if (window.history.replaceState) {
             window.history.replaceState(stateData, "", url);
         }
-        if (me.context) {
-            me.context.OnRouteChange(url, data);
-        }
-        this.routerMap[url]();
+        this.routerMap[url]({ url: url, data: data });
     }
 
     /**
@@ -105,28 +77,16 @@ export class Router {
         if (window.history.replaceState) {
             window.history.replaceState(stateData, "", url2);
         }
-        if (changeRoute && me.context) {
-            me.context.OnRouteChange(url2, stateData);
+        if (changeRoute) {
+            this.routerMap[url]({ url: url2, data: stateData });
         }
-        this.routerMap[url]();
     }
 
-    protected addRouter(url: string, func: () => void) {
+    AddRouter(url: string, func: (state: { url: string, data: any }) => void) {
         if (this.routerMap[url]) {
             console.warn(`router ${url} already exist, overwrite it!`);
         }
         this.routerMap[url] = func;
     }
 
-    AddAncViewRoute(url: string, c: { new (...args: any[]): AncView }) {
-        this.addRouter(url, () => {
-            var aa = new c();
-        });
-    }
-
-    AddFuncRouter(url: string, func: () => void) {
-        this.addRouter(url, () => {
-            func();
-        });
-    }
 }

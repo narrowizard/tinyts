@@ -7,20 +7,9 @@ var Router = (function () {
         this.routerMap = {};
         window.onpopstate = function (event) {
             var state = event.state;
-            if (me.context) {
-                me.context.OnRoutePopState(state);
-            }
-            me.routerMap[state.url]();
+            me.routerMap[state.url](state);
         };
     }
-    /**
-     * SetContext 设置上下文
-     * @param context.OnRouteSucc 路由完成回调
-     * @param context.OnRouteError 路由错误回调
-     */
-    Router.prototype.SetContext = function (context) {
-        this.context = context;
-    };
     /**
      * GoBack 返回上一页
      */
@@ -49,10 +38,7 @@ var Router = (function () {
         if (window.history.pushState) {
             window.history.pushState(stateData, "", url);
         }
-        if (me.context) {
-            me.context.OnRouteChange(url, data);
-        }
-        this.routerMap[url]();
+        this.routerMap[url]({ url: url, data: data });
     };
     /**
      * ReplaceCurrentState 修改当前router的状态(无历史记录)
@@ -65,10 +51,7 @@ var Router = (function () {
         if (window.history.replaceState) {
             window.history.replaceState(stateData, "", url);
         }
-        if (me.context) {
-            me.context.OnRouteChange(url, data);
-        }
-        this.routerMap[url]();
+        this.routerMap[url]({ url: url, data: data });
     };
     /**
      * ReplaceCurrentStateWithParam 修改当前router的状态,并将data存储在url中
@@ -84,26 +67,15 @@ var Router = (function () {
         if (window.history.replaceState) {
             window.history.replaceState(stateData, "", url2);
         }
-        if (changeRoute && me.context) {
-            me.context.OnRouteChange(url2, stateData);
+        if (changeRoute) {
+            this.routerMap[url]({ url: url2, data: stateData });
         }
-        this.routerMap[url]();
     };
-    Router.prototype.addRouter = function (url, func) {
+    Router.prototype.AddRouter = function (url, func) {
         if (this.routerMap[url]) {
             console.warn("router " + url + " already exist, overwrite it!");
         }
         this.routerMap[url] = func;
-    };
-    Router.prototype.AddAncViewRoute = function (url, c) {
-        this.addRouter(url, function () {
-            var aa = new c();
-        });
-    };
-    Router.prototype.AddFuncRouter = function (url, func) {
-        this.addRouter(url, function () {
-            func();
-        });
     };
     return Router;
 }());
