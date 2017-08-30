@@ -7,7 +7,7 @@ var Router = (function () {
         this.routerMap = {};
         window.onpopstate = function (event) {
             var state = event.state;
-            me.routerMap[state.url](state);
+            me.invokeRoute(state.url, { url: state.url, data: state.data });
         };
     }
     /**
@@ -38,7 +38,7 @@ var Router = (function () {
         if (window.history.pushState) {
             window.history.pushState(stateData, "", url);
         }
-        this.routerMap[url]({ url: url, data: data });
+        this.invokeRoute(url, { url: url, data: data });
     };
     /**
      * ReplaceCurrentState 修改当前router的状态(无历史记录)
@@ -51,7 +51,7 @@ var Router = (function () {
         if (window.history.replaceState) {
             window.history.replaceState(stateData, "", url);
         }
-        this.routerMap[url]({ url: url, data: data });
+        this.invokeRoute(url, { url: url, data: data });
     };
     /**
      * ReplaceCurrentStateWithParam 修改当前router的状态,并将data存储在url中
@@ -68,10 +68,25 @@ var Router = (function () {
             window.history.replaceState(stateData, "", url2);
         }
         if (changeRoute) {
-            this.routerMap[url]({ url: url2, data: stateData });
+            this.routerMap[url]({ url: url2, data: {} });
         }
     };
+    Router.prototype.invokeRoute = function (url, data) {
+        if (this.routerMap[url]) {
+            this.routerMap[url](data);
+            return;
+        }
+        var parser = new http_1.UrlParser();
+        parser.Parse(url);
+        var tempUrl = parser.pathname.toLowerCase();
+        if (this.routerMap[tempUrl]) {
+            this.routerMap[tempUrl](data);
+            return;
+        }
+        console.error("route not found!");
+    };
     Router.prototype.AddRouter = function (url, func) {
+        url = url.toLowerCase();
         if (this.routerMap[url]) {
             console.warn("router " + url + " already exist, overwrite it!");
         }

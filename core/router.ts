@@ -12,7 +12,7 @@ export class Router {
 
         window.onpopstate = function (event) {
             var state = event.state;
-            me.routerMap[state.url](state);
+            me.invokeRoute(state.url, { url: state.url, data: state.data });
         }
     }
 
@@ -46,7 +46,7 @@ export class Router {
         if (window.history.pushState) {
             window.history.pushState(stateData, "", url);
         }
-        this.routerMap[url]({ url: url, data: data });
+        this.invokeRoute(url, { url: url, data: data });
     }
 
     /**
@@ -60,7 +60,7 @@ export class Router {
         if (window.history.replaceState) {
             window.history.replaceState(stateData, "", url);
         }
-        this.routerMap[url]({ url: url, data: data });
+        this.invokeRoute(url, { url: url, data: data });
     }
 
     /**
@@ -78,11 +78,28 @@ export class Router {
             window.history.replaceState(stateData, "", url2);
         }
         if (changeRoute) {
-            this.routerMap[url]({ url: url2, data: stateData });
+            this.routerMap[url]({ url: url2, data: {} });
         }
     }
 
+    protected invokeRoute(url: string, data: { url: string, data: any }) {
+        if (this.routerMap[url]) {
+            this.routerMap[url](data);
+            return;
+        }
+        var parser = new UrlParser();
+        parser.Parse(url);
+        var tempUrl = parser.pathname.toLowerCase();
+        
+        if (this.routerMap[tempUrl]) {
+            this.routerMap[tempUrl](data);
+            return;
+        }
+        console.error("route not found!");
+    }
+
     AddRouter(url: string, func: (state: { url: string, data: any }) => void) {
+        url = url.toLowerCase();
         if (this.routerMap[url]) {
             console.warn(`router ${url} already exist, overwrite it!`);
         }
