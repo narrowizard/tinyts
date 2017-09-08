@@ -17,7 +17,7 @@ var view_1 = require("../core/view");
  * data-draggable
  * data-close 关闭按钮的选择器(限定在dialog内) click事件
  */
-var Dialog = (function (_super) {
+var Dialog = /** @class */ (function (_super) {
     __extends(Dialog, _super);
     function Dialog() {
         return _super !== null && _super.apply(this, arguments) || this;

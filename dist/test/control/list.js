@@ -22,12 +22,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var list_1 = require("../../control/list");
 var tinyts_1 = require("../../core/tinyts");
 var assert = require('assert');
-var DataModel = (function () {
+var DataModel = /** @class */ (function () {
     function DataModel() {
     }
     return DataModel;
 }());
-var TestView = (function (_super) {
+var TestView = /** @class */ (function (_super) {
     __extends(TestView, _super);
     function TestView() {
         return _super !== null && _super.apply(this, arguments) || this;

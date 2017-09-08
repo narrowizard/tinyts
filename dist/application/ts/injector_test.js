@@ -25,7 +25,7 @@ var injector_1 = require("../../model/injector");
 var validator_test_1 = require("../model/validator_test");
 var button_1 = require("../../control/button");
 var view_1 = require("../../core/view");
-var Name2Model = (function (_super) {
+var Name2Model = /** @class */ (function (_super) {
     __extends(Name2Model, _super);
     function Name2Model() {
         return _super !== null && _super.apply(this, arguments) || this;
@@ -36,7 +36,7 @@ var Name2Model = (function (_super) {
     ], Name2Model.prototype, "Name2", void 0);
     return Name2Model;
 }(view_1.ViewG));
-var SubModel = (function (_super) {
+var SubModel = /** @class */ (function (_super) {
     __extends(SubModel, _super);
     function SubModel() {
         return _super !== null && _super.apply(this, arguments) || this;
@@ -51,7 +51,7 @@ var SubModel = (function (_super) {
     ], SubModel.prototype, "sSubName", void 0);
     return SubModel;
 }(view_1.ViewG));
-var InjectorTestModel = (function (_super) {
+var InjectorTestModel = /** @class */ (function (_super) {
     __extends(InjectorTestModel, _super);
     function InjectorTestModel() {
         return _super !== null && _super.apply(this, arguments) || this;

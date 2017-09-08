@@ -15,7 +15,7 @@ var view_1 = require("../core/view");
  * TextView 用于文本显示的控件
  * 这里的文本指<tag>文本内容</tag>中的文本内容
  */
-var TextView = (function (_super) {
+var TextView = /** @class */ (function (_super) {
     __extends(TextView, _super);
     function TextView() {
         return _super !== null && _super.apply(this, arguments) || this;

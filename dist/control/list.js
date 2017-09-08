@@ -15,7 +15,7 @@ var meta_1 = require("../core/meta");
 /**
  * ArrayProxy<T> 列表数据操作接口
  */
-var ArrayProxy = (function (_super) {
+var ArrayProxy = /** @class */ (function (_super) {
     __extends(ArrayProxy, _super);
     function ArrayProxy(data, context) {
         var _this = _super.apply(this, data) || this;
@@ -88,7 +88,7 @@ var ArrayProxy = (function (_super) {
     return ArrayProxy;
 }(Array));
 exports.ArrayProxy = ArrayProxy;
-var ListView = (function (_super) {
+var ListView = /** @class */ (function (_super) {
     __extends(ListView, _super);
     function ListView() {
         return _super !== null && _super.apply(this, arguments) || this;
@@ -352,7 +352,7 @@ var PAGEMODE;
     PAGEMODE[PAGEMODE["SYNC"] = 0] = "SYNC";
     PAGEMODE[PAGEMODE["ASYNC"] = 1] = "ASYNC";
 })(PAGEMODE || (PAGEMODE = {}));
-var PageManager = (function () {
+var PageManager = /** @class */ (function () {
     /**
      * @param instance 同步模式时,数据会被设置到该instance
      */

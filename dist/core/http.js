@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var UrlComparison = (function () {
+var UrlComparison = /** @class */ (function () {
     function UrlComparison() {
     }
     return UrlComparison;
@@ -9,7 +9,7 @@ exports.UrlComparison = UrlComparison;
 /**
  * url parser 解析url地址
  */
-var UrlParser = (function () {
+var UrlParser = /** @class */ (function () {
     function UrlParser() {
     }
     /**
@@ -102,13 +102,13 @@ var UrlParser = (function () {
     return UrlParser;
 }());
 exports.UrlParser = UrlParser;
-var HttpResponse = (function () {
+var HttpResponse = /** @class */ (function () {
     function HttpResponse() {
     }
     return HttpResponse;
 }());
 exports.HttpResponse = HttpResponse;
-var HttpUtils = (function () {
+var HttpUtils = /** @class */ (function () {
     function HttpUtils() {
     }
     /**
@@ -172,7 +172,7 @@ var HttpUtils = (function () {
     return HttpUtils;
 }());
 exports.HttpUtils = HttpUtils;
-var Router = (function () {
+var Router = /** @class */ (function () {
     function Router() {
         var me = this;
         window.onpopstate = function (event) {

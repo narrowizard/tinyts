@@ -23,7 +23,7 @@ var view_1 = require("../../core/view");
 var tinyts_1 = require("../../core/tinyts");
 var button_1 = require("../../control/button");
 var list_1 = require("../../control/list");
-var ViewVTest = (function (_super) {
+var ViewVTest = /** @class */ (function (_super) {
     __extends(ViewVTest, _super);
     function ViewVTest() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -42,7 +42,7 @@ var ViewVTest = (function (_super) {
     ], ViewVTest);
     return ViewVTest;
 }(view_1.ViewV));
-var ViewVTest2 = (function (_super) {
+var ViewVTest2 = /** @class */ (function (_super) {
     __extends(ViewVTest2, _super);
     function ViewVTest2() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -59,7 +59,7 @@ var ViewVTest2 = (function (_super) {
     return ViewVTest2;
 }(view_1.ViewV));
 exports.ViewVTest2 = ViewVTest2;
-var ViewVModel = (function (_super) {
+var ViewVModel = /** @class */ (function (_super) {
     __extends(ViewVModel, _super);
     function ViewVModel() {
         return _super !== null && _super.apply(this, arguments) || this;

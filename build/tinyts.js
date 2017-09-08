@@ -15,7 +15,7 @@ System.register("tinyts/core/http", [], function (exports_1, context_1) {
     return {
         setters: [],
         execute: function () {
-            UrlComparison = (function () {
+            UrlComparison = /** @class */ (function () {
                 function UrlComparison() {
                 }
                 return UrlComparison;
@@ -24,7 +24,7 @@ System.register("tinyts/core/http", [], function (exports_1, context_1) {
             /**
              * url parser 解析url地址
              */
-            UrlParser = (function () {
+            UrlParser = /** @class */ (function () {
                 function UrlParser() {
                 }
                 /**
@@ -117,13 +117,13 @@ System.register("tinyts/core/http", [], function (exports_1, context_1) {
                 return UrlParser;
             }());
             exports_1("UrlParser", UrlParser);
-            HttpResponse = (function () {
+            HttpResponse = /** @class */ (function () {
                 function HttpResponse() {
                 }
                 return HttpResponse;
             }());
             exports_1("HttpResponse", HttpResponse);
-            HttpUtils = (function () {
+            HttpUtils = /** @class */ (function () {
                 function HttpUtils() {
                 }
                 /**
@@ -187,7 +187,7 @@ System.register("tinyts/core/http", [], function (exports_1, context_1) {
                 return HttpUtils;
             }());
             exports_1("HttpUtils", HttpUtils);
-            Router = (function () {
+            Router = /** @class */ (function () {
                 function Router() {
                     var me = this;
                     window.onpopstate = function (event) {
@@ -297,7 +297,7 @@ System.register("tinyts/core/servicepool", [], function (exports_2, context_2) {
                 * 二、引用某种算法自动释放服务（LRU）
              *
              */
-            ServicePool = (function () {
+            ServicePool = /** @class */ (function () {
                 function ServicePool() {
                     this.instances = {};
                 }
@@ -344,7 +344,7 @@ System.register("tinyts/core/view", ["tinyts/core/http", "tinyts/core/servicepoo
             /**
              * injectModel 视图注入模型
              */
-            injectModel = (function () {
+            injectModel = /** @class */ (function () {
                 function injectModel() {
                 }
                 return injectModel;
@@ -353,7 +353,7 @@ System.register("tinyts/core/view", ["tinyts/core/http", "tinyts/core/servicepoo
             /**
              * serviceInjectModel 服务注入模型
              */
-            serviceInjectModel = (function () {
+            serviceInjectModel = /** @class */ (function () {
                 function serviceInjectModel() {
                 }
                 return serviceInjectModel;
@@ -382,14 +382,14 @@ System.register("tinyts/core/view", ["tinyts/core/http", "tinyts/core/servicepoo
                 BindType[BindType["MODELTOVIEW"] = 1] = "MODELTOVIEW";
                 BindType[BindType["VIEWTOMODEL"] = 2] = "VIEWTOMODEL";
             })(BindType || (BindType = {}));
-            DataBindExpressionModel = (function () {
+            DataBindExpressionModel = /** @class */ (function () {
                 function DataBindExpressionModel(Expression, ViewInstance) {
                     this.Expression = Expression;
                     this.ViewInstance = ViewInstance;
                 }
                 return DataBindExpressionModel;
             }());
-            TreeNode = (function () {
+            TreeNode = /** @class */ (function () {
                 function TreeNode() {
                     this.Child = [];
                     this.Views = [];
@@ -534,7 +534,7 @@ System.register("tinyts/core/view", ["tinyts/core/http", "tinyts/core/servicepoo
             /**
              * View 视图基类
              */
-            View = (function () {
+            View = /** @class */ (function () {
                 function View() {
                 }
                 /**
@@ -926,7 +926,7 @@ System.register("tinyts/core/view", ["tinyts/core/http", "tinyts/core/servicepoo
                 return View;
             }());
             exports_3("View", View);
-            ViewG = (function (_super) {
+            ViewG = /** @class */ (function (_super) {
                 __extends(ViewG, _super);
                 function ViewG() {
                     return _super !== null && _super.apply(this, arguments) || this;
@@ -946,7 +946,7 @@ System.register("tinyts/core/view", ["tinyts/core/http", "tinyts/core/servicepoo
              * 同步模式下,html string直接通过GetViewString方法返回
              * 异步模式下
              */
-            ViewV = (function (_super) {
+            ViewV = /** @class */ (function (_super) {
                 __extends(ViewV, _super);
                 function ViewV() {
                     return _super !== null && _super.apply(this, arguments) || this;
@@ -1001,7 +1001,7 @@ System.register("tinyts/control/text", ["tinyts/core/view"], function (exports_4
              * TextView 用于文本显示的控件
              * 这里的文本指<tag>文本内容</tag>中的文本内容
              */
-            TextView = (function (_super) {
+            TextView = /** @class */ (function (_super) {
                 __extends(TextView, _super);
                 function TextView() {
                     return _super !== null && _super.apply(this, arguments) || this;
@@ -1041,7 +1041,7 @@ System.register("tinyts/control/button", ["tinyts/control/text"], function (expo
             }
         ],
         execute: function () {
-            Button = (function (_super) {
+            Button = /** @class */ (function (_super) {
                 __extends(Button, _super);
                 function Button() {
                     return _super !== null && _super.apply(this, arguments) || this;
@@ -1076,7 +1076,7 @@ System.register("tinyts/core/meta", [], function (exports_6, context_6) {
             /**
              * Meta 实现一个模版语法解析的类
              */
-            Meta = (function () {
+            Meta = /** @class */ (function () {
                 function Meta() {
                 }
                 /**
@@ -1113,7 +1113,7 @@ System.register("tinyts/control/list", ["tinyts/core/view", "tinyts/core/meta"],
             /**
              * ArrayProxy<T> 列表数据操作接口
              */
-            ArrayProxy = (function (_super) {
+            ArrayProxy = /** @class */ (function (_super) {
                 __extends(ArrayProxy, _super);
                 function ArrayProxy(data, context) {
                     var _this = _super.apply(this, data) || this;
@@ -1186,7 +1186,7 @@ System.register("tinyts/control/list", ["tinyts/core/view", "tinyts/core/meta"],
                 return ArrayProxy;
             }(Array));
             exports_7("ArrayProxy", ArrayProxy);
-            ListView = (function (_super) {
+            ListView = /** @class */ (function (_super) {
                 __extends(ListView, _super);
                 function ListView() {
                     return _super !== null && _super.apply(this, arguments) || this;
@@ -1449,7 +1449,7 @@ System.register("tinyts/control/list", ["tinyts/core/view", "tinyts/core/meta"],
                 PAGEMODE[PAGEMODE["SYNC"] = 0] = "SYNC";
                 PAGEMODE[PAGEMODE["ASYNC"] = 1] = "ASYNC";
             })(PAGEMODE || (PAGEMODE = {}));
-            PageManager = (function () {
+            PageManager = /** @class */ (function () {
                 /**
                  * @param instance 同步模式时,数据会被设置到该instance
                  */
@@ -1629,7 +1629,7 @@ System.register("tinyts/control/input", ["tinyts/control/text"], function (expor
              * properties
              *      data-accept-button string jquery selector
              */
-            InputView = (function (_super) {
+            InputView = /** @class */ (function (_super) {
                 __extends(InputView, _super);
                 function InputView() {
                     return _super !== null && _super.apply(this, arguments) || this;
@@ -1695,7 +1695,7 @@ System.register("tinyts/control/choice", ["tinyts/control/input"], function (exp
             }
         ],
         execute: function () {
-            ChoiceView = (function (_super) {
+            ChoiceView = /** @class */ (function (_super) {
                 __extends(ChoiceView, _super);
                 function ChoiceView() {
                     return _super !== null && _super.apply(this, arguments) || this;
@@ -1732,7 +1732,7 @@ System.register("tinyts/control/dialog", ["tinyts/core/view"], function (exports
              * data-draggable
              * data-close 关闭按钮的选择器(限定在dialog内) click事件
              */
-            Dialog = (function (_super) {
+            Dialog = /** @class */ (function (_super) {
                 __extends(Dialog, _super);
                 function Dialog() {
                     return _super !== null && _super.apply(this, arguments) || this;
@@ -1817,7 +1817,7 @@ System.register("tinyts/control/table", ["tinyts/control/list"], function (expor
             }
         ],
         execute: function () {
-            Table = (function (_super) {
+            Table = /** @class */ (function (_super) {
                 __extends(Table, _super);
                 function Table() {
                     return _super !== null && _super.apply(this, arguments) || this;
@@ -2106,7 +2106,7 @@ System.register("tinyts/core/tinyts", ["tinyts/core/view"], function (exports_13
              * tinyts在完成注入后,会去除这个style以显示container的内容
              * 注意:请尽量不要在container上加上display:none以外的style属性,可能会引起不可预知的错误
              */
-            AncView = (function (_super) {
+            AncView = /** @class */ (function (_super) {
                 __extends(AncView, _super);
                 /**
                  * AncView 祖先视图,包含注入功能
@@ -2157,7 +2157,7 @@ System.register("tinyts/core/router", ["tinyts/core/http"], function (exports_14
             }
         ],
         execute: function () {
-            Router = (function () {
+            Router = /** @class */ (function () {
                 function Router() {
                     var me = this;
                     this.routerMap = {};
@@ -2264,7 +2264,7 @@ System.register("tinyts/utils/cookie", [], function (exports_15, context_15) {
             /**
              * refrence to jquery.cookie
              */
-            Cookie = (function () {
+            Cookie = /** @class */ (function () {
                 function Cookie() {
                 }
                 /**
@@ -2338,7 +2338,7 @@ System.register("tinyts/utils/date", [], function (exports_16, context_16) {
     return {
         setters: [],
         execute: function () {
-            TsDate = (function () {
+            TsDate = /** @class */ (function () {
                 function TsDate(dateString) {
                     if (!dateString) {
                         // 获取当前时间
@@ -2424,7 +2424,7 @@ System.register("tinyts/utils/time", [], function (exports_17, context_17) {
             /**
              * Time 时间转换
              */
-            Time = (function () {
+            Time = /** @class */ (function () {
                 function Time() {
                 }
                 Time.prototype.SetDay = function (d) {
@@ -2471,7 +2471,7 @@ System.register("tinyts/utils/time", [], function (exports_17, context_17) {
             /**
              * CountDown 倒计时
              */
-            CountDown = (function () {
+            CountDown = /** @class */ (function () {
                 function CountDown() {
                 }
                 /**

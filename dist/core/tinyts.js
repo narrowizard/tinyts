@@ -19,7 +19,7 @@ var view_1 = require("./view");
  * tinyts在完成注入后,会去除这个style以显示container的内容
  * 注意:请尽量不要在container上加上display:none以外的style属性,可能会引起不可预知的错误
  */
-var AncView = (function (_super) {
+var AncView = /** @class */ (function (_super) {
     __extends(AncView, _super);
     /**
      * AncView 祖先视图,包含注入功能

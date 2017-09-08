@@ -21,7 +21,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var tinyts_1 = require("../../core/tinyts");
 var user_1 = require("../service/user");
-var ServiceTestModel = (function (_super) {
+var ServiceTestModel = /** @class */ (function (_super) {
     __extends(ServiceTestModel, _super);
     function ServiceTestModel() {
         return _super !== null && _super.apply(this, arguments) || this;

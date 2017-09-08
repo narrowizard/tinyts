@@ -21,7 +21,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var tinyts_1 = require("../../core/tinyts");
 var list_1 = require("../../control/list");
-var DataModel = (function () {
+var DataModel = /** @class */ (function () {
     function DataModel(Id, Name, ListData, Date) {
         this.Id = Id;
         this.Name = Name;
@@ -30,7 +30,7 @@ var DataModel = (function () {
     }
     return DataModel;
 }());
-var ListModel = (function (_super) {
+var ListModel = /** @class */ (function (_super) {
     __extends(ListModel, _super);
     function ListModel() {
         return _super !== null && _super.apply(this, arguments) || this;

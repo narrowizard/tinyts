@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var http_1 = require("./http");
-var Router = (function () {
+var Router = /** @class */ (function () {
     function Router() {
         var me = this;
         this.routerMap = {};

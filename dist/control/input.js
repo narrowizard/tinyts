@@ -16,7 +16,7 @@ var text_1 = require("./text");
  * properties
  *      data-accept-button string jquery selector
  */
-var InputView = (function (_super) {
+var InputView = /** @class */ (function (_super) {
     __extends(InputView, _super);
     function InputView() {
         return _super !== null && _super.apply(this, arguments) || this;

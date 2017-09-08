@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var servicepool_1 = require("../../core/servicepool");
 var assert = require('assert');
-var TestService = (function () {
+var TestService = /** @class */ (function () {
     function TestService() {
     }
     return TestService;

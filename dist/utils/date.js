@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var TsDate = (function () {
+var TsDate = /** @class */ (function () {
     function TsDate(dateString) {
         if (!dateString) {
             // 获取当前时间

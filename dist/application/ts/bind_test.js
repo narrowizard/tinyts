@@ -26,14 +26,14 @@ var list_1 = require("../../control/list");
 var text_1 = require("../../control/text");
 var class_validator_1 = require("class-validator");
 var injector_1 = require("../../model/injector");
-var DataModel = (function () {
+var DataModel = /** @class */ (function () {
     function DataModel(Id, Name) {
         this.Id = Id;
         this.Name = Name;
     }
     return DataModel;
 }());
-var ObjectModel = (function () {
+var ObjectModel = /** @class */ (function () {
     function ObjectModel() {
     }
     __decorate([
@@ -42,7 +42,7 @@ var ObjectModel = (function () {
     ], ObjectModel.prototype, "name", void 0);
     return ObjectModel;
 }());
-var BindTestModel = (function (_super) {
+var BindTestModel = /** @class */ (function (_super) {
     __extends(BindTestModel, _super);
     function BindTestModel() {
         return _super !== null && _super.apply(this, arguments) || this;

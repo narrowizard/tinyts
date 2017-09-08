@@ -14,7 +14,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
     * 二、引用某种算法自动释放服务（LRU）
  *
  */
-var ServicePool = (function () {
+var ServicePool = /** @class */ (function () {
     function ServicePool() {
         this.instances = {};
     }

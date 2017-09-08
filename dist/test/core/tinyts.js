@@ -24,7 +24,7 @@ var view_1 = require("../../core/view");
 var input_1 = require("../../control/input");
 var text_1 = require("../../control/text");
 var assert = require('assert');
-var AnyService = (function () {
+var AnyService = /** @class */ (function () {
     function AnyService() {
     }
     AnyService.prototype.GetData = function () {
@@ -32,7 +32,7 @@ var AnyService = (function () {
     };
     return AnyService;
 }());
-var ViewVTest = (function (_super) {
+var ViewVTest = /** @class */ (function (_super) {
     __extends(ViewVTest, _super);
     function ViewVTest() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -45,7 +45,7 @@ var ViewVTest = (function (_super) {
     ], ViewVTest.prototype, "mNewPage", void 0);
     return ViewVTest;
 }(view_1.ViewV));
-var TestView = (function (_super) {
+var TestView = /** @class */ (function (_super) {
     __extends(TestView, _super);
     function TestView() {
         return _super !== null && _super.apply(this, arguments) || this;

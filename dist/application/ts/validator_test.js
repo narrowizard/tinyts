@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var validator_test_1 = require("../model/validator_test");
 var class_validator_1 = require("class-validator");
-var ValidatorTestModel = (function () {
+var ValidatorTestModel = /** @class */ (function () {
     function ValidatorTestModel() {
         var aa = new validator_test_1.TestModel();
         aa.name = "aa1111a";

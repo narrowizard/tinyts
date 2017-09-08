@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * Time 时间转换
  */
-var Time = (function () {
+var Time = /** @class */ (function () {
     function Time() {
     }
     Time.prototype.SetDay = function (d) {
@@ -50,7 +50,7 @@ exports.Time = Time;
 /**
  * CountDown 倒计时
  */
-var CountDown = (function () {
+var CountDown = /** @class */ (function () {
     function CountDown() {
     }
     /**

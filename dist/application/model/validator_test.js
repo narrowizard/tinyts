@@ -10,7 +10,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var class_validator_1 = require("class-validator");
-var TestModel = (function () {
+var TestModel = /** @class */ (function () {
     function TestModel() {
     }
     __decorate([

@@ -15,7 +15,7 @@ var servicepool_1 = require("./servicepool");
 /**
  * injectModel 视图注入模型
  */
-var injectModel = (function () {
+var injectModel = /** @class */ (function () {
     function injectModel() {
     }
     return injectModel;
@@ -24,7 +24,7 @@ exports.injectModel = injectModel;
 /**
  * serviceInjectModel 服务注入模型
  */
-var serviceInjectModel = (function () {
+var serviceInjectModel = /** @class */ (function () {
     function serviceInjectModel() {
     }
     return serviceInjectModel;
@@ -54,14 +54,14 @@ var BindType;
     BindType[BindType["MODELTOVIEW"] = 1] = "MODELTOVIEW";
     BindType[BindType["VIEWTOMODEL"] = 2] = "VIEWTOMODEL";
 })(BindType || (BindType = {}));
-var DataBindExpressionModel = (function () {
+var DataBindExpressionModel = /** @class */ (function () {
     function DataBindExpressionModel(Expression, ViewInstance) {
         this.Expression = Expression;
         this.ViewInstance = ViewInstance;
     }
     return DataBindExpressionModel;
 }());
-var TreeNode = (function () {
+var TreeNode = /** @class */ (function () {
     function TreeNode() {
         this.Child = [];
         this.Views = [];
@@ -206,7 +206,7 @@ var TreeNode = (function () {
 /**
  * View 视图基类
  */
-var View = (function () {
+var View = /** @class */ (function () {
     function View() {
     }
     /**
@@ -598,7 +598,7 @@ var View = (function () {
     return View;
 }());
 exports.View = View;
-var ViewG = (function (_super) {
+var ViewG = /** @class */ (function (_super) {
     __extends(ViewG, _super);
     function ViewG() {
         return _super !== null && _super.apply(this, arguments) || this;
@@ -618,7 +618,7 @@ exports.ViewG = ViewG;
  * 同步模式下,html string直接通过GetViewString方法返回
  * 异步模式下
  */
-var ViewV = (function (_super) {
+var ViewV = /** @class */ (function (_super) {
     __extends(ViewV, _super);
     function ViewV() {
         return _super !== null && _super.apply(this, arguments) || this;

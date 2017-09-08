@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * Meta 实现一个模版语法解析的类
  */
-var Meta = (function () {
+var Meta = /** @class */ (function () {
     function Meta() {
     }
     /**

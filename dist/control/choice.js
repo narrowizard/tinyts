@@ -11,7 +11,7 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 var input_1 = require("./input");
-var ChoiceView = (function (_super) {
+var ChoiceView = /** @class */ (function (_super) {
     __extends(ChoiceView, _super);
     function ChoiceView() {
         return _super !== null && _super.apply(this, arguments) || this;

@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * refrence to jquery.cookie
  */
-var Cookie = (function () {
+var Cookie = /** @class */ (function () {
     function Cookie() {
     }
     /**
