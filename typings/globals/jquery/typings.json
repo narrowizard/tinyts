@@ -1,8 +1,8 @@
 {
   "resolution": "main",
   "tree": {
-    "src": "https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/6e54cb627506cf64d6effba1fe49b5a091ac4297/jquery/jquery.d.ts",
-    "raw": "registry:dt/jquery#1.10.0+20160704162008",
-    "typings": "https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/6e54cb627506cf64d6effba1fe49b5a091ac4297/jquery/jquery.d.ts"
+    "src": "https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/f4fdcaca9c94f90442dcedb0c8a84399c47e731f/jquery/index.d.ts",
+    "raw": "registry:dt/jquery#1.10.0+20170310222111",
+    "typings": "https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/f4fdcaca9c94f90442dcedb0c8a84399c47e731f/jquery/index.d.ts"
   }
 }

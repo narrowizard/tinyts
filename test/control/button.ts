@@ -1,1 +1,0 @@
-import { Button } from '../../control/button';
