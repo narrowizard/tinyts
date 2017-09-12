@@ -91,6 +91,37 @@ function v(c, selector) {
     };
 }
 exports.v = v;
+function vlist(c, v, selector) {
+    /**
+     * 该函数运行在ListViewV上
+     * @param target View实例
+     * @param decoratedPropertyName 属性名
+     */
+    return function (target, decoratedPropertyName) {
+        var targetType = target.constructor;
+        // 目标view的名称
+        var name = target.constructor.toString().match(/^function\s*([^\s(]+)/)[1];
+        if (!targetType.hasOwnProperty("__inject__")) {
+            targetType["__inject__"] = {};
+        }
+        if (!targetType["__inject__"][name]) {
+            targetType["__inject__"][name] = {
+                constructor: target.constructor
+            };
+        }
+        if (!targetType["__inject__"][name]["views"]) {
+            targetType["__inject__"][name]["views"] = [];
+        }
+        var temp = new view_1.injectModel();
+        temp.creator = c;
+        temp.propertyName = decoratedPropertyName;
+        temp.selector = selector == null ? "#" + decoratedPropertyName : selector;
+        temp.params = [];
+        temp.params.push(v);
+        targetType["__inject__"][name]["views"].push(temp);
+    };
+}
+exports.vlist = vlist;
 /**
  * f decorator 用于声明虚拟视图的html文件
  * @param url html文件的url地址

@@ -334,6 +334,10 @@ var View = /** @class */ (function () {
             return false;
         }
     };
+    View.prototype.BindJQueryInstance = function (instance) {
+        this.state = ViewState.LOADSUCC;
+        this.target = instance;
+    };
     /**
      * GetJQueryInstance 获取jquery对象
      */
@@ -519,7 +523,7 @@ var View = /** @class */ (function () {
                                 viewInstance.SetName(view.propertyName);
                                 // 检测当前视图是否存在,如果不存在,则不限制下一级视图注入时的parent属性
                                 if (this.state == ViewState.LOADSUCC && !this.multipart) {
-                                    viewInstance.LoadView(this.selector);
+                                    viewInstance.LoadView(this.target);
                                 }
                                 else {
                                     viewInstance.LoadView();

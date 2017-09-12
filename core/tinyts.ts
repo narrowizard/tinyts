@@ -1,6 +1,6 @@
 import { Inject } from '../model/injector';
 import { View, injectModel, ViewG, ViewState, ViewV, serviceInjectModel } from './view';
-import { ListViewV } from '../control/list';
+import { ListViewV, SubView } from '../control/list';
 
 /**
  * AncView 祖先视图,继承该视图指示tinyts托管的内容
@@ -53,7 +53,7 @@ export class AncView extends View {
  * @param c View的构造函数
  * @param selector 选择器
  */
-export function v<T>(c: { new(...args: any[]): ViewG<T> | View }, selector?: string) {
+export function v<T>(c: { new(...args: any[]): ViewG<T> | View }, selector?: string): PropertyDecorator {
     /**
      * 该函数运行在View上
      * @param target View实例
@@ -86,7 +86,7 @@ export function v<T>(c: { new(...args: any[]): ViewG<T> | View }, selector?: str
     };
 }
 
-export function vlist<T, U extends View>(c: { new(...args: any[]): ListViewV<T, U> }, v: { new(...args: any[]): View }, selector?: string) {
+export function vlist<T, U extends SubView<T>>(c: { new(...args: any[]): ListViewV<T, U> }, v: { new(...args: any[]): View }, selector?: string): PropertyDecorator {
     /**
      * 该函数运行在ListViewV上
      * @param target View实例

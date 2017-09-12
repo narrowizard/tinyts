@@ -364,11 +364,11 @@ var ListViewV = /** @class */ (function (_super) {
             });
         }
         else {
-            var viewString = this.GetView(index, 0);
-            var jqueryInstance = $(viewString);
+            this.append(this.GetView(index, 0));
             var viewInstance = new this.creator();
-            viewInstance.LoadView(jqueryInstance);
-            this.append(jqueryInstance);
+            viewInstance.BindJQueryInstance(this.GetChildren().eq(index));
+            viewInstance.Inject();
+            viewInstance.SetViewData(this.mData[index]);
             this.viewInstances.push(viewInstance);
         }
     };
@@ -385,6 +385,20 @@ var ListViewV = /** @class */ (function (_super) {
     return ListViewV;
 }(ListView));
 exports.ListViewV = ListViewV;
+var SubView = /** @class */ (function (_super) {
+    __extends(SubView, _super);
+    function SubView() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    SubView.prototype.SetViewData = function (data) {
+        this.viewData = data;
+    };
+    SubView.prototype.ViewData = function () {
+        return this.viewData;
+    };
+    return SubView;
+}(view_1.View));
+exports.SubView = SubView;
 // PAGEMODE 分页模式
 // SYNC 同步分页
 // ASYNC 异步分页

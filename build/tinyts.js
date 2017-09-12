@@ -662,6 +662,10 @@ System.register("tinyts/core/view", ["tinyts/core/http", "tinyts/core/servicepoo
                         return false;
                     }
                 };
+                View.prototype.BindJQueryInstance = function (instance) {
+                    this.state = ViewState.LOADSUCC;
+                    this.target = instance;
+                };
                 /**
                  * GetJQueryInstance 获取jquery对象
                  */
@@ -847,7 +851,7 @@ System.register("tinyts/core/view", ["tinyts/core/http", "tinyts/core/servicepoo
                                             viewInstance.SetName(view.propertyName);
                                             // 检测当前视图是否存在,如果不存在,则不限制下一级视图注入时的parent属性
                                             if (this.state == ViewState.LOADSUCC && !this.multipart) {
-                                                viewInstance.LoadView(this.selector);
+                                                viewInstance.LoadView(this.target);
                                             }
                                             else {
                                                 viewInstance.LoadView();
@@ -1100,7 +1104,7 @@ System.register("tinyts/core/meta", [], function (exports_6, context_6) {
 System.register("tinyts/control/list", ["tinyts/core/view", "tinyts/core/meta"], function (exports_7, context_7) {
     "use strict";
     var __moduleName = context_7 && context_7.id;
-    var view_2, meta_1, ArrayProxy, ListView, ListViewV, PAGEMODE, PageManager;
+    var view_2, meta_1, ArrayProxy, ListView, ListViewV, SubView, PAGEMODE, PageManager;
     return {
         setters: [
             function (view_2_1) {
@@ -1463,11 +1467,11 @@ System.register("tinyts/control/list", ["tinyts/core/view", "tinyts/core/meta"],
                         });
                     }
                     else {
-                        var viewString = this.GetView(index, 0);
-                        var jqueryInstance = $(viewString);
+                        this.append(this.GetView(index, 0));
                         var viewInstance = new this.creator();
-                        viewInstance.LoadView(jqueryInstance);
-                        this.append(jqueryInstance);
+                        viewInstance.BindJQueryInstance(this.GetChildren().eq(index));
+                        viewInstance.Inject();
+                        viewInstance.SetViewData(this.mData[index]);
                         this.viewInstances.push(viewInstance);
                     }
                 };
@@ -1484,6 +1488,20 @@ System.register("tinyts/control/list", ["tinyts/core/view", "tinyts/core/meta"],
                 return ListViewV;
             }(ListView));
             exports_7("ListViewV", ListViewV);
+            SubView = /** @class */ (function (_super) {
+                __extends(SubView, _super);
+                function SubView() {
+                    return _super !== null && _super.apply(this, arguments) || this;
+                }
+                SubView.prototype.SetViewData = function (data) {
+                    this.viewData = data;
+                };
+                SubView.prototype.ViewData = function () {
+                    return this.viewData;
+                };
+                return SubView;
+            }(view_2.View));
+            exports_7("SubView", SubView);
             // PAGEMODE 分页模式
             // SYNC 同步分页
             // ASYNC 异步分页
@@ -2086,6 +2104,37 @@ System.register("tinyts/core/tinyts", ["tinyts/core/view"], function (exports_13
         };
     }
     exports_13("v", v);
+    function vlist(c, v, selector) {
+        /**
+         * 该函数运行在ListViewV上
+         * @param target View实例
+         * @param decoratedPropertyName 属性名
+         */
+        return function (target, decoratedPropertyName) {
+            var targetType = target.constructor;
+            // 目标view的名称
+            var name = target.constructor.toString().match(/^function\s*([^\s(]+)/)[1];
+            if (!targetType.hasOwnProperty("__inject__")) {
+                targetType["__inject__"] = {};
+            }
+            if (!targetType["__inject__"][name]) {
+                targetType["__inject__"][name] = {
+                    constructor: target.constructor
+                };
+            }
+            if (!targetType["__inject__"][name]["views"]) {
+                targetType["__inject__"][name]["views"] = [];
+            }
+            var temp = new view_5.injectModel();
+            temp.creator = c;
+            temp.propertyName = decoratedPropertyName;
+            temp.selector = selector == null ? "#" + decoratedPropertyName : selector;
+            temp.params = [];
+            temp.params.push(v);
+            targetType["__inject__"][name]["views"].push(temp);
+        };
+    }
+    exports_13("vlist", vlist);
     /**
      * f decorator 用于声明虚拟视图的html文件
      * @param url html文件的url地址
