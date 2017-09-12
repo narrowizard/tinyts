@@ -513,7 +513,7 @@ var View = /** @class */ (function () {
                     if (views) {
                         for (var j = 0; j < views.length; j++) {
                             var view = views[j];
-                            var viewInstance = new view.creator();
+                            var viewInstance = new ((_a = view.creator).bind.apply(_a, [void 0].concat(view.params)))();
                             if (viewInstance instanceof View) {
                                 viewInstance.SetSelector(view.selector);
                                 viewInstance.SetName(view.propertyName);
@@ -562,6 +562,7 @@ var View = /** @class */ (function () {
         // views注入完成,根据views生成数据绑定树
         this.ResolveDataBinding(dataBindingExpressions);
         this.AfterInject();
+        var _a;
     };
     /**
      * ResolveDataBinding 解析数据绑定模版语法

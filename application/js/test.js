@@ -28,23 +28,23 @@ System.register("application/model/validator_test", ["class-validator"], functio
             }
         ],
         execute: function () {
-            TestModel = (function () {
+            TestModel = /** @class */ (function () {
                 function TestModel() {
                 }
+                __decorate([
+                    class_validator_1.Length(5, 10),
+                    __metadata("design:type", String)
+                ], TestModel.prototype, "name", void 0);
+                __decorate([
+                    class_validator_1.IsMobilePhone('zh-CN'),
+                    __metadata("design:type", String)
+                ], TestModel.prototype, "phone", void 0);
+                __decorate([
+                    class_validator_1.Length(1, 2),
+                    __metadata("design:type", String)
+                ], TestModel.prototype, "subname", void 0);
                 return TestModel;
             }());
-            __decorate([
-                class_validator_1.Length(5, 10),
-                __metadata("design:type", String)
-            ], TestModel.prototype, "name", void 0);
-            __decorate([
-                class_validator_1.IsMobilePhone('zh-CN'),
-                __metadata("design:type", String)
-            ], TestModel.prototype, "phone", void 0);
-            __decorate([
-                class_validator_1.Length(1, 2),
-                __metadata("design:type", String)
-            ], TestModel.prototype, "subname", void 0);
             exports_1("TestModel", TestModel);
         }
     };
@@ -56,7 +56,7 @@ System.register("application/service/user", [], function (exports_2, context_2) 
     return {
         setters: [],
         execute: function () {
-            UserService = (function () {
+            UserService = /** @class */ (function () {
                 function UserService() {
                 }
                 UserService.prototype.GetUserInfo = function () {
@@ -75,7 +75,7 @@ System.register("core/http", [], function (exports_3, context_3) {
     return {
         setters: [],
         execute: function () {
-            UrlComparison = (function () {
+            UrlComparison = /** @class */ (function () {
                 function UrlComparison() {
                 }
                 return UrlComparison;
@@ -84,7 +84,7 @@ System.register("core/http", [], function (exports_3, context_3) {
             /**
              * url parser 解析url地址
              */
-            UrlParser = (function () {
+            UrlParser = /** @class */ (function () {
                 function UrlParser() {
                 }
                 /**
@@ -177,13 +177,13 @@ System.register("core/http", [], function (exports_3, context_3) {
                 return UrlParser;
             }());
             exports_3("UrlParser", UrlParser);
-            HttpResponse = (function () {
+            HttpResponse = /** @class */ (function () {
                 function HttpResponse() {
                 }
                 return HttpResponse;
             }());
             exports_3("HttpResponse", HttpResponse);
-            HttpUtils = (function () {
+            HttpUtils = /** @class */ (function () {
                 function HttpUtils() {
                 }
                 /**
@@ -247,7 +247,7 @@ System.register("core/http", [], function (exports_3, context_3) {
                 return HttpUtils;
             }());
             exports_3("HttpUtils", HttpUtils);
-            Router = (function () {
+            Router = /** @class */ (function () {
                 function Router() {
                     var me = this;
                     window.onpopstate = function (event) {
@@ -357,7 +357,7 @@ System.register("core/servicepool", [], function (exports_4, context_4) {
                 * 二、引用某种算法自动释放服务（LRU）
              *
              */
-            ServicePool = (function () {
+            ServicePool = /** @class */ (function () {
                 function ServicePool() {
                     this.instances = {};
                 }
@@ -404,7 +404,7 @@ System.register("core/view", ["core/http", "core/servicepool"], function (export
             /**
              * injectModel 视图注入模型
              */
-            injectModel = (function () {
+            injectModel = /** @class */ (function () {
                 function injectModel() {
                 }
                 return injectModel;
@@ -413,7 +413,7 @@ System.register("core/view", ["core/http", "core/servicepool"], function (export
             /**
              * serviceInjectModel 服务注入模型
              */
-            serviceInjectModel = (function () {
+            serviceInjectModel = /** @class */ (function () {
                 function serviceInjectModel() {
                 }
                 return serviceInjectModel;
@@ -442,14 +442,14 @@ System.register("core/view", ["core/http", "core/servicepool"], function (export
                 BindType[BindType["MODELTOVIEW"] = 1] = "MODELTOVIEW";
                 BindType[BindType["VIEWTOMODEL"] = 2] = "VIEWTOMODEL";
             })(BindType || (BindType = {}));
-            DataBindExpressionModel = (function () {
+            DataBindExpressionModel = /** @class */ (function () {
                 function DataBindExpressionModel(Expression, ViewInstance) {
                     this.Expression = Expression;
                     this.ViewInstance = ViewInstance;
                 }
                 return DataBindExpressionModel;
             }());
-            TreeNode = (function () {
+            TreeNode = /** @class */ (function () {
                 function TreeNode() {
                     this.Child = [];
                     this.Views = [];
@@ -594,7 +594,7 @@ System.register("core/view", ["core/http", "core/servicepool"], function (export
             /**
              * View 视图基类
              */
-            View = (function () {
+            View = /** @class */ (function () {
                 function View() {
                 }
                 /**
@@ -631,6 +631,7 @@ System.register("core/view", ["core/http", "core/servicepool"], function (export
                 };
                 /**
                  * PropertyName 获取属性名
+                 * @returns 属性名
                  */
                 View.prototype.PropertyName = function () {
                     return this.propertyName;
@@ -659,6 +660,7 @@ System.register("core/view", ["core/http", "core/servicepool"], function (export
                  * LoadView 建立视图与DOM之间的关联关系
                  * 初始化视图属性
                  * @param parent JQuery对象或选择器 父元素,若指定该参数,则元素查找范围限制在父元素内
+                 * @returns 是否绑定成功
                  */
                 View.prototype.LoadView = function (parent) {
                     if (this.state != undefined && this.state != ViewState.UNLOAD) {
@@ -719,6 +721,10 @@ System.register("core/view", ["core/http", "core/servicepool"], function (export
                         console.warn("[view]" + this.name + " bind null html element!");
                         return false;
                     }
+                };
+                View.prototype.BindJQueryInstance = function (instance) {
+                    this.state = ViewState.LOADSUCC;
+                    this.target = instance;
                 };
                 /**
                  * GetJQueryInstance 获取jquery对象
@@ -871,10 +877,6 @@ System.register("core/view", ["core/http", "core/servicepool"], function (export
                 View.prototype.DataBindExpression = function () {
                     return this.bindingExpression;
                 };
-                /**
-                 * DataBind 返回数据绑定第index级属性
-                 * @param index
-                 */
                 View.prototype.DataBind = function () {
                     return this.bindings;
                 };
@@ -903,13 +905,13 @@ System.register("core/view", ["core/http", "core/servicepool"], function (export
                                 if (views) {
                                     for (var j = 0; j < views.length; j++) {
                                         var view = views[j];
-                                        var viewInstance = new view.creator();
+                                        var viewInstance = new ((_a = view.creator).bind.apply(_a, [void 0].concat(view.params)))();
                                         if (viewInstance instanceof View) {
                                             viewInstance.SetSelector(view.selector);
                                             viewInstance.SetName(view.propertyName);
                                             // 检测当前视图是否存在,如果不存在,则不限制下一级视图注入时的parent属性
                                             if (this.state == ViewState.LOADSUCC && !this.multipart) {
-                                                viewInstance.LoadView(this.selector);
+                                                viewInstance.LoadView(this.target);
                                             }
                                             else {
                                                 viewInstance.LoadView();
@@ -952,6 +954,7 @@ System.register("core/view", ["core/http", "core/servicepool"], function (export
                     // views注入完成,根据views生成数据绑定树
                     this.ResolveDataBinding(dataBindingExpressions);
                     this.AfterInject();
+                    var _a;
                 };
                 /**
                  * ResolveDataBinding 解析数据绑定模版语法
@@ -977,17 +980,26 @@ System.register("core/view", ["core/http", "core/servicepool"], function (export
                         Object.defineProperty(this, root.Child[i].Expression, Object.getOwnPropertyDescriptor(root.Child[i].BuildProxy(), root.Child[i].Expression));
                     }
                 };
-                // hooks
+                /**
+                 * BeforeInject 该方法将会在Inject前被调用,请在子类重写改方法以实现hooks
+                 */
                 View.prototype.BeforeInject = function () { };
+                /**
+                 * AfterInject 该方法将会在Inject后被调用,请在子类重写改方法以实现hooks
+                 */
                 View.prototype.AfterInject = function () { };
                 return View;
             }());
             exports_5("View", View);
-            ViewG = (function (_super) {
+            ViewG = /** @class */ (function (_super) {
                 __extends(ViewG, _super);
                 function ViewG() {
                     return _super !== null && _super.apply(this, arguments) || this;
                 }
+                /**
+                 * SetContext 设置ViewG的上下文
+                 * @param context 上下文
+                 */
                 ViewG.prototype.SetContext = function (context) {
                     this.context = context;
                 };
@@ -999,7 +1011,7 @@ System.register("core/view", ["core/http", "core/servicepool"], function (export
              * 同步模式下,html string直接通过GetViewString方法返回
              * 异步模式下
              */
-            ViewV = (function (_super) {
+            ViewV = /** @class */ (function (_super) {
                 __extends(ViewV, _super);
                 function ViewV() {
                     return _super !== null && _super.apply(this, arguments) || this;
@@ -1054,7 +1066,7 @@ System.register("control/text", ["core/view"], function (exports_6, context_6) {
              * TextView 用于文本显示的控件
              * 这里的文本指<tag>文本内容</tag>中的文本内容
              */
-            TextView = (function (_super) {
+            TextView = /** @class */ (function (_super) {
                 __extends(TextView, _super);
                 function TextView() {
                     return _super !== null && _super.apply(this, arguments) || this;
@@ -1094,7 +1106,7 @@ System.register("control/button", ["control/text"], function (exports_7, context
             }
         ],
         execute: function () {
-            Button = (function (_super) {
+            Button = /** @class */ (function (_super) {
                 __extends(Button, _super);
                 function Button() {
                     return _super !== null && _super.apply(this, arguments) || this;
@@ -1135,7 +1147,7 @@ System.register("control/input", ["control/text"], function (exports_8, context_
              * properties
              *      data-accept-button string jquery selector
              */
-            InputView = (function (_super) {
+            InputView = /** @class */ (function (_super) {
                 __extends(InputView, _super);
                 function InputView() {
                     return _super !== null && _super.apply(this, arguments) || this;
@@ -1175,6 +1187,8 @@ System.register("control/input", ["control/text"], function (exports_8, context_
                 };
                 InputView.prototype.SetValue = function (v) {
                     this.target.val(v);
+                    // it causes stack overflow
+                    // this.Trigger("input");
                 };
                 /**
                  * Clear 清空值
@@ -1198,7 +1212,7 @@ System.register("core/meta", [], function (exports_9, context_9) {
             /**
              * Meta 实现一个模版语法解析的类
              */
-            Meta = (function () {
+            Meta = /** @class */ (function () {
                 function Meta() {
                 }
                 /**
@@ -1221,7 +1235,7 @@ System.register("core/meta", [], function (exports_9, context_9) {
 System.register("control/list", ["core/view", "core/meta"], function (exports_10, context_10) {
     "use strict";
     var __moduleName = context_10 && context_10.id;
-    var view_2, meta_1, ArrayProxy, ListView, PAGEMODE, PageManager;
+    var view_2, meta_1, ArrayProxy, ListView, ListViewV, SubView, PAGEMODE, PageManager;
     return {
         setters: [
             function (view_2_1) {
@@ -1235,7 +1249,7 @@ System.register("control/list", ["core/view", "core/meta"], function (exports_10
             /**
              * ArrayProxy<T> 列表数据操作接口
              */
-            ArrayProxy = (function (_super) {
+            ArrayProxy = /** @class */ (function (_super) {
                 __extends(ArrayProxy, _super);
                 function ArrayProxy(data, context) {
                     var _this = _super.apply(this, data) || this;
@@ -1281,17 +1295,13 @@ System.register("control/list", ["core/view", "core/meta"], function (exports_10
                     this.context.RefreshView();
                     return res;
                 };
-                ArrayProxy.prototype.concat = function () {
-                    var items = [];
-                    for (var _i = 0; _i < arguments.length; _i++) {
-                        items[_i] = arguments[_i];
-                    }
-                    var temp = [];
-                    for (var i = 0; i < this.length; i++) {
-                        temp[i] = this[i];
-                    }
-                    return temp.concat.apply(temp, items);
-                };
+                // concat<U extends T[]>(...items: U[]): T[] {
+                //     var temp = [];
+                //     for (var i = 0; i < this.length; i++) {
+                //         temp[i] = this[i];
+                //     }
+                //     return temp.concat(...items);
+                // }
                 ArrayProxy.prototype.splice = function (start, deleteCount) {
                     var items = [];
                     for (var _i = 2; _i < arguments.length; _i++) {
@@ -1312,7 +1322,7 @@ System.register("control/list", ["core/view", "core/meta"], function (exports_10
                 return ArrayProxy;
             }(Array));
             exports_10("ArrayProxy", ArrayProxy);
-            ListView = (function (_super) {
+            ListView = /** @class */ (function (_super) {
                 __extends(ListView, _super);
                 function ListView() {
                     return _super !== null && _super.apply(this, arguments) || this;
@@ -1406,13 +1416,29 @@ System.register("control/list", ["core/view", "core/meta"], function (exports_10
                     this.mData = new ArrayProxy(data, this);
                     this.RefreshView();
                 };
+                /**
+                 * GetData returns an array with the copy of data proxy's data
+                 */
                 ListView.prototype.GetData = function () {
-                    return this.mData;
+                    if (!this.mData) {
+                        return [];
+                    }
+                    var temp = [];
+                    for (var i = 0; i < this.mData.length; i++) {
+                        temp.push(this.mData[i]);
+                    }
+                    return temp;
                 };
                 ListView.prototype.SetValue = function (data) {
                     this.SetData(data);
                 };
+                /**
+                 * Value returns the array proxy object.
+                 */
                 ListView.prototype.Value = function () {
+                    if (!this.mData) {
+                        this.mData = new ArrayProxy([], this);
+                    }
                     return this.mData;
                 };
                 /**
@@ -1436,14 +1462,13 @@ System.register("control/list", ["core/view", "core/meta"], function (exports_10
                 ListView.prototype.GetView = function (dataIndex, elemIndex) {
                     var data = $.extend(true, {}, this.mData[dataIndex]);
                     if (this.getTemplpateModel) {
-                        data = this.getTemplpateModel(data);
+                        data = this.getTemplpateModel(data, dataIndex);
                     }
                     if (elemIndex == null) {
                         elemIndex = 0;
                     }
                     return meta_1.Meta.Resolve(this.viewString[elemIndex], data);
                 };
-                ;
                 /**
                  * createView 创建一个视图的html代码,并添加到当前view的最后面
                  * @param index 需要创建的view的索引
@@ -1488,7 +1513,6 @@ System.register("control/list", ["core/view", "core/meta"], function (exports_10
                         if (!handler(index, elem)) {
                             return false;
                         }
-                        ;
                     });
                 };
                 /**
@@ -1530,9 +1554,10 @@ System.register("control/list", ["core/view", "core/meta"], function (exports_10
                     return this.pageManager;
                 };
                 /**
-                 * SetPageSize 设置每页条数,显示到页面上
+                 * SetPageSize 设置每页条数,请重写此方法来修改页面上的显示
                  */
                 ListView.prototype.SetPageSize = function (pagesize) {
+                    this.pageSize = pagesize;
                 };
                 /**
                  * SetCurPage 设置当前页(用于展示)
@@ -1545,14 +1570,69 @@ System.register("control/list", ["core/view", "core/meta"], function (exports_10
                 ListView.prototype.SetPageCount = function (count) {
                 };
                 /**
-                 * GetPageSize 获取每页条数
+                 * GetPageSize 获取每页条数,请重写此方法以返回用户自定义的值
                  */
                 ListView.prototype.GetPageSize = function () {
-                    return 0;
+                    return this.pageSize;
                 };
                 return ListView;
             }(view_2.View));
             exports_10("ListView", ListView);
+            ListViewV = /** @class */ (function (_super) {
+                __extends(ListViewV, _super);
+                function ListViewV(creator) {
+                    var _this = _super.call(this) || this;
+                    _this.creator = creator;
+                    _this.viewInstances = [];
+                    return _this;
+                }
+                /**
+                 * createView 创建一个视图的html代码,并添加到当前view的最后面
+                 * @param index 需要创建的view的索引
+                 */
+                ListViewV.prototype.createView = function (index) {
+                    var _this = this;
+                    if (this.multipart) {
+                        this.target.each(function (i, elem) {
+                            _this.append(_this.GetView(index, i), i);
+                        });
+                    }
+                    else {
+                        this.append(this.GetView(index, 0));
+                        var viewInstance = new this.creator();
+                        viewInstance.BindJQueryInstance(this.GetChildren().eq(index));
+                        viewInstance.Inject();
+                        viewInstance.SetViewData(this.mData[index]);
+                        this.viewInstances.push(viewInstance);
+                    }
+                };
+                ListViewV.prototype.GetViewInstance = function (index) {
+                    return this.viewInstances[index];
+                };
+                /**
+                 * [override] ClearView 清空列表部分视图
+                 */
+                ListViewV.prototype.ClearView = function () {
+                    this.target.html("");
+                    this.viewInstances = [];
+                };
+                return ListViewV;
+            }(ListView));
+            exports_10("ListViewV", ListViewV);
+            SubView = /** @class */ (function (_super) {
+                __extends(SubView, _super);
+                function SubView() {
+                    return _super !== null && _super.apply(this, arguments) || this;
+                }
+                SubView.prototype.SetViewData = function (data) {
+                    this.viewData = data;
+                };
+                SubView.prototype.ViewData = function () {
+                    return this.viewData;
+                };
+                return SubView;
+            }(view_2.View));
+            exports_10("SubView", SubView);
             // PAGEMODE 分页模式
             // SYNC 同步分页
             // ASYNC 异步分页
@@ -1560,8 +1640,7 @@ System.register("control/list", ["core/view", "core/meta"], function (exports_10
                 PAGEMODE[PAGEMODE["SYNC"] = 0] = "SYNC";
                 PAGEMODE[PAGEMODE["ASYNC"] = 1] = "ASYNC";
             })(PAGEMODE || (PAGEMODE = {}));
-            ;
-            PageManager = (function () {
+            PageManager = /** @class */ (function () {
                 /**
                  * @param instance 同步模式时,数据会被设置到该instance
                  */
@@ -1736,7 +1815,7 @@ System.register("control/choice", ["control/input"], function (exports_11, conte
             }
         ],
         execute: function () {
-            ChoiceView = (function (_super) {
+            ChoiceView = /** @class */ (function (_super) {
                 __extends(ChoiceView, _super);
                 function ChoiceView() {
                     return _super !== null && _super.apply(this, arguments) || this;
@@ -1946,6 +2025,37 @@ System.register("core/tinyts", ["core/view"], function (exports_13, context_13) 
         };
     }
     exports_13("v", v);
+    function vlist(c, v, selector) {
+        /**
+         * 该函数运行在ListViewV上
+         * @param target View实例
+         * @param decoratedPropertyName 属性名
+         */
+        return function (target, decoratedPropertyName) {
+            var targetType = target.constructor;
+            // 目标view的名称
+            var name = target.constructor.toString().match(/^function\s*([^\s(]+)/)[1];
+            if (!targetType.hasOwnProperty("__inject__")) {
+                targetType["__inject__"] = {};
+            }
+            if (!targetType["__inject__"][name]) {
+                targetType["__inject__"][name] = {
+                    constructor: target.constructor
+                };
+            }
+            if (!targetType["__inject__"][name]["views"]) {
+                targetType["__inject__"][name]["views"] = [];
+            }
+            var temp = new view_4.injectModel();
+            temp.creator = c;
+            temp.propertyName = decoratedPropertyName;
+            temp.selector = selector == null ? "#" + decoratedPropertyName : selector;
+            temp.params = [];
+            temp.params.push(v);
+            targetType["__inject__"][name]["views"].push(temp);
+        };
+    }
+    exports_13("vlist", vlist);
     /**
      * f decorator 用于声明虚拟视图的html文件
      * @param url html文件的url地址
@@ -2008,7 +2118,7 @@ System.register("core/tinyts", ["core/view"], function (exports_13, context_13) 
              * tinyts在完成注入后,会去除这个style以显示container的内容
              * 注意:请尽量不要在container上加上display:none以外的style属性,可能会引起不可预知的错误
              */
-            AncView = (function (_super) {
+            AncView = /** @class */ (function (_super) {
                 __extends(AncView, _super);
                 /**
                  * AncView 祖先视图,包含注入功能
@@ -2077,23 +2187,23 @@ System.register("application/ts/bind_test", ["core/tinyts", "control/input", "co
             }
         ],
         execute: function () {
-            DataModel = (function () {
+            DataModel = /** @class */ (function () {
                 function DataModel(Id, Name) {
                     this.Id = Id;
                     this.Name = Name;
                 }
                 return DataModel;
             }());
-            ObjectModel = (function () {
+            ObjectModel = /** @class */ (function () {
                 function ObjectModel() {
                 }
+                __decorate([
+                    class_validator_3.Length(0, 2),
+                    __metadata("design:type", String)
+                ], ObjectModel.prototype, "name", void 0);
                 return ObjectModel;
             }());
-            __decorate([
-                class_validator_3.Length(0, 2),
-                __metadata("design:type", String)
-            ], ObjectModel.prototype, "name", void 0);
-            BindTestModel = (function (_super) {
+            BindTestModel = /** @class */ (function (_super) {
                 __extends(BindTestModel, _super);
                 function BindTestModel() {
                     return _super !== null && _super.apply(this, arguments) || this;
@@ -2120,40 +2230,40 @@ System.register("application/ts/bind_test", ["core/tinyts", "control/input", "co
                         });
                     });
                 };
+                __decorate([
+                    tinyts_1.v(input_3.InputView),
+                    __metadata("design:type", input_3.InputView)
+                ], BindTestModel.prototype, "sName", void 0);
+                __decorate([
+                    tinyts_1.v(text_4.TextView),
+                    __metadata("design:type", text_4.TextView)
+                ], BindTestModel.prototype, "sOutput", void 0);
+                __decorate([
+                    tinyts_1.v(input_3.InputView),
+                    __metadata("design:type", input_3.InputView)
+                ], BindTestModel.prototype, "sPhone", void 0);
+                __decorate([
+                    tinyts_1.v(input_3.InputView),
+                    __metadata("design:type", input_3.InputView)
+                ], BindTestModel.prototype, "sSubName", void 0);
+                __decorate([
+                    tinyts_1.v(input_3.InputView),
+                    __metadata("design:type", input_3.InputView)
+                ], BindTestModel.prototype, "sInput", void 0);
+                __decorate([
+                    tinyts_1.v(text_4.TextView),
+                    __metadata("design:type", text_4.TextView)
+                ], BindTestModel.prototype, "oInput", void 0);
+                __decorate([
+                    tinyts_1.v(button_1.Button),
+                    __metadata("design:type", button_1.Button)
+                ], BindTestModel.prototype, "btnInject", void 0);
+                __decorate([
+                    tinyts_1.v(list_2.ListView),
+                    __metadata("design:type", list_2.ListView)
+                ], BindTestModel.prototype, "mList", void 0);
                 return BindTestModel;
             }(tinyts_1.AncView));
-            __decorate([
-                tinyts_1.v(input_3.InputView),
-                __metadata("design:type", input_3.InputView)
-            ], BindTestModel.prototype, "sName", void 0);
-            __decorate([
-                tinyts_1.v(text_4.TextView),
-                __metadata("design:type", text_4.TextView)
-            ], BindTestModel.prototype, "sOutput", void 0);
-            __decorate([
-                tinyts_1.v(input_3.InputView),
-                __metadata("design:type", input_3.InputView)
-            ], BindTestModel.prototype, "sPhone", void 0);
-            __decorate([
-                tinyts_1.v(input_3.InputView),
-                __metadata("design:type", input_3.InputView)
-            ], BindTestModel.prototype, "sSubName", void 0);
-            __decorate([
-                tinyts_1.v(input_3.InputView),
-                __metadata("design:type", input_3.InputView)
-            ], BindTestModel.prototype, "sInput", void 0);
-            __decorate([
-                tinyts_1.v(text_4.TextView),
-                __metadata("design:type", text_4.TextView)
-            ], BindTestModel.prototype, "oInput", void 0);
-            __decorate([
-                tinyts_1.v(button_1.Button),
-                __metadata("design:type", button_1.Button)
-            ], BindTestModel.prototype, "btnInject", void 0);
-            __decorate([
-                tinyts_1.v(list_2.ListView),
-                __metadata("design:type", list_2.ListView)
-            ], BindTestModel.prototype, "mList", void 0);
             exports_14("BindTestModel", BindTestModel);
             aa = new BindTestModel();
         }
@@ -2205,33 +2315,33 @@ System.register("application/ts/injector_test", ["control/input", "core/tinyts",
             }
         ],
         execute: function () {
-            Name2Model = (function (_super) {
+            Name2Model = /** @class */ (function (_super) {
                 __extends(Name2Model, _super);
                 function Name2Model() {
                     return _super !== null && _super.apply(this, arguments) || this;
                 }
+                __decorate([
+                    tinyts_2.v(input_4.InputView),
+                    __metadata("design:type", input_4.InputView)
+                ], Name2Model.prototype, "Name2", void 0);
                 return Name2Model;
             }(view_5.ViewG));
-            __decorate([
-                tinyts_2.v(input_4.InputView),
-                __metadata("design:type", input_4.InputView)
-            ], Name2Model.prototype, "Name2", void 0);
-            SubModel = (function (_super) {
+            SubModel = /** @class */ (function (_super) {
                 __extends(SubModel, _super);
                 function SubModel() {
                     return _super !== null && _super.apply(this, arguments) || this;
                 }
+                __decorate([
+                    tinyts_2.v(Name2Model),
+                    __metadata("design:type", Name2Model)
+                ], SubModel.prototype, "aaa", void 0);
+                __decorate([
+                    tinyts_2.v(input_4.InputView),
+                    __metadata("design:type", input_4.InputView)
+                ], SubModel.prototype, "sSubName", void 0);
                 return SubModel;
             }(view_5.ViewG));
-            __decorate([
-                tinyts_2.v(Name2Model),
-                __metadata("design:type", Name2Model)
-            ], SubModel.prototype, "aaa", void 0);
-            __decorate([
-                tinyts_2.v(input_4.InputView),
-                __metadata("design:type", input_4.InputView)
-            ], SubModel.prototype, "sSubName", void 0);
-            InjectorTestModel = (function (_super) {
+            InjectorTestModel = /** @class */ (function (_super) {
                 __extends(InjectorTestModel, _super);
                 function InjectorTestModel() {
                     return _super !== null && _super.apply(this, arguments) || this;
@@ -2246,24 +2356,24 @@ System.register("application/ts/injector_test", ["control/input", "core/tinyts",
                         });
                     });
                 };
+                __decorate([
+                    tinyts_2.v(input_4.InputView),
+                    __metadata("design:type", input_4.InputView)
+                ], InjectorTestModel.prototype, "sName", void 0);
+                __decorate([
+                    tinyts_2.v(input_4.InputView),
+                    __metadata("design:type", input_4.InputView)
+                ], InjectorTestModel.prototype, "sPhone", void 0);
+                __decorate([
+                    tinyts_2.v(button_2.Button),
+                    __metadata("design:type", button_2.Button)
+                ], InjectorTestModel.prototype, "btnInject", void 0);
+                __decorate([
+                    tinyts_2.v(SubModel),
+                    __metadata("design:type", SubModel)
+                ], InjectorTestModel.prototype, "sub", void 0);
                 return InjectorTestModel;
             }(tinyts_2.AncView));
-            __decorate([
-                tinyts_2.v(input_4.InputView),
-                __metadata("design:type", input_4.InputView)
-            ], InjectorTestModel.prototype, "sName", void 0);
-            __decorate([
-                tinyts_2.v(input_4.InputView),
-                __metadata("design:type", input_4.InputView)
-            ], InjectorTestModel.prototype, "sPhone", void 0);
-            __decorate([
-                tinyts_2.v(button_2.Button),
-                __metadata("design:type", button_2.Button)
-            ], InjectorTestModel.prototype, "btnInject", void 0);
-            __decorate([
-                tinyts_2.v(SubModel),
-                __metadata("design:type", SubModel)
-            ], InjectorTestModel.prototype, "sub", void 0);
             exports_16("InjectorTestModel", InjectorTestModel);
             aa = new InjectorTestModel();
         }
@@ -2276,7 +2386,7 @@ System.register("utils/date", [], function (exports_17, context_17) {
     return {
         setters: [],
         execute: function () {
-            TsDate = (function () {
+            TsDate = /** @class */ (function () {
                 function TsDate(dateString) {
                     if (!dateString) {
                         // 获取当前时间
@@ -2292,7 +2402,6 @@ System.register("utils/date", [], function (exports_17, context_17) {
                             for (var i = 0, L = day.length; i < L; i++) {
                                 day[i] = parseInt(day[i], 10) || 0;
                             }
-                            ;
                             day[1] -= 1;
                             day = new Date(Date.UTC.apply(Date, day));
                             if (!day.getDate())
@@ -2367,7 +2476,7 @@ System.register("application/ts/list_test", ["core/tinyts", "control/list"], fun
             }
         ],
         execute: function () {
-            DataModel = (function () {
+            DataModel = /** @class */ (function () {
                 function DataModel(Id, Name, ListData, Date) {
                     this.Id = Id;
                     this.Name = Name;
@@ -2376,7 +2485,7 @@ System.register("application/ts/list_test", ["core/tinyts", "control/list"], fun
                 }
                 return DataModel;
             }());
-            ListModel = (function (_super) {
+            ListModel = /** @class */ (function (_super) {
                 __extends(ListModel, _super);
                 function ListModel() {
                     return _super !== null && _super.apply(this, arguments) || this;
@@ -2403,32 +2512,100 @@ System.register("application/ts/list_test", ["core/tinyts", "control/list"], fun
                     }).toArray();
                     console.log(data3);
                 };
+                __decorate([
+                    tinyts_3.v(list_3.ListView),
+                    __metadata("design:type", list_3.ListView)
+                ], ListModel.prototype, "mList", void 0);
                 return ListModel;
             }(tinyts_3.AncView));
-            __decorate([
-                tinyts_3.v(list_3.ListView),
-                __metadata("design:type", list_3.ListView)
-            ], ListModel.prototype, "mList", void 0);
             exports_18("ListModel", ListModel);
             aa = new ListModel();
         }
     };
 });
-System.register("application/ts/service_test", ["core/tinyts", "application/service/user"], function (exports_19, context_19) {
+System.register("application/ts/listviewv_test", ["core/view", "core/tinyts", "control/list"], function (exports_19, context_19) {
     "use strict";
     var __moduleName = context_19 && context_19.id;
-    var tinyts_4, user_1, ServiceTestModel, aa;
+    var view_6, tinyts_4, list_4, DataModel, ULLI, ListViewVModel, aa;
     return {
         setters: [
+            function (view_6_1) {
+                view_6 = view_6_1;
+            },
             function (tinyts_4_1) {
                 tinyts_4 = tinyts_4_1;
+            },
+            function (list_4_1) {
+                list_4 = list_4_1;
+            }
+        ],
+        execute: function () {
+            DataModel = /** @class */ (function () {
+                function DataModel(Id, Name, ListData, Date) {
+                    this.Id = Id;
+                    this.Name = Name;
+                    this.ListData = ListData;
+                    this.Date = Date;
+                }
+                return DataModel;
+            }());
+            ULLI = /** @class */ (function (_super) {
+                __extends(ULLI, _super);
+                function ULLI() {
+                    return _super !== null && _super.apply(this, arguments) || this;
+                }
+                ULLI.prototype.AfterInject = function () {
+                    var _this = this;
+                    this.li.On("click", function () {
+                        alert(_this.viewData.Id);
+                    });
+                };
+                __decorate([
+                    tinyts_4.v(view_6.View, ".list-item"),
+                    __metadata("design:type", view_6.View)
+                ], ULLI.prototype, "li", void 0);
+                return ULLI;
+            }(list_4.SubView));
+            ListViewVModel = /** @class */ (function (_super) {
+                __extends(ListViewVModel, _super);
+                function ListViewVModel() {
+                    return _super !== null && _super.apply(this, arguments) || this;
+                }
+                // constructor(private aa: UserService) {
+                //     super();
+                // }
+                ListViewVModel.prototype.AfterInject = function () {
+                    var data = [];
+                    data.push(new DataModel(1, "a1", ["aa"], "qqq"));
+                    data.push(new DataModel(2, "a1", ["aa"], "qqq"));
+                    this.mList.SetData(data);
+                };
+                __decorate([
+                    tinyts_4.vlist(list_4.ListViewV, ULLI),
+                    __metadata("design:type", list_4.ListViewV)
+                ], ListViewVModel.prototype, "mList", void 0);
+                return ListViewVModel;
+            }(tinyts_4.AncView));
+            exports_19("ListViewVModel", ListViewVModel);
+            aa = new ListViewVModel();
+        }
+    };
+});
+System.register("application/ts/service_test", ["core/tinyts", "application/service/user"], function (exports_20, context_20) {
+    "use strict";
+    var __moduleName = context_20 && context_20.id;
+    var tinyts_5, user_1, ServiceTestModel, aa;
+    return {
+        setters: [
+            function (tinyts_5_1) {
+                tinyts_5 = tinyts_5_1;
             },
             function (user_1_1) {
                 user_1 = user_1_1;
             }
         ],
         execute: function () {
-            ServiceTestModel = (function (_super) {
+            ServiceTestModel = /** @class */ (function (_super) {
                 __extends(ServiceTestModel, _super);
                 function ServiceTestModel() {
                     return _super !== null && _super.apply(this, arguments) || this;
@@ -2436,20 +2613,20 @@ System.register("application/ts/service_test", ["core/tinyts", "application/serv
                 ServiceTestModel.prototype.AfterInject = function () {
                     console.log(this.userService.GetUserInfo());
                 };
+                __decorate([
+                    tinyts_5.s(user_1.UserService),
+                    __metadata("design:type", user_1.UserService)
+                ], ServiceTestModel.prototype, "userService", void 0);
                 return ServiceTestModel;
-            }(tinyts_4.AncView));
-            __decorate([
-                tinyts_4.s(user_1.UserService),
-                __metadata("design:type", user_1.UserService)
-            ], ServiceTestModel.prototype, "userService", void 0);
-            exports_19("ServiceTestModel", ServiceTestModel);
+            }(tinyts_5.AncView));
+            exports_20("ServiceTestModel", ServiceTestModel);
             aa = new ServiceTestModel();
         }
     };
 });
-System.register("application/ts/validator_test", ["application/model/validator_test", "class-validator"], function (exports_20, context_20) {
+System.register("application/ts/validator_test", ["application/model/validator_test", "class-validator"], function (exports_21, context_21) {
     "use strict";
-    var __moduleName = context_20 && context_20.id;
+    var __moduleName = context_21 && context_21.id;
     var validator_test_2, class_validator_4, ValidatorTestModel, aa;
     return {
         setters: [
@@ -2461,7 +2638,7 @@ System.register("application/ts/validator_test", ["application/model/validator_t
             }
         ],
         execute: function () {
-            ValidatorTestModel = (function () {
+            ValidatorTestModel = /** @class */ (function () {
                 function ValidatorTestModel() {
                     var aa = new validator_test_2.TestModel();
                     aa.name = "aa1111a";
@@ -2478,32 +2655,32 @@ System.register("application/ts/validator_test", ["application/model/validator_t
                 }
                 return ValidatorTestModel;
             }());
-            exports_20("ValidatorTestModel", ValidatorTestModel);
+            exports_21("ValidatorTestModel", ValidatorTestModel);
             aa = new ValidatorTestModel();
         }
     };
 });
-System.register("application/ts/viewv_test", ["core/view", "core/tinyts", "control/button", "control/list"], function (exports_21, context_21) {
+System.register("application/ts/viewv_test", ["core/view", "core/tinyts", "control/button", "control/list"], function (exports_22, context_22) {
     "use strict";
-    var __moduleName = context_21 && context_21.id;
-    var view_6, tinyts_5, button_3, list_4, ViewVTest, ViewVTest2, ViewVModel, aa;
+    var __moduleName = context_22 && context_22.id;
+    var view_7, tinyts_6, button_3, list_5, ViewVTest, ViewVTest2, ViewVModel, aa;
     return {
         setters: [
-            function (view_6_1) {
-                view_6 = view_6_1;
+            function (view_7_1) {
+                view_7 = view_7_1;
             },
-            function (tinyts_5_1) {
-                tinyts_5 = tinyts_5_1;
+            function (tinyts_6_1) {
+                tinyts_6 = tinyts_6_1;
             },
             function (button_3_1) {
                 button_3 = button_3_1;
             },
-            function (list_4_1) {
-                list_4 = list_4_1;
+            function (list_5_1) {
+                list_5 = list_5_1;
             }
         ],
         execute: function () {
-            ViewVTest = (function (_super) {
+            ViewVTest = /** @class */ (function (_super) {
                 __extends(ViewVTest, _super);
                 function ViewVTest() {
                     var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -2513,16 +2690,16 @@ System.register("application/ts/viewv_test", ["core/view", "core/tinyts", "contr
                 ViewVTest.prototype.AfterInject = function () {
                     this.btnClick.SetText("消失");
                 };
+                __decorate([
+                    tinyts_6.v(button_3.Button),
+                    __metadata("design:type", button_3.Button)
+                ], ViewVTest.prototype, "btnClick", void 0);
+                ViewVTest = __decorate([
+                    tinyts_6.f("viewv_v.html")
+                ], ViewVTest);
                 return ViewVTest;
-            }(view_6.ViewV));
-            __decorate([
-                tinyts_5.v(button_3.Button),
-                __metadata("design:type", button_3.Button)
-            ], ViewVTest.prototype, "btnClick", void 0);
-            ViewVTest = __decorate([
-                tinyts_5.f("viewv_v.html")
-            ], ViewVTest);
-            ViewVTest2 = (function (_super) {
+            }(view_7.ViewV));
+            ViewVTest2 = /** @class */ (function (_super) {
                 __extends(ViewVTest2, _super);
                 function ViewVTest2() {
                     var _this = _super !== null && _super.apply(this, arguments) || this;
@@ -2532,29 +2709,29 @@ System.register("application/ts/viewv_test", ["core/view", "core/tinyts", "contr
                 ViewVTest2.prototype.AfterInject = function () {
                     console.log(this.list.PropertyName());
                 };
+                __decorate([
+                    tinyts_6.v(list_5.ListView),
+                    __metadata("design:type", list_5.ListView)
+                ], ViewVTest2.prototype, "list", void 0);
                 return ViewVTest2;
-            }(view_6.ViewV));
-            __decorate([
-                tinyts_5.v(list_4.ListView),
-                __metadata("design:type", list_4.ListView)
-            ], ViewVTest2.prototype, "list", void 0);
-            exports_21("ViewVTest2", ViewVTest2);
-            ViewVModel = (function (_super) {
+            }(view_7.ViewV));
+            exports_22("ViewVTest2", ViewVTest2);
+            ViewVModel = /** @class */ (function (_super) {
                 __extends(ViewVModel, _super);
                 function ViewVModel() {
                     return _super !== null && _super.apply(this, arguments) || this;
                 }
+                __decorate([
+                    tinyts_6.v(ViewVTest),
+                    __metadata("design:type", ViewVTest)
+                ], ViewVModel.prototype, "v", void 0);
+                __decorate([
+                    tinyts_6.v(ViewVTest2),
+                    __metadata("design:type", ViewVTest2)
+                ], ViewVModel.prototype, "c", void 0);
                 return ViewVModel;
-            }(tinyts_5.AncView));
-            __decorate([
-                tinyts_5.v(ViewVTest),
-                __metadata("design:type", ViewVTest)
-            ], ViewVModel.prototype, "v", void 0);
-            __decorate([
-                tinyts_5.v(ViewVTest2),
-                __metadata("design:type", ViewVTest2)
-            ], ViewVModel.prototype, "c", void 0);
-            exports_21("ViewVModel", ViewVModel);
+            }(tinyts_6.AncView));
+            exports_22("ViewVModel", ViewVModel);
             aa = new ViewVModel();
         }
     };

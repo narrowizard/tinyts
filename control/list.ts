@@ -261,7 +261,7 @@ export class ListView<T> extends View {
     /**
      * [override] append 在视图的最后添加html内容,该方法是为了避免类似table元素这种列表内容并非其直接子元素的情况
      */
-    protected append(viewString: string, elemIndex?: number) {
+    protected append(viewString: string | JQuery, elemIndex?: number) {
         if (this.multipart) {
             if (elemIndex == null) {
                 elemIndex = 0;
@@ -364,6 +364,63 @@ export class ListView<T> extends View {
         return this.pageSize;
     }
 
+}
+
+export class ListViewV<T, U extends SubView<T>> extends ListView<T>{
+
+    protected creator: { new(...args: any[]): U };
+
+    protected viewInstances: U[];
+
+    constructor(creator: { new(...args: any[]): U }) {
+        super();
+        this.creator = creator;
+        this.viewInstances = [];
+    }
+
+    /**
+     * createView 创建一个视图的html代码,并添加到当前view的最后面
+     * @param index 需要创建的view的索引
+     */
+    protected createView(index: number) {
+        if (this.multipart) {
+            this.target.each((i, elem) => {
+                this.append(this.GetView(index, i), i);
+            });
+        } else {
+            this.append(this.GetView(index, 0));
+
+            var viewInstance = new this.creator();
+            viewInstance.BindJQueryInstance(this.GetChildren().eq(index));
+            viewInstance.Inject();
+            viewInstance.SetViewData(this.mData[index]);
+            this.viewInstances.push(viewInstance);
+        }
+    }
+
+    GetViewInstance(index: number) {
+        return this.viewInstances[index];
+    }
+
+    /**
+     * [override] ClearView 清空列表部分视图
+     */
+    ClearView() {
+        this.target.html("");
+        this.viewInstances = [];
+    }
+}
+
+export class SubView<T> extends View {
+    protected viewData: T;
+
+    SetViewData(data: T) {
+        this.viewData = data;
+    }
+
+    ViewData(): T {
+        return this.viewData;
+    }
 }
 
 // PAGEMODE 分页模式

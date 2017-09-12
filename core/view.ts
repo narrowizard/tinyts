@@ -10,7 +10,9 @@ export class injectModel {
 
     selector: string;
 
-    creator: { new (...args: any[]): View };
+    creator: { new(...args: any[]): View };
+
+    params: any[];
 }
 
 /**
@@ -18,7 +20,7 @@ export class injectModel {
  */
 export class serviceInjectModel {
     propertyName: string;
-    creator: { new (...args: any[]): any };
+    creator: { new(...args: any[]): any };
 }
 
 export enum ViewState {
@@ -209,7 +211,7 @@ export class View {
 
     /**
      * name 当前视图在viewmodel的属性名
-     */  
+     */
     protected name: string;
 
     /**
@@ -375,6 +377,11 @@ export class View {
             console.warn(`[view]${this.name} bind null html element!`);
             return false;
         }
+    }
+
+    BindJQueryInstance(instance: JQuery) {
+        this.state = ViewState.LOADSUCC;
+        this.target = instance;
     }
 
     /**
@@ -560,13 +567,13 @@ export class View {
                     if (views) {
                         for (var j = 0; j < views.length; j++) {
                             var view = views[j];
-                            var viewInstance = new view.creator();
+                            var viewInstance = new view.creator(...view.params);
                             if (viewInstance instanceof View) {
                                 viewInstance.SetSelector(view.selector);
                                 viewInstance.SetName(view.propertyName);
                                 // 检测当前视图是否存在,如果不存在,则不限制下一级视图注入时的parent属性
                                 if (this.state == ViewState.LOADSUCC && !this.multipart) {
-                                    viewInstance.LoadView(this.selector);
+                                    viewInstance.LoadView(this.target);
                                 } else {
                                     viewInstance.LoadView();
                                 }

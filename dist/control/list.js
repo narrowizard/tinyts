@@ -344,6 +344,47 @@ var ListView = /** @class */ (function (_super) {
     return ListView;
 }(view_1.View));
 exports.ListView = ListView;
+var ListViewV = /** @class */ (function (_super) {
+    __extends(ListViewV, _super);
+    function ListViewV(creator) {
+        var _this = _super.call(this) || this;
+        _this.creator = creator;
+        _this.viewInstances = [];
+        return _this;
+    }
+    /**
+     * createView 创建一个视图的html代码,并添加到当前view的最后面
+     * @param index 需要创建的view的索引
+     */
+    ListViewV.prototype.createView = function (index) {
+        var _this = this;
+        if (this.multipart) {
+            this.target.each(function (i, elem) {
+                _this.append(_this.GetView(index, i), i);
+            });
+        }
+        else {
+            var viewString = this.GetView(index, 0);
+            var jqueryInstance = $(viewString);
+            var viewInstance = new this.creator();
+            viewInstance.LoadView(jqueryInstance);
+            this.append(jqueryInstance);
+            this.viewInstances.push(viewInstance);
+        }
+    };
+    ListViewV.prototype.GetViewInstance = function (index) {
+        return this.viewInstances[index];
+    };
+    /**
+     * [override] ClearView 清空列表部分视图
+     */
+    ListViewV.prototype.ClearView = function () {
+        this.target.html("");
+        this.viewInstances = [];
+    };
+    return ListViewV;
+}(ListView));
+exports.ListViewV = ListViewV;
 // PAGEMODE 分页模式
 // SYNC 同步分页
 // ASYNC 异步分页

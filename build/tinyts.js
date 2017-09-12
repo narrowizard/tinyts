@@ -841,7 +841,7 @@ System.register("tinyts/core/view", ["tinyts/core/http", "tinyts/core/servicepoo
                                 if (views) {
                                     for (var j = 0; j < views.length; j++) {
                                         var view = views[j];
-                                        var viewInstance = new view.creator();
+                                        var viewInstance = new ((_a = view.creator).bind.apply(_a, [void 0].concat(view.params)))();
                                         if (viewInstance instanceof View) {
                                             viewInstance.SetSelector(view.selector);
                                             viewInstance.SetName(view.propertyName);
@@ -890,6 +890,7 @@ System.register("tinyts/core/view", ["tinyts/core/http", "tinyts/core/servicepoo
                     // views注入完成,根据views生成数据绑定树
                     this.ResolveDataBinding(dataBindingExpressions);
                     this.AfterInject();
+                    var _a;
                 };
                 /**
                  * ResolveDataBinding 解析数据绑定模版语法
@@ -1099,7 +1100,7 @@ System.register("tinyts/core/meta", [], function (exports_6, context_6) {
 System.register("tinyts/control/list", ["tinyts/core/view", "tinyts/core/meta"], function (exports_7, context_7) {
     "use strict";
     var __moduleName = context_7 && context_7.id;
-    var view_2, meta_1, ArrayProxy, ListView, PAGEMODE, PageManager;
+    var view_2, meta_1, ArrayProxy, ListView, ListViewV, PAGEMODE, PageManager;
     return {
         setters: [
             function (view_2_1) {
@@ -1442,6 +1443,47 @@ System.register("tinyts/control/list", ["tinyts/core/view", "tinyts/core/meta"],
                 return ListView;
             }(view_2.View));
             exports_7("ListView", ListView);
+            ListViewV = /** @class */ (function (_super) {
+                __extends(ListViewV, _super);
+                function ListViewV(creator) {
+                    var _this = _super.call(this) || this;
+                    _this.creator = creator;
+                    _this.viewInstances = [];
+                    return _this;
+                }
+                /**
+                 * createView 创建一个视图的html代码,并添加到当前view的最后面
+                 * @param index 需要创建的view的索引
+                 */
+                ListViewV.prototype.createView = function (index) {
+                    var _this = this;
+                    if (this.multipart) {
+                        this.target.each(function (i, elem) {
+                            _this.append(_this.GetView(index, i), i);
+                        });
+                    }
+                    else {
+                        var viewString = this.GetView(index, 0);
+                        var jqueryInstance = $(viewString);
+                        var viewInstance = new this.creator();
+                        viewInstance.LoadView(jqueryInstance);
+                        this.append(jqueryInstance);
+                        this.viewInstances.push(viewInstance);
+                    }
+                };
+                ListViewV.prototype.GetViewInstance = function (index) {
+                    return this.viewInstances[index];
+                };
+                /**
+                 * [override] ClearView 清空列表部分视图
+                 */
+                ListViewV.prototype.ClearView = function () {
+                    this.target.html("");
+                    this.viewInstances = [];
+                };
+                return ListViewV;
+            }(ListView));
+            exports_7("ListViewV", ListViewV);
             // PAGEMODE 分页模式
             // SYNC 同步分页
             // ASYNC 异步分页
