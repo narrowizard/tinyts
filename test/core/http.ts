@@ -39,6 +39,15 @@ describe('Core', function () {
             assert.deepEqual(parser.segments, [""]);
         });
 
+        it('generate parsed url with port', () => {
+            var url = "http://example.com:8080/seg1/seg2?arg1=22#catpp"
+            var urlparser = new UrlParser();
+            urlparser.Parse(url);
+            var result = urlparser.Generate();
+            assert.equal(url, result);
+
+        });
+
         it('generate url with protocol', () => {
             var urlparser = new UrlParser();
             urlparser.host = "example.com";

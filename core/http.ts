@@ -1,3 +1,5 @@
+import { parse } from "path";
+
 export class UrlComparison {
     Host: boolean;
     Path: boolean;
@@ -14,6 +16,7 @@ export class UrlParser {
     url: string;
     //解析结果
     protocol: string;
+    // 主机地址，不带端口信息
     host: string;
     hostname: string;
     port: string;
@@ -57,6 +60,10 @@ export class UrlParser {
 
         this.protocol = parser.protocol;
         this.host = parser.host;
+        if (this.host.indexOf(":") > -1) {
+            // 去除host中的port信息
+            this.host = this.host.substr(0, parser.host.indexOf(":"));
+        }
         this.hostname = parser.hostname;
         this.port = parser.port;
         this.pathname = parser.pathname.indexOf("/") == 0 ? parser.pathname : "/" + parser.pathname;

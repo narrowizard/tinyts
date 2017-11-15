@@ -36,6 +36,13 @@ describe('Core', function () {
             assert.equal(parser.search, "");
             assert.deepEqual(parser.segments, [""]);
         });
+        it('generate parsed url', function () {
+            var url = "http://example.com:8080/seg1/seg2?arg1=22#catpp";
+            var urlparser = new http_1.UrlParser();
+            urlparser.Parse(url);
+            var result = urlparser.Generate();
+            assert.equal(url, result);
+        });
         it('generate url with protocol', function () {
             var urlparser = new http_1.UrlParser();
             urlparser.host = "example.com";
